@@ -1,2 +1,6 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
+
+body {
+	font-family: 'Zen Maru Gothic', serif;
+}
