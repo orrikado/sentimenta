@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Annotated
-from sqlalchemy import text
+from sqlalchemy import ForeignKey, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database.db_setup import Base
 
@@ -21,11 +21,10 @@ class User(Base):
     username: Mapped[str]
     email: Mapped[str]
     password_hash: Mapped[str]
-    moods: Mapped["Mood"]
+    moods: Mapped[list["Mood"] | None] = relationship(back_populates="user")
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
-    
-    
+        
 class Mood(Base):
     __tablename__ = "moods"
     uid: Mapped[intpk]
@@ -33,5 +32,6 @@ class Mood(Base):
     description: Mapped[str]
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
-    user: Mapped["User"] = relationship("User", back_populates="moods")
+    user_uid: Mapped[int] = mapped_column(ForeignKey("users.uid"))
+    user: Mapped["User"] = relationship("User", back_populates="mood")
     
