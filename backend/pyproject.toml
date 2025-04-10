@@ -5,7 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "authx>=1.4.2",
     "fastapi>=0.115.12",
+    "passlib>=1.7.4",
     "pydantic>=2.11.3",
     "pydantic-settings>=2.8.1",
     "python-dotenv>=1.1.0",

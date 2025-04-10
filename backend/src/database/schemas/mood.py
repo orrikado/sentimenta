@@ -1,17 +1,8 @@
 from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime 
+from src.database.schemas.user import UserRelSchema
 
-class UserSchema(BaseModel):
-    uid: int
-    username: str
-    email: str
-    password_hash: str
-    created_at: datetime
-    updated_at: datetime
-
-class UserRelSchema(UserSchema):
-    moods: Optional[list["MoodRelSchema"]]
 
 class MoodSchema(BaseModel):
     uid: int

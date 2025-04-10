@@ -9,9 +9,8 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
 
-    # Строки подключения SQLAlchemy
-    SQLALCHEMY_URL: str
-    SQLALCHEMY_URL_SYNC: str
+    JWT_COOKIE_NAME: str
+    JWT_SECRET: str
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

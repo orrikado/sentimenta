@@ -1,22 +1,23 @@
 from src.database.models import User
-from src.database.schemas import UserSchema
+from src.database.schemas.user import UserRegisterSchema, UserSchema
 from src.database.db_setup import session
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 
-async def get_user(uid: int) -> UserSchema:
+async def get_user(*filters) -> UserSchema:
     async with session() as s: 
         stmt = (
             select(User)
-            .where(User.uid == uid)
+            .where(and_(*filters))
             .options(selectinload(User.moods))
             )
+        
         result = await s.execute(stmt)
         user = result.scalar_one()
         user = UserSchema.model_validate(user, from_attributes=True)
         return user
     
-async def add_user(user: UserSchema) -> UserSchema:
+async def add_user(user: UserRegisterSchema) -> UserSchema:
     async with session() as s:
         stmt = (
             select(User)
@@ -31,8 +32,7 @@ async def add_user(user: UserSchema) -> UserSchema:
         user = User(
             username=user.username,
             email=user.email,
-            password_hash=user.password_hash,
-            moods=[]
+            password_hash=user.password,
         )
         
         s.add(user)
