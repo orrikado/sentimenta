@@ -1,0 +1,8 @@
+POSTGRES_HOST=db # Do not change this
+POSTGRES_PORT=5432 # Do not change this
+POSTGRES_USER=sentimenta
+POSTGRES_DB=sentimenta
+POSTGRES_PASSWORD=sentimenta
+
+JWT_COOKIE_NAME=access_token
+JWT_SECRET=secret # generate https://jwtsecret.com/generate or use `openssl rand -hex 256`

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated
 from sqlalchemy import ForeignKey, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from src.database.db_setup import Base
+from database.db_setup import Base
 
 created_at = Annotated[datetime, mapped_column(server_default=text("TIMEZONE('UTC-4', CURRENT_TIMESTAMP)"))]
 updated_at = Annotated[
@@ -15,7 +15,7 @@ updated_at = Annotated[
 
 intpk = Annotated[int, mapped_column(primary_key=True, autoincrement=True)]
 
-class User(Base):
+class UserOrm(Base):
     __tablename__ = "users"
     uid: Mapped[intpk]
     username: Mapped[str]
@@ -33,5 +33,5 @@ class Mood(Base):
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
     user_uid: Mapped[int] = mapped_column(ForeignKey("users.uid"))
-    user: Mapped["User"] = relationship("User", back_populates="mood")
+    user: Mapped["UserOrm"] = relationship(back_populates="moods")
     

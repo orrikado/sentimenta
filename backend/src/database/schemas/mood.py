@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime 
-from src.database.schemas.user import UserRelSchema
+from database.schemas.user import UserRelSchema
 
 
 class MoodSchema(BaseModel):

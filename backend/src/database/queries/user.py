@@ -1,35 +1,28 @@
-from src.database.models import User
-from src.database.schemas.user import UserRegisterSchema, UserSchema
-from src.database.db_setup import session
+from database.models import UserOrm
+from database.schemas.user import UserRegisterSchema, UserSchema
+from database.db_setup import session
 from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 
 async def get_user(*filters) -> UserSchema:
     async with session() as s: 
         stmt = (
-            select(User)
+            select(UserOrm)
             .where(and_(*filters))
-            .options(selectinload(User.moods))
+            .options(selectinload(UserOrm.moods))
             )
         
         result = await s.execute(stmt)
-        user = result.scalar_one()
-        user = UserSchema.model_validate(user, from_attributes=True)
-        return user
+        user = result.scalar_one_or_none()
+        return UserSchema.model_validate(user, from_attributes=True) if user else None
     
 async def add_user(user: UserRegisterSchema) -> UserSchema:
     async with session() as s:
-        stmt = (
-            select(User)
-            .where(User.uid == user.uid)
-            .options(selectinload(User.moods))
-        )
-        result = await s.execute(stmt)
-        existing_user = result.scalars().one_or_none()
+        existing_user = await get_user(UserOrm.email == user.email)
         if existing_user:
             raise ValueError("User already exists")
         
-        user = User(
+        user = UserOrm(
             username=user.username,
             email=user.email,
             password_hash=user.password,
@@ -44,8 +37,8 @@ async def add_user(user: UserRegisterSchema) -> UserSchema:
 async def delete_user(user_id: int):
     async with session() as s:
         stmt = (
-            select(User)
-            .where(User.uid == user_id)
+            select(UserOrm)
+            .where(UserOrm.uid == user_id)
         )
         result = await s.execute(stmt)
         user = result.scalar_one_or_none()
@@ -58,9 +51,9 @@ async def delete_user(user_id: int):
 async def update_user(user: UserSchema, **kwargs) -> UserSchema:
     async with session() as s:
         stmt = (
-            select(User)
-            .where(User.uid == user.uid)
-            .options(selectinload(User.moods))
+            select(UserOrm)
+            .where(UserOrm.uid == user.uid)
+            .options(selectinload(UserOrm.moods))
         )
         result = await s.execute(stmt)
         user = result.scalar_one()

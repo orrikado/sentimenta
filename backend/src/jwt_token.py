@@ -1,5 +1,5 @@
 from authx import AuthX, AuthXConfig
-from src.config import settings
+from config import settings
 
 config = AuthXConfig()
 config.JWT_SECRET_KEY = settings.JWT_SECRET
