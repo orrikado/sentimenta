@@ -44,7 +44,7 @@
 			}
 
 			alert('Signup successful!');
-		} catch (error) {
+		} catch {
 			formError = 'An error occurred. Please try again.';
 		}
 	}

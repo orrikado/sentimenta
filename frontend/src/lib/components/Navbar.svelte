@@ -1,22 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	function getCookie(name: string) {
-		const cookies = document.cookie.split('; ');
-		for (let cookie of cookies) {
-			const [key, value] = cookie.split('=');
-			if (key === name) {
-				return decodeURIComponent(value);
-			}
-		}
-		return null; // Return null if the cookie is not found
-	}
+	import { userId } from '$lib/stores/user';
 
 	let showLogin = true;
 
 	// Check for the cookie on component mount
 	onMount(() => {
-		const loggedin = getCookie('access_token');
-		if (loggedin) {
+		if ($userId) {
 			showLogin = false;
 		}
 	});
@@ -29,6 +19,8 @@
 		{#if showLogin}
 			<li><b><a href="/login" class="hover:text-gray-400">Login</a></b></li>
 			<li><b><a href="/signup" class="hover:text-gray-400">Signup</a></b></li>
+		{:else}
+			<li><b><a href="/profile" class="hover:text-gray-400">Profile</a></b></li>
 		{/if}
 	</ul>
 </nav>
