@@ -21,15 +21,16 @@ class UserOrm(Base):
     username: Mapped[str]
     email: Mapped[str]
     password_hash: Mapped[str]
-    moods: Mapped[list["Mood"] | None] = relationship(back_populates="user")
+    moods: Mapped[list["MoodOrm"] | None] = relationship(back_populates="user")
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
         
-class Mood(Base):
+class MoodOrm(Base):
     __tablename__ = "moods"
     uid: Mapped[intpk]
     score: Mapped[int]
     description: Mapped[str]
+    date: Mapped[datetime]
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
     user_uid: Mapped[int] = mapped_column(ForeignKey("users.uid"))
