@@ -10,6 +10,7 @@ router = APIRouter()
 async def get_user_route(id: int):
     user = await get_user(UserOrm.uid == id)
     if user:
+        del user["password_hash"]
         return user
     else:
         raise HTTPException(status_code=404, detail="User not found")

@@ -6,7 +6,11 @@ from authx_extra.oauth2 import MiddlewareOauth2
 import uvicorn
 from config import settings
 
-app = FastAPI()
+app = FastAPI(
+    title="Sentimenta",
+    description="Sentimenta is a mood tracker app",
+    version="0.1.0",
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,9 +30,12 @@ app.add_middleware(
     },
     public_paths={
         "/",
-        "/signup",
-        "/login",
-        "/start"
+        "/docs",
+        "/favicon.ico",
+        "/openapi.json",
+        "/api/auth/register",
+        "/api/auth/login",
+
         },  # Пути, не требующие аутентификации
 )
 

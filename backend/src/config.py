@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     JWT_SECRET: str
 
     OAUTH2_GOOGLE_CLIENT_ID: str
-    OAUTH2_GOOGLE_CLIENT_SECRET: str
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
