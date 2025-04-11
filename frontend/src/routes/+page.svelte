@@ -2,12 +2,16 @@
 	import { m } from '$lib/paraglide/messages.js';
 </script>
 
-<div class="py-8">
-	<h1 class="text-center text-3xl font-bold text-amber-500">{m.welcome()}<i>Sentienta</i>!</h1>
-	<div class="flex justify-center">
-		<p class="w-2/3 max-w-2/3 text-center text-lg">
-			Using this app you can track your emotions and mood, and then our AI will help you with a
-			factual <i>statistically based</i> analysis.
-		</p>
-	</div>
+<div
+	class="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center font-mono text-white"
+>
+	<h1 class="text-2xl">{m.ai_judge()}</h1>
+	<p class="max-w-md text-base">
+		{m.frontpage_ai_notice()}
+	</p>
+	<a
+		href="/start"
+		class="border border-white px-4 py-2 transition-none hover:bg-white hover:text-black"
+		>{m.ill_try()}</a
+	>
 </div>

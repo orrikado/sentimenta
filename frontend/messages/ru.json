@@ -1,5 +1,11 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"hello_world": "Привет, {name} из рф!",
-	"welcome": "Добро пожаловать в "
+	"ai_judge": "ии не судит",
+	"frontpage_ai_notice": "он просто замечает как падает ваше настроение каждый раз когда вы пишете своей бывшей",
+	"ill_try": "ладно. я попробую.",
+	"start_your_day": "как прошел день?",
+	"start_emotions_placeholder": "эмоции (через запятую)",
+	"start_today": "что произошло сегодня?",
+	"start_process": "обработать мой экзистенциальный кризис"
 }

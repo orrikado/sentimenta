@@ -1,5 +1,11 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"hello_world": "Hello, {name} from en!",
-	"welcome": "Welcome to the "
+	"ai_judge": "the ai doesn't judge",
+	"frontpage_ai_notice": "it just notices when your mood drops every time you text your ex",
+	"ill_try": "fine. i'll try it.",
+	"start_your_day": "how was your day?",
+	"start_emotions_placeholder": "emotions (comma-separated)",
+	"start_today": "what happened today?",
+	"start_process": "process my existential crisis"
 }

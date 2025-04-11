@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { userId } from '$lib/stores/user';
+	import { setLocale } from '$lib/paraglide/runtime';
 
 	let showLogin = true;
 
@@ -14,6 +15,10 @@
 
 <nav class="flex items-center justify-between bg-yellow-800 p-4 text-white">
 	<a href="/" class="text-xl font-bold">Logo</a>
+	<div>
+		<button onclick={() => setLocale('en')}>en</button>
+		<button onclick={() => setLocale('ru')}>ru</button>
+	</div>
 	<ul class="flex space-x-4">
 		<li><a href="/track" class="hover:text-gray-400">Track</a></li>
 		{#if showLogin}
