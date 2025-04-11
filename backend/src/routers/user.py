@@ -6,6 +6,7 @@ from jwt_token import security
 
 router = APIRouter()
 
+
 @router.get("/api/user/{id}", dependencies=[Depends(security.access_token_required)])
 async def get_user_route(id: int):
     user = await get_user(UserOrm.uid == id)

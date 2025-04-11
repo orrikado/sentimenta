@@ -1,6 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
-from datetime import datetime 
+from datetime import datetime
+
 
 class UserSchema(BaseModel):
     uid: int
@@ -10,12 +11,15 @@ class UserSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+
 class UserRelSchema(UserSchema):
-    moods: Optional[list["MoodRelSchema"]] # type: ignore
-    
+    moods: Optional[list["MoodRelSchema"]]  # noqa: F821 # type: ignore
+
+
 class UserLoginSchema(BaseModel):
     email: str
     password: str
+
 
 class UserRegisterSchema(BaseModel):
     username: str

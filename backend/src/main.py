@@ -17,15 +17,15 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
-    )
+    allow_headers=["*"],
+)
 app.add_middleware(
     MiddlewareOauth2,
     providers={
-        'google': {
-            'keys': 'https://www.googleapis.com/oauth2/v3/certs',
-            'issuer': 'https://accounts.google.com',
-            'audience': f'{settings.OAUTH2_GOOGLE_CLIENT_ID}.apps.googleusercontent.com',
+        "google": {
+            "keys": "https://www.googleapis.com/oauth2/v3/certs",
+            "issuer": "https://accounts.google.com",
+            "audience": f"{settings.OAUTH2_GOOGLE_CLIENT_ID}.apps.googleusercontent.com",
         }
     },
     public_paths={
@@ -35,8 +35,7 @@ app.add_middleware(
         "/openapi.json",
         "/api/auth/register",
         "/api/auth/login",
-
-        },  # Пути, не требующие аутентификации
+    },  # Пути, не требующие аутентификации
 )
 
 [app.include_router(router) for router in routers]

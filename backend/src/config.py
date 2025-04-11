@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class Settings(BaseSettings):
-    
     # Настройки PostgreSQL
     POSTGRES_HOST: str
     POSTGRES_PORT: int = 5432
@@ -25,5 +25,6 @@ class Settings(BaseSettings):
     def SQLALCHEMY_URL_SYNC(self) -> str:
         # Формирование строки подключения для psycopg2 (синхронный доступ)
         return f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-    
+
+
 settings = Settings()

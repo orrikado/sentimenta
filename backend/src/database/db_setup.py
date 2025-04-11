@@ -17,5 +17,6 @@ sync_engine = create_engine(
 
 session = async_sessionmaker(async_engine)
 
+
 class Base(DeclarativeBase):
     pass

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import datetime 
+from datetime import datetime
 from database.schemas.user import UserRelSchema
 
 
@@ -10,6 +10,7 @@ class MoodSchema(BaseModel):
     date: datetime
     created_at: datetime
     updated_at: datetime
+
 
 class MoodRelSchema(MoodSchema):
     user: UserRelSchema
