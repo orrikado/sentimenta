@@ -51,61 +51,61 @@
 </script>
 
 <div
-	class="flex min-h-screen items-center justify-center bg-stone-100 text-black dark:bg-stone-950"
+	class="flex min-h-screen items-center justify-center bg-stone-100 font-mono text-black dark:bg-stone-950 dark:text-white"
 >
-	<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-stone-900">
-		<h1 class="mb-6 text-center text-2xl font-bold text-gray-800 dark:text-gray-100">Sign Up</h1>
+	<div class="flex w-full max-w-md flex-col gap-6 border border-black p-6 dark:border-white">
+		<h1 class="text-center text-2xl">sign up</h1>
 
-		<form on:submit={handleSubmit} class="space-y-4">
-			<div>
-				<label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-					>Username</label
-				>
+		<form on:submit={handleSubmit} class="flex flex-col gap-4">
+			<!-- username -->
+			<div class="flex flex-col gap-1">
+				<label for="username" class="text-sm">username</label>
 				<input
-					type="text"
 					id="username"
 					name="username"
 					required
-					class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+					class="border border-black bg-stone-100 px-3 py-2 text-black placeholder-gray-500 dark:border-white dark:bg-stone-950 dark:text-white dark:placeholder-white"
+					placeholder="ex: cursed_dude42"
 				/>
 			</div>
 
-			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-					>Email</label
-				>
+			<!-- email -->
+			<div class="flex flex-col gap-1">
+				<label for="email" class="text-sm">email</label>
 				<input
 					type="email"
 					id="email"
 					name="email"
 					required
-					class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+					class="border border-black bg-stone-100 px-3 py-2 text-black placeholder-gray-500 dark:border-white dark:bg-stone-950 dark:text-white dark:placeholder-white"
+					placeholder="email@proton.me"
 				/>
 			</div>
 
-			<div>
-				<label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-					>Password</label
-				>
+			<!-- password -->
+			<div class="flex flex-col gap-1">
+				<label for="password" class="text-sm">password</label>
 				<input
 					type="password"
 					id="password"
 					name="password"
 					required
 					minlength="8"
-					class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+					class="border border-black bg-stone-100 px-3 py-2 text-black placeholder-gray-500 dark:border-white dark:bg-stone-950 dark:text-white dark:placeholder-white"
+					placeholder="••••••••"
 				/>
 			</div>
 
+			<!-- submit -->
 			<button
 				type="submit"
-				class="w-full rounded-md bg-yellow-300 px-4 py-2 text-black hover:bg-yellow-200 focus:ring focus:ring-blue-300 focus:outline-none"
+				class="border border-black px-4 py-2 text-black transition-none hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
 			>
-				Sign Up
+				sign up
 			</button>
 
 			{#if formError}
-				<p class="mt-2 text-sm text-red-600 dark:text-red-400">{formError}</p>
+				<p class="text-sm text-red-500 dark:text-red-400">{formError}</p>
 			{/if}
 		</form>
 	</div>

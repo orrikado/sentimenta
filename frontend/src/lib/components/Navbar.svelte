@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { userId } from '$lib/stores/user';
 	import { setLocale } from '$lib/paraglide/runtime';
+	import { dev } from '$app/environment';
 
 	let showLogin = true;
 
@@ -13,19 +14,22 @@
 	});
 </script>
 
-<nav class="flex items-center justify-between bg-yellow-800 p-4 text-white">
-	<a href="/" class="text-xl font-bold">Logo</a>
-	<div>
-		<button onclick={() => setLocale('en')}>en</button>
-		<button onclick={() => setLocale('ru')}>ru</button>
-	</div>
+<nav class="flex items-center justify-between bg-stone-900 p-4 text-white">
+	<a href="/" class="text-xl font-bold text-yellow-300">logo</a>
+	{#if dev}
+		<div>
+			<button onclick={() => setLocale('en')} class="text-gray-300 hover:text-yellow-300">en</button
+			>
+			<button onclick={() => setLocale('ru')} class="text-gray-300 hover:text-yellow-300">ru</button
+			>
+		</div>
+	{/if}
 	<ul class="flex space-x-4">
-		<li><a href="/track" class="hover:text-gray-400">Track</a></li>
 		{#if showLogin}
-			<li><b><a href="/login" class="hover:text-gray-400">Login</a></b></li>
-			<li><b><a href="/signup" class="hover:text-gray-400">Signup</a></b></li>
+			<li><b><a href="/login" class="hover:text-gray-400">login</a></b></li>
+			<li><b><a href="/signup" class="hover:text-gray-400">signup</a></b></li>
 		{:else}
-			<li><b><a href="/profile" class="hover:text-gray-400">Profile</a></b></li>
+			<li><b><a href="/profile" class="hover:text-gray-400">profile</a></b></li>
 		{/if}
 	</ul>
 </nav>
