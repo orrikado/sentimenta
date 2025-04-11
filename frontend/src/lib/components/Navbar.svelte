@@ -3,6 +3,7 @@
 	import { userId } from '$lib/stores/user';
 	import { setLocale } from '$lib/paraglide/runtime';
 	import { dev } from '$app/environment';
+	import { m } from '$lib/paraglide/messages';
 
 	let showLogin = true;
 
@@ -26,10 +27,10 @@
 	{/if}
 	<ul class="flex space-x-4">
 		{#if showLogin}
-			<li><b><a href="/login" class="hover:text-gray-400">login</a></b></li>
-			<li><b><a href="/signup" class="hover:text-gray-400">signup</a></b></li>
+			<li><b><a href="/login" class="hover:text-gray-400">{m.m_login()}</a></b></li>
+			<li><b><a href="/signup" class="hover:text-gray-400">{m.m_signup()}</a></b></li>
 		{:else}
-			<li><b><a href="/profile" class="hover:text-gray-400">profile</a></b></li>
+			<li><b><a href="/profile" class="hover:text-gray-400">{m.profile()}</a></b></li>
 		{/if}
 	</ul>
 </nav>

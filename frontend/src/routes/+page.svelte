@@ -1,5 +1,14 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { m } from '$lib/paraglide/messages.js';
+	import { userId } from '$lib/stores/user';
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		if ($userId) {
+			goto('/profile');
+		}
+	});
 </script>
 
 <div

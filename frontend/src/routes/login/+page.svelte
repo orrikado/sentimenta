@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { m } from '$lib/paraglide/messages';
+
 	let formError: string | null = null;
-	const email_regex =
-		/^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$/;
+	const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 	function hasSpace(str: string) {
 		return str.indexOf(' ') >= 0;
@@ -16,15 +18,15 @@
 		const { email, password } = formData;
 
 		if (!email || !password) {
-			formError = 'Please fill out all fields.';
+			formError = m.field_error();
 			return;
 		}
 		if (hasSpace(password.toString())) {
-			formError = "Your password can't contain spaces";
+			formError = m.password_spaces_error();
 			return;
 		}
 		if (!email_regex.test(email.toString())) {
-			formError = 'Invalid email';
+			formError = m.invalid_email_error();
 			return;
 		}
 
@@ -39,13 +41,13 @@
 
 			if (!response.ok) {
 				const errorData = await response.json();
-				formError = errorData.message || 'Login failed.';
+				formError = errorData.message || m.login_fail();
 				return;
 			}
 
-			alert('Login successful!');
+			goto('/profile');
 		} catch {
-			formError = 'An error occurred. Please try again.';
+			formError = m.error_occured();
 		}
 	}
 </script>
@@ -54,7 +56,7 @@
 	class="flex min-h-screen items-center justify-center bg-stone-100 font-mono text-black dark:bg-stone-950 dark:text-white"
 >
 	<div class="flex w-full max-w-md flex-col gap-6 border border-black p-6 dark:border-white">
-		<h1 class="text-center text-2xl">log in</h1>
+		<h1 class="text-center text-2xl">{m.m_login()}</h1>
 
 		<form on:submit={handleSubmit} class="flex flex-col gap-4">
 			<!-- email -->
@@ -72,7 +74,7 @@
 
 			<!-- password -->
 			<div class="flex flex-col gap-1">
-				<label for="password" class="text-sm">password</label>
+				<label for="password" class="text-sm">{m.password()}</label>
 				<input
 					type="password"
 					id="password"
@@ -89,7 +91,7 @@
 				type="submit"
 				class="border border-black px-4 py-2 text-black transition-none hover:bg-black hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black"
 			>
-				log in
+				{m.login()}
 			</button>
 
 			{#if formError}

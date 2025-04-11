@@ -7,5 +7,18 @@
 	"start_your_day": "how was your day?",
 	"start_emotions_placeholder": "emotions (comma-separated)",
 	"start_today": "what happened today?",
-	"start_process": "process my existential crisis"
+	"start_process": "process my existential crisis",
+	"password": "password",
+	"login": "log in",
+	"m_login": "login",
+	"field_error": "please fill out all fields",
+	"password_spaces_error": "your password can't contain spaces",
+	"invalid_email_error": "invalid email",
+	"login_fail": "login failed.",
+	"singup_fail": "signup failed.",
+	"error_occured": "An error occurred. Please try again.",
+	"signup": "signup",
+	"m_signup": "signup",
+	"username": "username",
+	"profile": "profile"
 }

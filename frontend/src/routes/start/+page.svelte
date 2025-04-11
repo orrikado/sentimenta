@@ -16,7 +16,7 @@
 
 		<!-- Mood Rating -->
 		<div class="flex justify-center gap-4">
-			{#each [1, 2, 3, 4, 5] as n}
+			{#each [1, 2, 3, 4, 5] as n (n)}
 				<button
 					class="border border-current px-3 py-2"
 					class:bg-white={mood === n}
