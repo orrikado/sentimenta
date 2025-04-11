@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { m } from '$lib/paraglide/messages';
+	import { userId } from '$lib/stores/user';
+	import { refreshUserId } from '$lib/user';
+	import { onMount } from 'svelte';
 
 	let formError: string | null = null;
 	const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -8,6 +11,12 @@
 	function hasSpace(str: string) {
 		return str.indexOf(' ') >= 0;
 	}
+
+	onMount(() => {
+		if ($userId) {
+			goto('/profile');
+		}
+	});
 
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
@@ -45,6 +54,7 @@
 				return;
 			}
 
+			refreshUserId();
 			goto('/profile');
 		} catch {
 			formError = m.error_occured();

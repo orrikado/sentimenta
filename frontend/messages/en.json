@@ -20,5 +20,8 @@
 	"signup": "signup",
 	"m_signup": "signup",
 	"username": "username",
-	"profile": "profile"
+	"profile": "profile",
+	"created_at": "created at",
+	"last_updated": "last updated",
+	"logout": "log out"
 }
