@@ -42,5 +42,5 @@ app.add_middleware(
 [app.include_router(router) for router in routers]
 
 if __name__ == "__main__":
-    create_tables(drop_tables=False)
+    create_tables(drop_tables=True)
     uvicorn.run(app, host="0.0.0.0", port=8000)

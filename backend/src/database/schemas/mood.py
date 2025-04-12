@@ -7,7 +7,8 @@ from database.schemas.user import UserRelSchema
 class MoodSchema(BaseModel):
     uid: int
     score: int
-    description: str
+    emotions: str
+    description: str | None
     date: datetime
     created_at: datetime
     updated_at: datetime
@@ -19,12 +20,14 @@ class MoodRelSchema(MoodSchema):
 
 class MoodAddSchema(BaseModel):
     score: int
-    description: str
+    emotions: str
+    description: str | None = None
     date: datetime
 
 
 class MoodUpdateSchema(BaseModel):
     uid: int
     score: Optional[int] = None
+    emotions: Optional[str] = None
     description: Optional[str] = None
     date: Optional[datetime] = None

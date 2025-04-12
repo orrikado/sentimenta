@@ -34,7 +34,8 @@ class MoodOrm(Base):
     __tablename__ = "moods"
     uid: Mapped[intpk]
     score: Mapped[int]
-    description: Mapped[str]
+    emotions: Mapped[str]
+    description: Mapped[str | None]
     date: Mapped[datetime] = mapped_column(DATE)
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
