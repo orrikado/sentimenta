@@ -21,7 +21,13 @@ class UserLoginSchema(BaseModel):
     password: str
 
 
-class UserRegisterSchema(BaseModel):
+class UserAddSchema(BaseModel):
     username: str
     email: str
     password: str
+
+
+class UserUpdateSchema(BaseModel):
+    username: str | None = None
+    email: str | None = None
+    password: str | None = None

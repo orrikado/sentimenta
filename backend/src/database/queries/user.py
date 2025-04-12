@@ -1,5 +1,5 @@
 from database.models import UserOrm
-from database.schemas.user import UserRegisterSchema, UserSchema
+from database.schemas.user import UserAddSchema, UserSchema, UserUpdateSchema
 from database.db_setup import session
 from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
@@ -16,7 +16,7 @@ async def get_user(*filters) -> UserSchema:
         return UserSchema.model_validate(user, from_attributes=True) if user else None
 
 
-async def add_user(user: UserRegisterSchema) -> UserSchema:
+async def add_user(user: UserAddSchema) -> UserSchema:
     async with session() as s:
         existing_user = await get_user(UserOrm.email == user.email)
         if existing_user:
@@ -47,18 +47,21 @@ async def delete_user(user_id: int):
             raise ValueError("User does not exist")
 
 
-async def update_user(user: UserSchema, **kwargs) -> UserSchema:
+async def update_user(user_id: int, user_schema: UserUpdateSchema) -> UserSchema:
     async with session() as s:
         stmt = (
             select(UserOrm)
-            .where(UserOrm.uid == user.uid)
+            .where(UserOrm.uid == user_id)
             .options(selectinload(UserOrm.moods))
         )
         result = await s.execute(stmt)
         user = result.scalar_one()
-        for key, value in kwargs.items():
-            setattr(user, key, value)
-        s.add(user)
+        update_data = user_schema.model_dump(exclude_unset=True)
+
+        for key, value in update_data.items():
+            if key != "uid":
+                setattr(user, key, value)
+
         await s.commit()
         await s.refresh(user)
         user = UserSchema.model_validate(user, from_attributes=True)

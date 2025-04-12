@@ -1,10 +1,11 @@
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import routers
 from database.core import create_tables
-from authx_extra.oauth2 import MiddlewareOauth2
-import uvicorn
-from config import settings
+
+# from authx_extra.oauth2 import MiddlewareOauth2
+# from config import settings
 
 app = FastAPI(
     title="Sentimenta",
@@ -41,5 +42,5 @@ app.add_middleware(
 [app.include_router(router) for router in routers]
 
 if __name__ == "__main__":
-    create_tables(True)
+    create_tables(drop_tables=False)
     uvicorn.run(app, host="0.0.0.0", port=8000)

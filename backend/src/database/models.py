@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Annotated
 from sqlalchemy import ForeignKey, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import DATE
 from database.db_setup import Base
 
 created_at = Annotated[
@@ -34,7 +35,7 @@ class MoodOrm(Base):
     uid: Mapped[intpk]
     score: Mapped[int]
     description: Mapped[str]
-    date: Mapped[datetime]
+    date: Mapped[datetime] = mapped_column(DATE)
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at]
     user_uid: Mapped[int] = mapped_column(ForeignKey("users.uid"))

@@ -8,4 +8,6 @@ config.JWT_ACCESS_COOKIE_NAME = settings.JWT_COOKIE_NAME
 config.JWT_TOKEN_LOCATION = ["cookies"]
 config.JWT_IMPLICIT_REFRESH_DELTATIME = timedelta(days=30)
 
+config.JWT_COOKIE_CSRF_PROTECT = False
+
 security = AuthX(config=config)

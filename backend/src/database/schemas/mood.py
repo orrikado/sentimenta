@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 from database.schemas.user import UserRelSchema
@@ -14,3 +15,16 @@ class MoodSchema(BaseModel):
 
 class MoodRelSchema(MoodSchema):
     user: UserRelSchema
+
+
+class MoodAddSchema(BaseModel):
+    score: int
+    description: str
+    date: datetime
+
+
+class MoodUpdateSchema(BaseModel):
+    uid: int
+    score: Optional[int] = None
+    description: Optional[str] = None
+    date: Optional[datetime] = None
