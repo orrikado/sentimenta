@@ -15,7 +15,7 @@
 	"password_spaces_error": "your password can't contain spaces",
 	"invalid_email_error": "invalid email",
 	"login_fail": "login failed.",
-	"singup_fail": "signup failed.",
+	"signup_fail": "signup failed.",
 	"error_occured": "An error occurred. Please try again.",
 	"signup": "signup",
 	"m_signup": "signup",
@@ -23,5 +23,6 @@
 	"profile": "profile",
 	"created_at": "created at",
 	"last_updated": "last updated",
-	"logout": "log out"
+	"logout": "log out",
+	"mood_upload_success": "mood uploaded successfully"
 }

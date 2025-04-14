@@ -6,8 +6,8 @@
 	import { m } from '$lib/paraglide/messages';
 
 	let user: {
-		username: any;
-		email: any;
+		username: string;
+		email: string;
 		created_at: string | number | Date;
 		updated_at: string | number | Date;
 	};
@@ -17,7 +17,7 @@
 			goto('/');
 		} else {
 			try {
-				let response = await fetch(`/api/user/${$userId}`);
+				let response = await fetch(`/api/user/get`);
 				user = await response.json();
 			} catch (error) {
 				console.error('Error fetching user:', error);
