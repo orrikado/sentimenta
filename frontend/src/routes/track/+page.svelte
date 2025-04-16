@@ -50,7 +50,7 @@
 	import { userId } from '$lib/stores/user';
 	import { goto } from '$app/navigation';
 
-	let mood = $state<number | null>(null);
+	let mood = $state<number>(0);
 	let emotions = $state('');
 	let diary = $state('');
 	let formError = $state<string | null>(null);
@@ -61,7 +61,7 @@
 	$effect(() => {
 		if (showModal) {
 			formSuccess = false;
-			mood = null;
+			mood = 0;
 			diary = '';
 			formError = null;
 			emotions = '';
@@ -79,10 +79,10 @@
 			.join(',');
 	}
 
-	function getDayClass(date: Date | null) {
+	function getDayClass(date: Date | null, moods: Map<string, MoodEntry>) {
 		if (date instanceof Date && !isNaN(date.getDate())) {
-			if (moodMap.has(date.toString())) {
-				switch (moodMap.get(date.toString())?.score) {
+			if (moods.has(date.toString())) {
+				switch (moods.get(date.toString())?.score) {
 					case 1:
 						return 'bg-red-300 dark:bg-red-900';
 					case 2:
@@ -114,7 +114,7 @@
 
 		{#each days as date (date)}
 			<button
-				class={`${getDayClass(date)} flex aspect-square items-center justify-center border-black/10 p-2 text-center text-xl dark:border-white/10`}
+				class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center border-black/10 p-2 text-center text-xl dark:border-white/10`}
 				class:border={date instanceof Date && !isNaN(date.getDate())}
 				onclick={() => {
 					selectedDate = date;
@@ -157,8 +157,19 @@
 					console.error('Error:', errorData);
 					formError = m.error_occured();
 				} else {
+					const newMood: MoodEntry = {
+						date: selectedDate,
+						score: mood,
+						description: diary,
+						emotions: parseEmotions(emotions)
+					};
+
+					moods = [...moods, newMood];
+					moodMap = new Map(moodMap).set(selectedDate.toString(), newMood);
+
 					formError = null;
 					formSuccess = true;
+					showModal = false;
 				}
 			}
 		}}
