@@ -10,7 +10,7 @@
 
 	// State variables
 	let today = new Date();
-	let currentMonth = today.getMonth();
+	let currentMonth = $state(today.getMonth());
 	let currentYear = today.getFullYear();
 
 	let days: Date[] = $derived(getMonthDays(currentYear, currentMonth));
@@ -120,14 +120,40 @@
 		}
 		return '';
 	}
+
+	// Event handlers for "previous" and "next" buttons
+	function goToPreviousMonth() {
+		if (currentMonth === 0) {
+			currentMonth = 11; // Wrap to December
+			currentYear -= 1; // Move to the previous year
+		} else {
+			currentMonth -= 1; // Decrement the month
+		}
+	}
+
+	function goToNextMonth() {
+		if (currentMonth === 11) {
+			currentMonth = 0; // Wrap to January
+			currentYear += 1; // Move to the next year
+		} else {
+			currentMonth += 1; // Increment the month
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>Sentimenta | Track moods</title>
 </svelte:head>
 
-<h1 class="my-4 text-center text-2xl font-bold">{currentYear}/{currentMonth + 1}</h1>
 <div class="mx-auto my-4 md:max-w-3/5">
+	<div class="flex items-center justify-between p-4">
+		<button class="text-gray-300 hover:text-yellow-300" onclick={goToPreviousMonth}
+			>{m.previous()}</button
+		>
+		<h1 class="my-4 text-center text-2xl font-bold">{currentYear}/{currentMonth + 1}</h1>
+		<button class="text-gray-300 hover:text-yellow-300" onclick={goToNextMonth}>{m.next()}</button>
+	</div>
+
 	<div
 		class="grid grid-cols-7 gap-0.5 border border-stone-300 bg-white p-1 text-sm text-black md:p-2 dark:border-white/10 dark:bg-stone-900 dark:text-white"
 	>

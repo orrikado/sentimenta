@@ -6,7 +6,7 @@
 
 	onMount(() => {
 		if ($userId) {
-			goto('/profile');
+			goto('/track');
 		}
 	});
 </script>

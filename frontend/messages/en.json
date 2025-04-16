@@ -33,5 +33,7 @@
 	"fri": "fri",
 	"sat": "sat",
 	"log_for": "log for",
-	"close": "close"
+	"close": "close",
+	"previous": "previous",
+	"next": "next"
 }

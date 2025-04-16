@@ -56,7 +56,7 @@
 			}
 
 			refreshUserId();
-			goto('/profile');
+			goto('/track');
 		} catch {
 			formError = m.error_occured();
 		}
