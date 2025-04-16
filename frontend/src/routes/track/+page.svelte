@@ -12,10 +12,15 @@
 	let selectedDate: Date = $state(new Date());
 
 	onMount(() => {
+		if (!$userId) {
+			goto('/login');
+		}
 		days = getMonthDays(currentYear, currentMonth);
 	});
 
 	import { m } from '$lib/paraglide/messages';
+	import { userId } from '$lib/stores/user';
+	import { goto } from '$app/navigation';
 
 	let mood = $state<number | null>(null);
 	let emotions = $state('');
