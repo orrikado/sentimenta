@@ -78,6 +78,29 @@
 			.filter((word) => word.length > 0)
 			.join(',');
 	}
+
+	function getDayClass(date: Date | null) {
+		if (date instanceof Date && !isNaN(date.getDate())) {
+			if (moodMap.has(date.toString())) {
+				switch (moodMap.get(date.toString())?.score) {
+					case 1:
+						return 'bg-red-300 dark:bg-red-900';
+					case 2:
+						return 'bg-orange-300 dark:bg-orange-900';
+					case 3:
+						return 'bg-yellow-400 dark:bg-yellow-900';
+					case 4:
+						return 'bg-green-300 dark:bg-green-900';
+					case 5:
+						return 'bg-blue-300 dark:bg-blue-900';
+				}
+			} else {
+				return 'bg-stone-100 dark:bg-stone-800';
+			}
+		} else {
+			return '';
+		}
+	}
 </script>
 
 <h1 class="my-4 text-center text-2xl font-bold">{currentYear}/{currentMonth + 1}</h1>
@@ -91,14 +114,7 @@
 
 		{#each days as date (date)}
 			<button
-				class="flex aspect-square items-center justify-center border-black/10 p-2 text-center text-xl dark:border-white/10"
-				class:dark:bg-stone-800={date instanceof Date &&
-					!isNaN(date.getDate()) &&
-					!moodMap.has(date.toString())}
-				class:bg-stone-100={date instanceof Date &&
-					!isNaN(date.getDate()) &&
-					!moodMap.has(date.toString())}
-				class:bg-green-800={moodMap.has(date.toString())}
+				class={`${getDayClass(date)} flex aspect-square items-center justify-center border-black/10 p-2 text-center text-xl dark:border-white/10`}
 				class:border={date instanceof Date && !isNaN(date.getDate())}
 				onclick={() => {
 					selectedDate = date;
