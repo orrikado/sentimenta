@@ -24,6 +24,7 @@ async def add_mood(user_id: int, mood_schema: MoodAddSchema) -> MoodSchema:
             score=mood_schema.score,
             description=mood_schema.description,
             date=mood_schema.date,
+            emotions=mood_schema.emotions,
         )
 
         s.add(mood)

@@ -18,12 +18,12 @@
 	import { m } from '$lib/paraglide/messages';
 
 	let mood = $state<number | null>(null);
-	// let emotions = '';
+	let emotions = $state('');
 	let diary = $state('');
 	let formError = $state<string | null>(null);
 	let formSuccess = $state<boolean>(false);
 
-	const canSubmit = $derived(() => !!(mood !== null && diary.trim()));
+	const canSubmit = $derived(() => !!(mood !== null && diary.trim() && emotions.trim()));
 
 	$effect(() => {
 		if (showModal) {
@@ -31,8 +31,18 @@
 			mood = null;
 			diary = '';
 			formError = null;
+			emotions = '';
 		}
 	});
+
+	function parseEmotions(input: string): string {
+		return input
+			.toLowerCase()
+			.split(/[\s,|./\\;:!?&]+|(?:\band\b)/gi) // split on all kinds of delimiters
+			.map((word) => word.trim())
+			.filter((word) => word.length > 0)
+			.join(',');
+	}
 </script>
 
 <h1 class="my-4 text-center text-2xl font-bold">{currentYear}/{currentMonth + 1}</h1>
@@ -77,7 +87,12 @@
 					headers: {
 						'Content-Type': 'application/json'
 					},
-					body: JSON.stringify({ score: mood, description: diary, date: selectedDate })
+					body: JSON.stringify({
+						score: mood,
+						description: diary,
+						date: selectedDate,
+						emotions: parseEmotions(emotions)
+					})
 				});
 				if (!result.ok) {
 					const errorData = result;
@@ -106,6 +121,14 @@
 				</button>
 			{/each}
 		</div>
+
+		<!-- Emotions -->
+		<input
+			type="text"
+			placeholder={m.start_emotions_placeholder()}
+			bind:value={emotions}
+			class="w-full border border-current bg-transparent px-3 py-2 placeholder-current"
+		/>
 
 		<!-- Diary -->
 		<textarea
