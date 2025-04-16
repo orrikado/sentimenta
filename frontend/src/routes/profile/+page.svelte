@@ -33,6 +33,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Sentimenta | Profile</title>
+</svelte:head>
+
 {#if user}
 	<div class="flex min-h-screen items-center justify-center bg-stone-100 px-4 dark:bg-stone-950">
 		<div

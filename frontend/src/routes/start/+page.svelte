@@ -8,6 +8,10 @@
 	$: canSubmit = mood !== null && emotions.trim() && diary.trim();
 </script>
 
+<svelte:head>
+	<title>Sentimenta | Start</title>
+</svelte:head>
+
 <div
 	class="flex min-h-screen items-center justify-center bg-stone-100 p-4 font-mono text-black dark:bg-stone-950 dark:text-white"
 >

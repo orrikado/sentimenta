@@ -122,6 +122,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Sentimenta | Track moods</title>
+</svelte:head>
+
 <h1 class="my-4 text-center text-2xl font-bold">{currentYear}/{currentMonth + 1}</h1>
 <div class="mx-auto my-4 md:max-w-3/5">
 	<div

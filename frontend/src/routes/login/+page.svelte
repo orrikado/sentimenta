@@ -63,6 +63,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Sentimenta | Login</title>
+</svelte:head>
+
 <div
 	class="flex min-h-screen items-center justify-center bg-stone-100 font-mono text-black dark:bg-stone-950 dark:text-white"
 >
