@@ -10,7 +10,9 @@
 	let days: Date[] = $state([]);
 	let showModal = $state(false);
 	let selectedDate: Date = $state(new Date());
+	let submitInProccess = $state(false);
 	type MoodEntry = {
+		uid: number | undefined;
 		date: Date;
 		score: number;
 		description: string;
@@ -27,6 +29,10 @@
 		}
 		days = getMonthDays(currentYear, currentMonth);
 
+		await updateMoods();
+	});
+
+	async function updateMoods() {
 		try {
 			const res = await fetch('/api/moods/get');
 			if (res.ok) {
@@ -38,17 +44,23 @@
 
 				moods = parsed;
 				moodMap = new Map(moods.map((m) => [m.date.toString(), m]));
+				console.log('success');
 			} else {
 				console.error('Failed to fetch moods');
+				refreshUserId();
+				if (!$userId) {
+					goto('/login');
+				}
 			}
 		} catch (e) {
 			console.error('Network error:', e);
 		}
-	});
+	}
 
 	import { m } from '$lib/paraglide/messages';
 	import { userId } from '$lib/stores/user';
 	import { goto } from '$app/navigation';
+	import { refreshUserId } from '$lib/user';
 
 	let mood = $state<number>(0);
 	let emotions = $state('');
@@ -56,19 +68,26 @@
 	let formError = $state<string | null>(null);
 	let formSuccess = $state<boolean>(false);
 
-	const canSubmit = $derived(() => !!(mood !== null && diary.trim() && emotions.trim()));
+	const canSubmit = $derived(() => !!(mood !== 0 && diary.trim() && emotions.trim()));
 
 	$effect(() => {
-		if (showModal) {
+		if (showModal && !submitInProccess) {
 			formSuccess = false;
-			mood = 0;
-			diary = '';
 			formError = null;
-			emotions = '';
+
+			if (moodMap.has(selectedDate.toString())) {
+				mood = moodMap.get(selectedDate.toString())?.score || 0;
+				diary = moodMap.get(selectedDate.toString())?.description || '';
+				emotions = moodMap.get(selectedDate.toString())?.emotions || '';
+			} else {
+				mood = 0;
+				diary = '';
+				emotions = '';
+			}
 		}
 	});
-	$inspect(moods);
 	$inspect(moodMap);
+	$inspect(mood);
 
 	function parseEmotions(input: string): string {
 		return input
@@ -140,37 +159,85 @@
 			if (canSubmit()) {
 				let nextDay = new Date(selectedDate);
 				nextDay.setDate(nextDay.getDate() + 1);
-				let result = await fetch('/api/moods/add', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({
-						score: mood,
-						description: diary,
-						date: nextDay,
-						emotions: parseEmotions(emotions)
-					})
-				});
-				if (!result.ok) {
-					const errorData = result;
-					console.error('Error:', errorData);
-					formError = m.error_occured();
+
+				if (moodMap.has(selectedDate.toString())) {
+					submitInProccess = true;
+					if (moodMap.get(selectedDate.toString())?.uid == undefined) {
+						await updateMoods();
+					}
+					let result = await fetch('/api/moods/update', {
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							uid: moodMap.get(selectedDate.toString())?.uid,
+							score: mood,
+							description: diary,
+							date: nextDay,
+							emotions: parseEmotions(emotions)
+						})
+					});
+					if (!result.ok) {
+						const errorData = result;
+						console.error('Error:', errorData);
+						formError = m.error_occured();
+					} else {
+						moods.map((m) => {
+							if (m.uid == moodMap.get(selectedDate.toString())?.uid) {
+								m.score = mood;
+								m.description = diary;
+								m.emotions = parseEmotions(emotions);
+							}
+						});
+						const newMood: MoodEntry = {
+							uid: moodMap.get(selectedDate.toString())?.uid,
+							date: selectedDate,
+							score: mood,
+							description: diary,
+							emotions: parseEmotions(emotions)
+						};
+						moodMap = new Map(moodMap).set(selectedDate.toString(), newMood);
+
+						formError = null;
+						formSuccess = true;
+						showModal = false;
+					}
 				} else {
-					const newMood: MoodEntry = {
-						date: selectedDate,
-						score: mood,
-						description: diary,
-						emotions: parseEmotions(emotions)
-					};
+					let result = await fetch('/api/moods/add', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							score: mood,
+							description: diary,
+							date: nextDay,
+							emotions: parseEmotions(emotions)
+						})
+					});
+					if (!result.ok) {
+						const errorData = result;
+						console.error('Error:', errorData);
+						formError = m.error_occured();
+					} else {
+						const newMood: MoodEntry = {
+							uid: undefined,
+							date: selectedDate,
+							score: mood,
+							description: diary,
+							emotions: parseEmotions(emotions)
+						};
 
-					moods = [...moods, newMood];
-					moodMap = new Map(moodMap).set(selectedDate.toString(), newMood);
+						moods = [...moods, newMood];
+						moodMap = new Map(moodMap).set(selectedDate.toString(), newMood);
 
-					formError = null;
-					formSuccess = true;
-					showModal = false;
+						formError = null;
+						formSuccess = true;
+						showModal = false;
+					}
 				}
+				submitInProccess = false;
 			}
 		}}
 	>
