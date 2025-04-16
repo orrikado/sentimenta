@@ -1,4 +1,6 @@
 <script>
+	import { m } from '$lib/paraglide/messages';
+
 	let { showModal = $bindable(), header, children } = $props();
 	// let dialog = $state(); // HTMLDialogElement
 
@@ -30,7 +32,7 @@
 						onclick={() => (showModal = false)}
 						class="border border-white px-3 py-1 hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
 					>
-						close
+						{m.close()}
 					</button>
 				</div>
 			</div>

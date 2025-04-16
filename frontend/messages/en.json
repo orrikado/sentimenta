@@ -24,5 +24,14 @@
 	"created_at": "created at",
 	"last_updated": "last updated",
 	"logout": "log out",
-	"mood_upload_success": "mood uploaded successfully"
+	"mood_upload_success": "mood uploaded successfully",
+	"sun": "sun",
+	"mon": "mon",
+	"tue": "tue",
+	"wed": "wed",
+	"thu": "thu",
+	"fri": "fri",
+	"sat": "sat",
+	"log_for": "log for",
+	"close": "close"
 }

@@ -50,7 +50,7 @@
 	<div
 		class="grid grid-cols-7 gap-0.5 border border-stone-300 bg-white p-1 text-sm text-black md:p-2 dark:border-white/10 dark:bg-stone-900 dark:text-white"
 	>
-		{#each ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as day (day)}
+		{#each [m.sun(), m.mon(), m.tue(), m.wed(), m.thu(), m.fri(), m.sat()] as day (day)}
 			<div class="border-b border-white/10 p-2 text-center font-bold">{day}</div>
 		{/each}
 
@@ -75,7 +75,7 @@
 
 <Modal bind:showModal>
 	{#snippet header()}
-		<h2 class="text-center font-bold">log for {selectedDate.toDateString()}</h2>
+		<h2 class="text-center font-bold">{m.log_for()} {selectedDate.toLocaleDateString()}</h2>
 	{/snippet}
 
 	<form
@@ -99,6 +99,7 @@
 					console.error('Error:', errorData);
 					formError = m.error_occured();
 				} else {
+					formError = null;
 					formSuccess = true;
 				}
 			}
