@@ -122,6 +122,8 @@
 		class="flex w-full max-w-md flex-col gap-6"
 		onsubmit={async () => {
 			if (canSubmit()) {
+				let nextDay = new Date(selectedDate);
+				nextDay.setDate(nextDay.getDate() + 1);
 				let result = await fetch('/api/moods/add', {
 					method: 'POST',
 					headers: {
@@ -130,7 +132,7 @@
 					body: JSON.stringify({
 						score: mood,
 						description: diary,
-						date: selectedDate,
+						date: nextDay,
 						emotions: parseEmotions(emotions)
 					})
 				});
