@@ -10,12 +10,40 @@
 	let days: Date[] = $state([]);
 	let showModal = $state(false);
 	let selectedDate: Date = $state(new Date());
+	type MoodEntry = {
+		date: Date;
+		score: number;
+		description: string;
+		emotions: string;
+	};
 
-	onMount(() => {
+	let moods = $state<MoodEntry[]>([]);
+	let moodMap = $state<Map<string, MoodEntry>>(new Map());
+
+	onMount(async () => {
 		if (!$userId) {
 			goto('/login');
+			return;
 		}
 		days = getMonthDays(currentYear, currentMonth);
+
+		try {
+			const res = await fetch('/api/moods/get');
+			if (res.ok) {
+				const data = await res.json();
+				const parsed = data.map((m: { date: string | number | Date }) => ({
+					...m,
+					date: new Date(m.date)
+				}));
+
+				moods = parsed;
+				moodMap = new Map(moods.map((m) => [m.date.toString(), m]));
+			} else {
+				console.error('Failed to fetch moods');
+			}
+		} catch (e) {
+			console.error('Network error:', e);
+		}
 	});
 
 	import { m } from '$lib/paraglide/messages';
@@ -39,6 +67,8 @@
 			emotions = '';
 		}
 	});
+	$inspect(moods);
+	$inspect(moodMap);
 
 	function parseEmotions(input: string): string {
 		return input
@@ -62,8 +92,13 @@
 		{#each days as date (date)}
 			<button
 				class="flex aspect-square items-center justify-center border-black/10 p-2 text-center text-xl dark:border-white/10"
-				class:dark:bg-stone-800={date instanceof Date && !isNaN(date.getDate())}
-				class:bg-stone-100={date instanceof Date && !isNaN(date.getDate())}
+				class:dark:bg-stone-800={date instanceof Date &&
+					!isNaN(date.getDate()) &&
+					!moodMap.has(date.toString())}
+				class:bg-stone-100={date instanceof Date &&
+					!isNaN(date.getDate()) &&
+					!moodMap.has(date.toString())}
+				class:bg-green-800={moodMap.has(date.toString())}
 				class:border={date instanceof Date && !isNaN(date.getDate())}
 				onclick={() => {
 					selectedDate = date;
