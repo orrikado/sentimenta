@@ -1,16 +1,31 @@
 <script lang="ts">
+	// External imports
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { getMonthDays } from '$lib/calendar-utils';
+	import { m } from '$lib/paraglide/messages';
+	import { refreshUserId } from '$lib/user';
+	import { userId } from '$lib/stores/user';
 	import Modal from '$lib/components/Modal.svelte';
 
+	// State variables
 	let today = new Date();
 	let currentMonth = today.getMonth();
 	let currentYear = today.getFullYear();
 
-	let days: Date[] = $state([]);
+	let days: Date[] = $derived(getMonthDays(currentYear, currentMonth));
 	let showModal = $state(false);
 	let selectedDate: Date = $state(new Date());
-	let submitInProccess = $state(false);
+	let submitInProcess = $state(false);
+	let moods = $state<MoodEntry[]>([]);
+
+	let mood = $state<number>(0);
+	let emotions = $state('');
+	let diary = $state('');
+	let formError = $state<string | null>(null);
+	let formSuccess = $state<boolean>(false);
+
+	// Types
 	type MoodEntry = {
 		uid: number | undefined;
 		date: Date;
@@ -19,19 +34,42 @@
 		emotions: string;
 	};
 
-	let moods = $state<MoodEntry[]>([]);
-	let moodMap = $state<Map<string, MoodEntry>>(new Map());
+	// Derived values
+	const getDateKey = (date: Date) =>
+		`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
+	let moodMap = $derived(new Map(moods.map((m) => [getDateKey(m.date), m])));
+	const canSubmit = $derived(() => !!(mood !== 0 && diary.trim() && emotions.trim()));
+
+	// Effects
+	$effect(() => {
+		if (showModal && !submitInProcess) {
+			formSuccess = false;
+			formError = null;
+
+			if (moodMap.has(getDateKey(selectedDate))) {
+				const entry = moodMap.get(getDateKey(selectedDate));
+				mood = entry?.score || 0;
+				diary = entry?.description || '';
+				emotions = entry?.emotions || '';
+			} else {
+				mood = 0;
+				diary = '';
+				emotions = '';
+			}
+		}
+	});
+
+	// Lifecycle
 	onMount(async () => {
 		if (!$userId) {
 			goto('/login');
 			return;
 		}
-		days = getMonthDays(currentYear, currentMonth);
-
 		await updateMoods();
 	});
 
+	// Functions
 	async function updateMoods() {
 		try {
 			const res = await fetch('/api/moods/get');
@@ -41,58 +79,21 @@
 					...m,
 					date: new Date(m.date)
 				}));
-
 				moods = parsed;
-				moodMap = new Map(moods.map((m) => [m.date.toString(), m]));
-				console.log('success');
 			} else {
 				console.error('Failed to fetch moods');
 				refreshUserId();
-				if (!$userId) {
-					goto('/login');
-				}
+				if (!$userId) goto('/login');
 			}
 		} catch (e) {
 			console.error('Network error:', e);
 		}
 	}
 
-	import { m } from '$lib/paraglide/messages';
-	import { userId } from '$lib/stores/user';
-	import { goto } from '$app/navigation';
-	import { refreshUserId } from '$lib/user';
-
-	let mood = $state<number>(0);
-	let emotions = $state('');
-	let diary = $state('');
-	let formError = $state<string | null>(null);
-	let formSuccess = $state<boolean>(false);
-
-	const canSubmit = $derived(() => !!(mood !== 0 && diary.trim() && emotions.trim()));
-
-	$effect(() => {
-		if (showModal && !submitInProccess) {
-			formSuccess = false;
-			formError = null;
-
-			if (moodMap.has(selectedDate.toString())) {
-				mood = moodMap.get(selectedDate.toString())?.score || 0;
-				diary = moodMap.get(selectedDate.toString())?.description || '';
-				emotions = moodMap.get(selectedDate.toString())?.emotions || '';
-			} else {
-				mood = 0;
-				diary = '';
-				emotions = '';
-			}
-		}
-	});
-	$inspect(moodMap);
-	$inspect(mood);
-
 	function parseEmotions(input: string): string {
 		return input
 			.toLowerCase()
-			.split(/[\s,|./\\;:!?&]+|(?:\band\b)/gi) // split on all kinds of delimiters
+			.split(/[\s,|./\\;:!?&]+|(?:\band\b)/gi)
 			.map((word) => word.trim())
 			.filter((word) => word.length > 0)
 			.join(',');
@@ -100,8 +101,8 @@
 
 	function getDayClass(date: Date | null, moods: Map<string, MoodEntry>) {
 		if (date instanceof Date && !isNaN(date.getDate())) {
-			if (moods.has(date.toString())) {
-				switch (moods.get(date.toString())?.score) {
+			if (moods.has(getDateKey(date))) {
+				switch (moods.get(getDateKey(date))?.score) {
 					case 1:
 						return 'bg-red-300 dark:bg-red-900';
 					case 2:
@@ -116,9 +117,8 @@
 			} else {
 				return 'bg-stone-100 dark:bg-stone-800';
 			}
-		} else {
-			return '';
 		}
+		return '';
 	}
 </script>
 
@@ -136,8 +136,10 @@
 				class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center border-black/10 p-2 text-center text-xl dark:border-white/10`}
 				class:border={date instanceof Date && !isNaN(date.getDate())}
 				onclick={() => {
-					selectedDate = date;
-					showModal = true;
+					if (date instanceof Date && !isNaN(date.getDate())) {
+						selectedDate = date;
+						showModal = true;
+					}
 				}}
 			>
 				{#if date instanceof Date && !isNaN(date.getDate())}
@@ -157,12 +159,14 @@
 		class="flex w-full max-w-md flex-col gap-6"
 		onsubmit={async () => {
 			if (canSubmit()) {
+				// TEMP: Add 1 day to match backend timezone handling
+				// TODO: Fix backend to handle timezones
 				let nextDay = new Date(selectedDate);
 				nextDay.setDate(nextDay.getDate() + 1);
 
-				if (moodMap.has(selectedDate.toString())) {
-					submitInProccess = true;
-					if (moodMap.get(selectedDate.toString())?.uid == undefined) {
+				if (moodMap.has(getDateKey(selectedDate))) {
+					submitInProcess = true;
+					if (moodMap.get(getDateKey(selectedDate))?.uid == undefined) {
 						await updateMoods();
 					}
 					let result = await fetch('/api/moods/update', {
@@ -171,7 +175,7 @@
 							'Content-Type': 'application/json'
 						},
 						body: JSON.stringify({
-							uid: moodMap.get(selectedDate.toString())?.uid,
+							uid: moodMap.get(getDateKey(selectedDate))?.uid,
 							score: mood,
 							description: diary,
 							date: nextDay,
@@ -181,23 +185,15 @@
 					if (!result.ok) {
 						const errorData = result;
 						console.error('Error:', errorData);
-						formError = m.error_occured();
+						formError = (await result.text()) || m.error_occured();
 					} else {
 						moods.map((m) => {
-							if (m.uid == moodMap.get(selectedDate.toString())?.uid) {
+							if (m.uid == moodMap.get(getDateKey(selectedDate))?.uid) {
 								m.score = mood;
 								m.description = diary;
 								m.emotions = parseEmotions(emotions);
 							}
 						});
-						const newMood: MoodEntry = {
-							uid: moodMap.get(selectedDate.toString())?.uid,
-							date: selectedDate,
-							score: mood,
-							description: diary,
-							emotions: parseEmotions(emotions)
-						};
-						moodMap = new Map(moodMap).set(selectedDate.toString(), newMood);
 
 						formError = null;
 						formSuccess = true;
@@ -230,14 +226,13 @@
 						};
 
 						moods = [...moods, newMood];
-						moodMap = new Map(moodMap).set(selectedDate.toString(), newMood);
 
 						formError = null;
 						formSuccess = true;
 						showModal = false;
 					}
 				}
-				submitInProccess = false;
+				submitInProcess = false;
 			}
 		}}
 	>
@@ -253,6 +248,7 @@
 					class:text-black={mood === n}
 					class:text-current={mood !== n}
 					onclick={() => (mood = n)}
+					aria-label={`select mood ${n}`}
 				>
 					{n}
 				</button>
@@ -264,6 +260,7 @@
 			type="text"
 			placeholder={m.start_emotions_placeholder()}
 			bind:value={emotions}
+			aria-describedby="emotions-description"
 			class="w-full border border-current bg-transparent px-3 py-2 placeholder-current"
 		/>
 
@@ -271,6 +268,7 @@
 		<textarea
 			placeholder={m.start_today()}
 			bind:value={diary}
+			aria-describedby="diary-description"
 			class="h-40 w-full border border-current bg-transparent px-3 py-2 placeholder-current"
 		></textarea>
 
