@@ -5,12 +5,14 @@
 	import { logout } from '$lib/user';
 	import { m } from '$lib/paraglide/messages';
 
-	let user: {
-		username: string;
-		email: string;
-		created_at: string | number | Date;
-		updated_at: string | number | Date;
-	};
+	let user:
+		| {
+				username: string;
+				email: string;
+				created_at: string | number | Date;
+				updated_at: string | number | Date;
+		  }
+		| undefined = $state(undefined);
 
 	onMount(async () => {
 		if ($userId == undefined) {
@@ -69,7 +71,7 @@
 			<div class="mt-6 flex justify-end">
 				<button
 					class="border border-stone-700 bg-transparent px-4 py-2 text-sm tracking-wide text-black uppercase hover:bg-black hover:text-white dark:text-white dark:hover:bg-white dark:hover:text-black"
-					on:click={() => {
+					onclick={() => {
 						logout();
 						goto('/login');
 					}}
