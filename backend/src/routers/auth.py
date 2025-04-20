@@ -24,9 +24,18 @@ async def login(credentials: UserLoginSchema, response: Response):
 
 @router.post("/api/auth/register")
 async def register(user_data: UserAddSchema, response: Response):
-    existing_user = await get_user(UserOrm.email == user_data.email)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="User already exists")
+    existing_user_by_email = await get_user(UserOrm.email == user_data.email)
+    if existing_user_by_email:
+        raise HTTPException(
+            status_code=400, detail="User with this email already exists"
+        )
+
+    existing_user_by_username = await get_user(UserOrm.username == user_data.username)
+    if existing_user_by_username:
+        raise HTTPException(
+            status_code=400, detail="User with this username already exists"
+        )
+
     if not validate_email(user_data.email):
         raise HTTPException(status_code=400, detail="Incorrect email")
 

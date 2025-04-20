@@ -22,7 +22,7 @@ intpk = Annotated[int, mapped_column(primary_key=True, autoincrement=True)]
 class UserOrm(Base):
     __tablename__ = "users"
     uid: Mapped[intpk]
-    username: Mapped[str]
+    username: Mapped[str] = mapped_column(unique=True)
     email: Mapped[str]
     password_hash: Mapped[str]
     moods: Mapped[list["MoodOrm"] | None] = relationship(back_populates="user")
