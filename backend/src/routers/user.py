@@ -1,10 +1,11 @@
 from fastapi import Depends, HTTPException
 from fastapi.routing import APIRouter
 from database.models import UserOrm
-from database.schemas.user import UserUpdateSchema
+from database.schemas.user import UserChangePassSchema, UserUpdateSchema
 from database.queries.user import get_user, update_user
 from authx import TokenPayload
 from jwt_token import security
+from hash import hash_password, verify_password
 
 router = APIRouter(tags=["User"])
 
@@ -19,12 +20,22 @@ async def get_user_route(user: TokenPayload = Depends(security.access_token_requ
         raise HTTPException(status_code=404, detail="User not found")
 
 
-@router.put("/api/user/update", dependencies=[Depends(security.access_token_required)])
+@router.patch(
+    "/api/user/update", dependencies=[Depends(security.access_token_required)]
+)
 async def update_user_route(
     user_schema: UserUpdateSchema,
-    user: TokenPayload = Depends(security.access_token_required),
+    user_token: TokenPayload = Depends(security.access_token_required),
 ):
-    user_id = int(user.sub)
+    user_id = int(user_token.sub)
+    user = await get_user(UserOrm.uid == user_id)
+
+    if user_schema.email:
+        if not user_schema.password:
+            raise HTTPException(status_code=400, detail="Password is required")
+        hashed_pass = hash_password(user_schema.password)
+        if not verify_password(hashed_pass, user.password_hash):
+            raise HTTPException(status_code=400, detail="Incorrect password")
     try:
         await update_user(UserOrm.uid == user_id, user_schema)
     except Exception as e:
