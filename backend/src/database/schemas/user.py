@@ -31,3 +31,8 @@ class UserUpdateSchema(BaseModel):
     username: str | None = None
     email: str | None = None
     password: str | None = None
+
+
+class UserChangePassSchema(BaseModel):
+    password: str
+    new_password: str

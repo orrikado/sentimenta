@@ -41,3 +41,27 @@ async def update_user_route(
     except Exception as e:
         print(e)
         raise HTTPException(status_code=404, detail="User not found")
+
+
+@router.put(
+    "/api/user/update/password", dependencies=[Depends(security.access_token_required)]
+)
+async def update_user_password_route(
+    user_schema: UserChangePassSchema,
+    user_token: TokenPayload = Depends(security.access_token_required),
+):
+    user_id = int(user_token.sub)
+    user = await get_user(UserOrm.uid == user_id)
+
+    hashed_pass = hash_password(user_schema.password)
+    if not verify_password(hashed_pass, user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    else:
+        try:
+            hashed_new_pass = hash_password(user_schema.new_password)
+            await update_user(
+                UserOrm.uid == user_id, UserUpdateSchema(password=hashed_new_pass)
+            )
+        except Exception as e:
+            print(e)
+            raise HTTPException(status_code=404, detail="User not found")
