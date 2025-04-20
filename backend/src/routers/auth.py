@@ -6,6 +6,7 @@ from hash import hash_password, verify_password
 from config import settings
 from database.schemas.user import UserLoginSchema, UserAddSchema
 from jwt_token import security
+from utils import validate_email
 
 router = APIRouter(tags=["Auth"])
 
@@ -26,6 +27,8 @@ async def register(user_data: UserAddSchema, response: Response):
     existing_user = await get_user(UserOrm.email == user_data.email)
     if existing_user:
         raise HTTPException(status_code=400, detail="User already exists")
+    if not validate_email(user_data.email):
+        raise HTTPException(status_code=400, detail="Incorrect email")
 
     user_data.password = hash_password(user_data.password)
 

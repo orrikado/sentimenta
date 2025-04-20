@@ -1,5 +1,6 @@
 from fastapi import Depends, HTTPException
 from fastapi.routing import APIRouter
+from utils import validate_email
 from database.models import UserOrm
 from database.schemas.user import UserChangePassSchema, UserUpdateSchema
 from database.queries.user import get_user, update_user
@@ -31,6 +32,8 @@ async def update_user_route(
     user = await get_user(UserOrm.uid == user_id)
 
     if user_schema.email:
+        if not validate_email(user_schema.email):
+            raise HTTPException(status_code=400, detail="Incorrect email")
         if not user_schema.password:
             raise HTTPException(status_code=400, detail="Password is required")
         hashed_pass = hash_password(user_schema.password)
