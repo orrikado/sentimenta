@@ -12,6 +12,14 @@ class UserSchema(BaseModel):
     updated_at: datetime
 
 
+class UserWithoutPassword(BaseModel):
+    uid: int
+    username: str
+    email: str
+    created_at: datetime
+    updated_at: datetime
+
+
 class UserRelSchema(UserSchema):
     moods: Optional[list["MoodRelSchema"]]  # noqa: F821 # type: ignore
 

@@ -1,11 +1,16 @@
 from database.models import UserOrm
-from database.schemas.user import UserAddSchema, UserSchema, UserUpdateSchema
+from database.schemas.user import (
+    UserAddSchema,
+    UserSchema,
+    UserUpdateSchema,
+    UserWithoutPassword,
+)
 from database.db_setup import session
 from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 
 
-async def get_user(*filters) -> UserSchema:
+async def get_user(*filters, with_password=True) -> UserSchema:
     async with session() as s:
         stmt = (
             select(UserOrm).where(and_(*filters)).options(selectinload(UserOrm.moods))
@@ -13,7 +18,16 @@ async def get_user(*filters) -> UserSchema:
 
         result = await s.execute(stmt)
         user = result.scalar_one_or_none()
-        return UserSchema.model_validate(user, from_attributes=True) if user else None
+        if with_password:
+            return (
+                UserSchema.model_validate(user, from_attributes=True) if user else None
+            )
+        else:
+            return (
+                UserWithoutPassword.model_validate(user, from_attributes=True)
+                if user
+                else None
+            )
 
 
 async def add_user(user: UserAddSchema) -> UserSchema:

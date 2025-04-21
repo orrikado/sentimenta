@@ -12,13 +12,15 @@ router = APIRouter(tags=["User"])
 
 
 @router.get("/api/user/get", dependencies=[Depends(security.access_token_required)])
-async def get_user_route(user: TokenPayload = Depends(security.access_token_required)):
-    user_id = int(user.sub)
-    user = await get_user(UserOrm.uid == user_id)
+async def get_user_route(
+    user_token: TokenPayload = Depends(security.access_token_required),
+):
+    user_id = int(user_token.sub)
+    user = await get_user(UserOrm.uid == user_id, with_password=False)
     if user:
         return user
     else:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=500, detail="User not found")
 
 
 @router.patch(
@@ -33,17 +35,20 @@ async def update_user_route(
 
     if user_schema.email:
         if not validate_email(user_schema.email):
-            raise HTTPException(status_code=400, detail="Incorrect email")
+            raise HTTPException(status_code=500, detail="Incorrect email")
+
         if not user_schema.password:
-            raise HTTPException(status_code=400, detail="Password is required")
+            raise HTTPException(status_code=500, detail="Password is required")
+
         hashed_pass = hash_password(user_schema.password)
         if not verify_password(hashed_pass, user.password_hash):
-            raise HTTPException(status_code=400, detail="Incorrect password")
+            raise HTTPException(status_code=500, detail="Incorrect password")
+
     try:
         await update_user(UserOrm.uid == user_id, user_schema)
     except Exception as e:
         print(e)
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=500, detail="User not found")
 
 
 @router.put(
@@ -58,7 +63,7 @@ async def update_user_password_route(
 
     hashed_pass = hash_password(user_schema.password)
     if not verify_password(hashed_pass, user.password_hash):
-        raise HTTPException(status_code=400, detail="Incorrect password")
+        raise HTTPException(status_code=500, detail="Incorrect password")
     else:
         try:
             hashed_new_pass = hash_password(user_schema.new_password)
@@ -67,4 +72,4 @@ async def update_user_password_route(
             )
         except Exception as e:
             print(e)
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=500, detail="User not found")
