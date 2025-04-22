@@ -11,7 +11,7 @@
 	// State variables
 	let today = new Date();
 	let currentMonth = $state(today.getMonth());
-	let currentYear = today.getFullYear();
+	let currentYear = $state(today.getFullYear());
 
 	let days: Date[] = $derived(getMonthDays(currentYear, currentMonth));
 	let showModal = $state(false);
