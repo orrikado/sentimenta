@@ -2,13 +2,14 @@ package userservice
 
 import (
 	"errors"
+	"sentimenta/internal/hash"
 	"sentimenta/internal/utils"
 )
 
 type UserService interface {
 	CreateUser(username string, email string, password string) (User, error)
 	GetUser(id string) (User, error)
-	UpdateUser(id string, username string, email string, password string) (User, error)
+	UpdateUser(u UserUpdate) (User, error)
 	DeleteUser(id string) error
 }
 
@@ -21,7 +22,7 @@ func (s *userService) CreateUser(username string, email string, password string)
 		return User{}, errors.New("email не прошел валидацию")
 	}
 
-	passwordHash := "" // !!! Сделать хеширование
+	passwordHash := hash.HashPassword(password)
 
 	newUser := User{
 		Username:     username,
@@ -38,28 +39,27 @@ func (s *userService) GetUser(id string) (User, error) {
 	return s.repo.GetUser(id)
 }
 
-func (s *userService) UpdateUser(id string, username string, email string, password string) (User, error) {
-	user, err := s.repo.GetUser(id)
+func (s *userService) UpdateUser(u UserUpdate) (User, error) {
+	targetUser, err := s.repo.GetUser(u.Uid)
 	if err != nil {
 		return User{}, err
 	}
 
-	passwordHash := "" // !!! Сделать хеширование
+	if u.Password != nil {
+		passwordHash := hash.HashPassword(*u.Password)
+		targetUser.PasswordHash = passwordHash
+	}
+	if u.Username != nil {
+		targetUser.Username = *u.Username
+	}
+	if u.Email != nil {
+		targetUser.Email = *u.Email
+	}
 
-	if username != "" {
-		user.Username = username
-	}
-	if email != "" {
-		user.Email = email
-	}
-	if password != "" {
-		user.PasswordHash = passwordHash
-	}
-	if err := s.repo.UpdateUser(user); err != nil {
+	if err := s.repo.UpdateUser(targetUser); err != nil {
 		return User{}, err
 	}
-	return user, nil
-
+	return targetUser, nil
 }
 
 func (s *userService) DeleteUser(id string) error {
