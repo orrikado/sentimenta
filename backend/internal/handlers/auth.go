@@ -49,7 +49,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 
 	user, err := h.service.Authenticate(reqUser.Email, reqUser.Password)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, "аутентификация не удалась")
+		return c.JSON(http.StatusUnauthorized, "требуется аутентификация")
 	}
 
 	jwtToken, err := jwt.GenerateJWT(string(user.Uid))

@@ -17,7 +17,7 @@ type MoodHandler struct {
 func (h *MoodHandler) PostAddMood(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, "ошибка аутентификации")
+		return c.JSON(http.StatusUnauthorized, "требуется аутентификация")
 	}
 
 	var reqMood ms.MoodAdd
@@ -36,7 +36,7 @@ func (h *MoodHandler) PostAddMood(c echo.Context) error {
 func (h *MoodHandler) GetMoods(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, "ошибка аутентификации")
+		return c.JSON(http.StatusUnauthorized, "требуется аутентификация")
 	}
 
 	moods, err := h.service.GetMoods(userID)
