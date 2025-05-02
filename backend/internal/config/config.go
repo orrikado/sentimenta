@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -21,7 +21,7 @@ type Config struct {
 func NewConfig() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("не удалось загрузить .env: %v\n", err)
+		fmt.Printf("не удалось загрузить .env: %v\n", err)
 	}
 
 	return &Config{

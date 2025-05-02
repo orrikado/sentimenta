@@ -23,7 +23,7 @@ func (r *userRepository) GetUser(id string) (User, error) {
 }
 
 func (r *userRepository) CreateUser(user User) error {
-	return r.db.Create(user).Error
+	return r.db.Create(&user).Error
 }
 
 func (r *userRepository) UpdateUser(user User) error {

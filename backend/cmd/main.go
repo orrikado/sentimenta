@@ -40,5 +40,5 @@ func main() {
 	e.GET("/api/moods/get", moodHandler.GetMoods)
 	e.PUT("/api/moods/update", moodHandler.PutUpdateMood)
 
-	e.Logger.Fatal(e.Start("0.0.0.0:8080"))
+	e.Logger.Fatal(e.Start("0.0.0.0:8000"))
 }
