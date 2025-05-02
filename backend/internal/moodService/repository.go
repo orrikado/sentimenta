@@ -1,4 +1,4 @@
-package moodservice
+package moodService
 
 import "gorm.io/gorm"
 

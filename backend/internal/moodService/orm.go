@@ -1,4 +1,4 @@
-package moodservice
+package moodService
 
 import (
 	"time"
@@ -22,7 +22,7 @@ type MoodAdd struct {
 }
 
 type MoodUpdate struct {
-	Uid         string  `json:"uid"`
+	Uid         int     `json:"uid"`
 	Score       *int    `json:"score,omitempty"`
 	Emotions    *string `json:"emotions,omitempty"`
 	Description *string `json:"description,omitempty"`

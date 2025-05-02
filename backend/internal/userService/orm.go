@@ -1,7 +1,7 @@
-package userservice
+package userService
 
 import (
-	m "sentimenta/internal/moodservice"
+	m "sentimenta/internal/moodService"
 	"time"
 )
 

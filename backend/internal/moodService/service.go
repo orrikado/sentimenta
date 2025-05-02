@@ -1,9 +1,9 @@
-package moodservice
+package moodService
 
 type MoodService interface {
 	GetMoods(userID string) ([]Mood, error)
 	CreateMood(userID string, score int, emotions string, description *string) (Mood, error)
-	UpdateMood(m Mood) error
+	UpdateMood(m *Mood) error
 	DeleteMood(id string) error
 }
 
@@ -33,8 +33,8 @@ func (s *moodService) GetMoods(userID string) ([]Mood, error) {
 	return s.repo.GetMoods(userID)
 }
 
-func (s *moodService) UpdateMood(m Mood) error {
-	return s.repo.UpdateMood(&m)
+func (s *moodService) UpdateMood(m *Mood) error {
+	return s.repo.UpdateMood(m)
 }
 
 func NewService(repo MoodRepository) MoodService {
