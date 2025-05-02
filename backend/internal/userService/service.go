@@ -7,11 +7,12 @@ import (
 )
 
 type UserService interface {
-	CreateUser(username string, email string, password string) (User, error)
+	CreateUser(username, email, password string) (User, error)
 	GetUser(id string) (User, error)
-	UpdateUser(u UserUpdate) (User, error)
+	UpdateUser(userID string, u UserUpdate) (User, error)
 	DeleteUser(id string) error
-	Authenticate(email string, password string) (User, error)
+	ChangePassword(userID, password, newPassword string) error
+	Authenticate(email, password string) (User, error)
 }
 
 type userService struct {
@@ -40,8 +41,8 @@ func (s *userService) GetUser(id string) (User, error) {
 	return s.repo.GetUser(id)
 }
 
-func (s *userService) UpdateUser(u UserUpdate) (User, error) {
-	targetUser, err := s.repo.GetUser(u.Uid)
+func (s *userService) UpdateUser(userID string, u UserUpdate) (User, error) {
+	targetUser, err := s.repo.GetUser(userID)
 	if err != nil {
 		return User{}, err
 	}
@@ -67,7 +68,7 @@ func (s *userService) DeleteUser(id string) error {
 	return s.repo.DeleteUser(id)
 }
 
-func (s *userService) Authenticate(email string, password string) (User, error) {
+func (s *userService) Authenticate(email, password string) (User, error) {
 	user, err := s.repo.GetUserByEmail(email)
 	if err != nil {
 		return User{}, err
@@ -76,6 +77,19 @@ func (s *userService) Authenticate(email string, password string) (User, error) 
 		return User{}, errors.New("Неверный пароль")
 	}
 	return user, nil
+}
+
+func (s *userService) ChangePassword(userID, password, newPassword string) error {
+	target, err := s.repo.GetUser(userID)
+	if err != nil {
+		return err
+	}
+
+	target.PasswordHash = hash.HashPassword(newPassword)
+	if err := s.repo.UpdateUser(target); err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewService(r UserRepository) UserService {

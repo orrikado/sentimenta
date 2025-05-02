@@ -16,7 +16,6 @@ type User struct {
 }
 
 type UserUpdate struct {
-	Uid      string  `json:"uid" gorm:"primaryKey;autoIncrement"`
 	Username *string `json:"username,omitempty"`
 	Email    *string `json:"email,omitempty"`
 	Password *string `json:"password,omitempty"`
@@ -31,4 +30,9 @@ type UserRegister struct {
 type UserLogin struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type UserChangePass struct {
+	Password    string `json:"password"`
+	NewPassword string `json:"new_password"`
 }
