@@ -32,8 +32,8 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	jwt_cookie := http.Cookie{
 		Name:     h.config.JWT_COOKIE_NAME,
 		Value:    jwtToken,
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: false,
+		Secure:   false,
 		Path:     "/",
 	}
 
@@ -60,8 +60,8 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	jwt_cookie := http.Cookie{
 		Name:     h.config.JWT_COOKIE_NAME,
 		Value:    jwtToken,
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: false,
+		Secure:   false,
 		Path:     "/",
 	}
 
