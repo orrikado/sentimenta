@@ -5,6 +5,7 @@ import "gorm.io/gorm"
 type UserRepository interface {
 	CreateUser(user User) error
 	GetUser(id string) (User, error)
+	GetUserByEmail(email string) (User, error)
 	UpdateUser(user User) error
 	DeleteUser(id string) error
 }
@@ -15,8 +16,10 @@ type userRepository struct {
 
 func (r *userRepository) GetUser(id string) (User, error) {
 	var user User
-	err := r.db.First(&user, "id = ?", id).Error
-	return user, err
+	if err := r.db.First(&user, "id = ?", id).Error; err != nil {
+		return User{}, err
+	}
+	return user, nil
 }
 
 func (r *userRepository) CreateUser(user User) error {
@@ -29,6 +32,14 @@ func (r *userRepository) UpdateUser(user User) error {
 
 func (r *userRepository) DeleteUser(id string) error {
 	return r.db.Delete(&User{}, "id = ?", id).Error
+}
+
+func (r *userRepository) GetUserByEmail(email string) (User, error) {
+	var user User
+	if err := r.db.First(&user, "email = ?", email).Error; err != nil {
+		return User{}, err
+	}
+	return user, nil
 }
 
 func NewRepository(db *gorm.DB) UserRepository {

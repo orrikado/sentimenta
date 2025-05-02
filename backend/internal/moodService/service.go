@@ -1,8 +1,8 @@
 package moodservice
 
 type MoodService interface {
-	GetMoods(user_id string) ([]Mood, error)
-	CreateMood(user_id string, score int, emotions string, description *string) (Mood, error)
+	GetMoods(userID string) ([]Mood, error)
+	CreateMood(userID string, score int, emotions string, description *string) (Mood, error)
 	UpdateMood(m Mood) error
 	DeleteMood(id string) error
 }
@@ -11,7 +11,7 @@ type moodService struct {
 	repo MoodRepository
 }
 
-func (s *moodService) CreateMood(user_id string, score int, emotions string, description *string) (Mood, error) {
+func (s *moodService) CreateMood(userID string, score int, emotions string, description *string) (Mood, error) {
 
 	newMood := Mood{
 		Score:       score,
@@ -29,8 +29,8 @@ func (s *moodService) DeleteMood(id string) error {
 	return s.repo.DeleteMood(id)
 }
 
-func (s *moodService) GetMoods(user_id string) ([]Mood, error) {
-	return s.repo.GetMoods(user_id)
+func (s *moodService) GetMoods(userID string) ([]Mood, error) {
+	return s.repo.GetMoods(userID)
 }
 
 func (s *moodService) UpdateMood(m Mood) error {

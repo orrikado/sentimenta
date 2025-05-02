@@ -11,6 +11,7 @@ type UserService interface {
 	GetUser(id string) (User, error)
 	UpdateUser(u UserUpdate) (User, error)
 	DeleteUser(id string) error
+	Authenticate(email string, password string) (User, error)
 }
 
 type userService struct {
@@ -64,6 +65,17 @@ func (s *userService) UpdateUser(u UserUpdate) (User, error) {
 
 func (s *userService) DeleteUser(id string) error {
 	return s.repo.DeleteUser(id)
+}
+
+func (s *userService) Authenticate(email string, password string) (User, error) {
+	user, err := s.repo.GetUserByEmail(email)
+	if err != nil {
+		return User{}, err
+	}
+	if !hash.VerifyPassword(password, user.PasswordHash) {
+		return User{}, errors.New("Неверный пароль")
+	}
+	return user, nil
 }
 
 func NewService(r UserRepository) UserService {

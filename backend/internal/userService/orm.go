@@ -1,12 +1,12 @@
 package userservice
 
 import (
-	m "sentimenta/internal/moodService"
+	m "sentimenta/internal/moodservice"
 	"time"
 )
 
 type User struct {
-	Uid          string    `json:"uid" gorm:"primaryKey;autoIncrement"`
+	Uid          int       `json:"uid" gorm:"primaryKey;autoIncrement"`
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
 	PasswordHash string    `json:"password_hash"`
@@ -20,4 +20,15 @@ type UserUpdate struct {
 	Username *string `json:"username,omitempty"`
 	Email    *string `json:"email,omitempty"`
 	Password *string `json:"password,omitempty"`
+}
+
+type UserRegister struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserLogin struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

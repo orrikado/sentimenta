@@ -3,7 +3,7 @@ package moodservice
 import "gorm.io/gorm"
 
 type MoodRepository interface {
-	GetMoods(user_id string) ([]Mood, error)
+	GetMoods(userID string) ([]Mood, error)
 	CreateMood(m *Mood) error
 	UpdateMood(m *Mood) error
 	DeleteMood(id string) error
@@ -21,9 +21,9 @@ func (r *moodRepository) DeleteMood(id string) error {
 	return r.db.Delete(&Mood{}, "id = ?", id).Error
 }
 
-func (r *moodRepository) GetMoods(user_id string) ([]Mood, error) {
+func (r *moodRepository) GetMoods(userID string) ([]Mood, error) {
 	var moods []Mood
-	err := r.db.Find(&moods).Error
+	err := r.db.Find(&moods, "user_id = ?", userID).Error
 	return moods, err
 }
 
