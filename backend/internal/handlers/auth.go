@@ -70,6 +70,6 @@ func (h *AuthHandler) Login(c echo.Context) error {
 
 }
 
-func NewAuthHandler(s us.UserService) *AuthHandler {
-	return &AuthHandler{service: s}
+func NewAuthHandler(s us.UserService, cfg c.Config) *AuthHandler {
+	return &AuthHandler{service: s, config: cfg}
 }
