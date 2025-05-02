@@ -5,8 +5,8 @@ import (
 	"log"
 
 	c "sentimenta/internal/config"
-	"sentimenta/internal/moodservice"
-	"sentimenta/internal/userservice"
+	"sentimenta/internal/moodService"
+	"sentimenta/internal/userService"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -19,7 +19,7 @@ func InitDB(c *c.Config) *gorm.DB {
 		log.Fatalf("Не удалось подключится к БД: %v", err)
 	}
 
-	if err := db.AutoMigrate(moodservice.Mood{}, userservice.User{}); err != nil { // ! Добавить модели для миграции
+	if err := db.AutoMigrate(moodService.Mood{}, userService.User{}); err != nil {
 		log.Fatalf("Не удалось произвести миграцию: %v", err)
 	}
 
