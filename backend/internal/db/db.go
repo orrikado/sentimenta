@@ -19,7 +19,7 @@ func InitDB(c *c.Config) *gorm.DB {
 		log.Fatalf("Не удалось подключится к БД: %v", err)
 	}
 
-	if err := db.AutoMigrate(moodService.Mood{}, userService.User{}); err != nil {
+	if err := db.AutoMigrate(userService.User{}, moodService.Mood{}); err != nil {
 		log.Fatalf("Не удалось произвести миграцию: %v", err)
 	}
 
