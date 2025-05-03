@@ -100,25 +100,35 @@
 	}
 
 	function getDayClass(date: Date | null, moods: Map<string, MoodEntry>) {
+		let classes = '';
 		if (date instanceof Date && !isNaN(date.getDate())) {
+			const dateKey = getDateKey(date);
+			const todayKey = getDateKey(new Date());
+
+			if (dateKey === todayKey) {
+				classes += 'dark:border-white border-black ';
+			} else {
+				classes += 'border-black/10  dark:border-white/10 ';
+			}
+
 			if (moods.has(getDateKey(date))) {
 				switch (moods.get(getDateKey(date))?.score) {
 					case 1:
-						return 'bg-red-300 dark:bg-red-900';
+						classes += 'bg-red-300 dark:bg-red-900 ';
 					case 2:
-						return 'bg-orange-300 dark:bg-orange-900';
+						classes += 'bg-orange-300 dark:bg-orange-900 ';
 					case 3:
-						return 'bg-yellow-400 dark:bg-yellow-900';
+						classes += 'bg-yellow-400 dark:bg-yellow-900 ';
 					case 4:
-						return 'bg-green-300 dark:bg-green-900';
+						classes += 'bg-green-300 dark:bg-green-900 ';
 					case 5:
-						return 'bg-blue-300 dark:bg-blue-900';
+						classes += 'bg-blue-300 dark:bg-blue-900 ';
 				}
 			} else {
-				return 'bg-stone-100 dark:bg-stone-800';
+				classes += 'bg-stone-100 dark:bg-stone-800 ';
 			}
 		}
-		return '';
+		return classes;
 	}
 
 	// Event handlers for "previous" and "next" buttons
@@ -163,7 +173,7 @@
 
 		{#each days as date (date)}
 			<button
-				class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center border-black/10 p-2 text-center text-xl dark:border-white/10`}
+				class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center p-2 text-center text-xl`}
 				class:border={date instanceof Date && !isNaN(date.getDate())}
 				onclick={() => {
 					if (date instanceof Date && !isNaN(date.getDate())) {
