@@ -12,6 +12,10 @@ export default defineConfig({
 			}
 		}
 	},
+	build: {
+		minify: 'esbuild',
+		cssMinify: 'esbuild'
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit(),

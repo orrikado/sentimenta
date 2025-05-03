@@ -48,5 +48,8 @@
 	"confirm_password": "confirm password",
 	"change_password": "change password",
 	"save": "save",
-	"edit_profile": "edit profile"
+	"edit_profile": "edit profile",
+	"close_modal": "close modal",
+	"diary_label": "diary",
+	"emotions_label": "emotions"
 }

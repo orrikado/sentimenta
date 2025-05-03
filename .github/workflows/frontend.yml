@@ -1,0 +1,56 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # check:
+  # runs-on: ubuntu-latest
+
+  # steps:
+  #   - uses: actions/checkout@v4
+  #
+  #   - uses: pnpm/action-setup@v4
+  #     name: Install pnpm
+  #     with:
+  #       run_install: false
+  #       version: 10
+  #
+  #   - name: Install dependencies
+  #     working-directory: ./frontend
+  #     run: pnpm install
+  #
+  #   - name: Build
+  #     working-directory: ./frontend
+  #     run: pnpm build
+  #
+  #   - name: Check Svelte errors
+  #     working-directory: ./frontend
+  #     run: pnpm run check
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+          version: 10
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: pnpm install
+
+      - name: Build
+        working-directory: ./frontend
+        run: pnpm build
+
+      - name: Run ESLint
+        working-directory: ./frontend
+        run: pnpm run lint

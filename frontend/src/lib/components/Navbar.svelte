@@ -5,8 +5,13 @@
 	import { m } from '$lib/paraglide/messages';
 </script>
 
-<nav class="flex items-center justify-between bg-stone-900 p-4 text-white">
-	<a href="/" class="text-xl font-bold text-yellow-300">logo</a>
+<nav
+	class="flex items-center justify-between bg-stone-200 p-4 text-stone-900 dark:bg-stone-900 dark:text-white"
+>
+	<a href="/" class="flex items-center space-x-2">
+		<img src="/favicon.svg" width="96" height="96" alt="Logo" class="h-8 w-auto" />
+		<span class="text-xl font-bold text-yellow-700 dark:text-yellow-300">Sentimenta</span>
+	</a>
 	{#if dev}
 		<div>
 			<button onclick={() => setLocale('en')} class="text-gray-300 hover:text-yellow-300">en</button

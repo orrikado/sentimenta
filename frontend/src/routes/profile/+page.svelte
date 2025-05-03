@@ -123,12 +123,12 @@
 					{/if}
 
 					<div>
-						<label class="text-stone-500 uppercase dark:text-stone-400">{m.created_at()}</label>
+						<span class="text-stone-500 uppercase dark:text-stone-400">{m.created_at()}</span>
 						<p class="text-lg">{formatDate(user.created_at)}</p>
 					</div>
 
 					<div>
-						<label class="text-stone-500 uppercase dark:text-stone-400">{m.last_updated()}</label>
+						<span class="text-stone-500 uppercase dark:text-stone-400">{m.last_updated()}</span>
 						<p class="text-lg">{formatDate(user.updated_at)}</p>
 					</div>
 				</div>
