@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	c "sentimenta/internal/config"
+	errs "sentimenta/internal/errors"
 	JWT "sentimenta/internal/jwt"
 	us "sentimenta/internal/userService"
 
@@ -23,10 +25,15 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		h.logger.Errorf("Ошибка при Bind UserRegister: %v", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}
+
 	result, err := h.service.CreateUser(newUser.Username, newUser.Email, newUser.Password)
 	if err != nil {
 		h.logger.Errorf("Ошибка при создании пользователя: %v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось создать пользователя"})
+		if errors.Is(err, errs.ErrEmailValidation) {
+			return c.JSON(http.StatusConflict, map[string]string{"error": "пользователь с такой почтой уже существует"})
+		} else {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось создать пользователя"})
+		}
 	}
 
 	uidStr := fmt.Sprintf("%v", result.Uid)
@@ -45,7 +52,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	}
 
 	c.SetCookie(&jwt_cookie)
-	return c.JSON(http.StatusOK, result)
+	return c.JSON(http.StatusCreated, result)
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {

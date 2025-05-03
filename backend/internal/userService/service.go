@@ -3,8 +3,11 @@ package userService
 import (
 	"errors"
 	"fmt"
+	errs "sentimenta/internal/errors"
 	"sentimenta/internal/hash"
 	"sentimenta/internal/utils"
+
+	"gorm.io/gorm"
 )
 
 type UserService interface {
@@ -14,6 +17,7 @@ type UserService interface {
 	DeleteUser(id string) error
 	ChangePassword(userID, password, newPassword string) error
 	Authenticate(email, password string) (User, error)
+	GetUserByEmail(email string) (User, error)
 }
 
 type userService struct {
@@ -22,11 +26,17 @@ type userService struct {
 
 func (s *userService) CreateUser(username string, email string, password string) (User, error) {
 	if !utils.IsValidEmail(email) {
-		return User{}, errors.New("email не прошел валидацию")
+		return User{}, errs.ErrEmailValidation
+	}
+
+	existingUser, err := s.repo.GetUserByEmail(email)
+	if err == nil && existingUser != nil {
+		return User{}, errs.ErrUserAlreadyExists
+	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return User{}, err
 	}
 
 	passwordHash := hash.HashPassword(password)
-
 	newUser := User{
 		Username:     username,
 		Email:        email,
@@ -76,10 +86,11 @@ func (s *userService) Authenticate(email, password string) (User, error) {
 		return User{}, err
 	}
 	if !hash.VerifyPassword(password, user.PasswordHash) {
-		return User{}, errors.New("Неверный пароль")
+		return User{}, errs.ErrWrongPassword
 	}
 	fmt.Printf("Authenticate User: %v", user)
-	return user, nil
+
+	return *user, nil
 }
 
 func (s *userService) ChangePassword(userID, password, newPassword string) error {
@@ -93,6 +104,11 @@ func (s *userService) ChangePassword(userID, password, newPassword string) error
 		return err
 	}
 	return nil
+}
+
+func (s *userService) GetUserByEmail(email string) (User, error) {
+	result, err := s.repo.GetUserByEmail(email)
+	return *result, err
 }
 
 func NewService(r UserRepository) UserService {

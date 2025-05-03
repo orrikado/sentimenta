@@ -1,8 +1,8 @@
 package jwt
 
 import (
-	"errors"
 	cfg "sentimenta/internal/config"
+	errs "sentimenta/internal/errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -26,7 +26,7 @@ func ParseJWT(tokenStr string) (string, error) {
 	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 		// Проверка метода подписи
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("неподдерживаемый метод подписи")
+			return nil, errs.ErrUnsupportedSignatureMethod
 		}
 		return []byte(config.JWT_SECRET), nil
 	})
@@ -40,5 +40,5 @@ func ParseJWT(tokenStr string) (string, error) {
 		}
 	}
 
-	return "", errors.New("user_id не найден в токене")
+	return "", errs.ErrNotFoundInJWT
 }
