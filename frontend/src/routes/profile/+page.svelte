@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { userId } from '$lib/stores/user';
 	import { logout } from '$lib/user';
@@ -51,29 +51,42 @@
 
 {#if user.email.length > 0}
 	<div class="flex min-h-screen items-center justify-center bg-stone-100 px-4 dark:bg-stone-950">
-		<div class="w-full max-w-md space-y-6">
+		<main class="w-full max-w-md space-y-6">
 			<!-- Profile Card -->
 			<div class="border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
 				<h1 class="mb-4 text-center text-2xl font-bold">{m.profile()}</h1>
 
 				{#if error}
-					<div class="mb-4 bg-red-100 p-3 text-red-700 dark:bg-red-900 dark:text-red-100">
+					<div
+						class="mb-4 bg-red-100 p-3 text-red-700 dark:bg-red-900 dark:text-red-100"
+						role="alert"
+						aria-live="polite"
+						aria-atomic="true"
+					>
 						{error}
 					</div>
 				{/if}
 
 				{#if success}
-					<div class="mb-4 bg-green-100 p-3 text-green-700 dark:bg-green-900 dark:text-green-100">
+					<div
+						class="mb-4 bg-green-100 p-3 text-green-700 dark:bg-green-900 dark:text-green-100"
+						role="status"
+						aria-live="polite"
+						aria-atomic="true"
+					>
 						{success}
 					</div>
 				{/if}
 
 				<div class="space-y-4">
 					<div>
-						<label class="text-stone-500 uppercase dark:text-stone-400">{m.username()}</label>
+						<label for="username" class="text-stone-500 uppercase dark:text-stone-400"
+							>{m.username()}</label
+						>
 						{#if editMode}
 							<input
 								bind:value={tempUser.username}
+								id="username"
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 							/>
 						{:else}
@@ -82,9 +95,10 @@
 					</div>
 
 					<div>
-						<label class="text-stone-500 uppercase dark:text-stone-400">Email</label>
+						<label for="email" class="text-stone-500 uppercase dark:text-stone-400">Email</label>
 						{#if editMode}
 							<input
+								id="email"
 								bind:value={tempUser.email}
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 							/>
@@ -95,12 +109,13 @@
 
 					{#if showPassword}
 						<div>
-							<label class="text-stone-500 uppercase dark:text-stone-400">
-								<!-- {m.password()} -->
-								password
+							<label for="current-password" class="text-stone-500 uppercase dark:text-stone-400">
+								{m.password()}
 							</label>
 							<input
 								type="password"
+								id="current-password"
+								aria-required="true"
 								bind:value={verifyPassword}
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 							/>
@@ -129,8 +144,7 @@
 								}
 							}}
 						>
-							<!-- {m.cancel()} -->
-							cancel
+							{m.cancel()}
 						</button>
 						<button
 							class="bg-black px-4 py-2 text-sm text-white uppercase hover:bg-stone-800 dark:bg-white dark:text-black dark:hover:bg-stone-200"
@@ -174,22 +188,23 @@
 								}
 							}}
 						>
-							<!-- {m.save()} -->
-							save
+							{m.save()}
 						</button>
 					{:else}
 						<button
 							class="border border-stone-700 px-4 py-2 text-sm uppercase hover:bg-black hover:text-white dark:border-stone-300 dark:hover:bg-white dark:hover:text-black"
-							onclick={() => {
+							onclick={async () => {
 								editMode = true;
 
 								if (user !== undefined) {
 									tempUser = { username: user.username, email: user.email };
 								}
+								// Focus the first input after the DOM updates
+								await tick();
+								document.getElementById('username')?.focus();
 							}}
 						>
-							<!-- {m.edit_profile()} -->
-							edir profile
+							{m.edit_profile()}
 						</button>
 					{/if}
 				</div>
@@ -198,30 +213,31 @@
 			<!-- Password Update Card -->
 			<div class="border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
 				<h2 class="mb-4 text-xl font-bold">
-					<!-- {m.change_password()} -->
-					change password
+					{m.change_password()}
 				</h2>
 
 				{#if passwordEditMode}
 					<div class="space-y-4">
 						<div>
-							<label class="text-stone-500 uppercase dark:text-stone-400">
-								<!-- {m.current_password()} -->
-								current password
+							<label for="current-password" class="text-stone-500 uppercase dark:text-stone-400">
+								{m.current_password()}
 							</label>
 							<input
 								type="password"
+								id="current-password"
 								bind:value={passwords.current}
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
+								aria-required="true"
 							/>
 						</div>
 
 						<div>
-							<label class="text-stone-500 uppercase dark:text-stone-400">
-								<!-- {m.new_password()} -->
-								new password
+							<label for="new-password" class="text-stone-500 uppercase dark:text-stone-400">
+								{m.new_password()}
 							</label>
 							<input
+								id="new-password"
+								aria-required="true"
 								type="password"
 								bind:value={passwords.new}
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
@@ -229,11 +245,12 @@
 						</div>
 
 						<div>
-							<label class="text-stone-500 uppercase dark:text-stone-400">
-								<!-- {m.confirm_password()} -->
-								confirm password
+							<label for="confirm-password" class="text-stone-500 uppercase dark:text-stone-400">
+								{m.confirm_password()}
 							</label>
 							<input
+								id="confirm-password"
+								aria-required="true"
 								type="password"
 								bind:value={passwords.confirm}
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
@@ -243,16 +260,57 @@
 						<div class="flex justify-end gap-2">
 							<button
 								class="px-4 py-2 text-sm uppercase hover:underline"
-								onclick={() => (passwordEditMode = false)}
+								onclick={() => {
+									passwordEditMode = false;
+									error = null;
+									success = null;
+								}}
 							>
-								<!-- {m.cancel()} -->
-								cancel
+								{m.cancel()}
 							</button>
 							<button
 								class="bg-black px-4 py-2 text-sm text-white uppercase hover:bg-stone-800 dark:bg-white dark:text-black dark:hover:bg-stone-200"
+								onclick={async () => {
+									// Reset previous messages
+									error = null;
+									success = null;
+
+									// Validate input fields
+									if (!passwords.current || !passwords.new || !passwords.confirm) {
+										error = m.profile_password_all_required();
+										return;
+									}
+
+									if (passwords.new !== passwords.confirm) {
+										error = m.profile_passwords_do_not_match();
+										return;
+									}
+
+									// Send request to update password
+									const response = await fetch('/api/user/update/password', {
+										method: 'PUT',
+										headers: {
+											'Content-Type': 'application/json'
+										},
+										body: JSON.stringify({
+											password: passwords.current,
+											new_password: passwords.new
+										})
+									});
+
+									// Handle response
+									if (!response.ok) {
+										const data = await response.json().catch(() => ({}));
+										error = data.message || m.profile_password_update_failed();
+									} else {
+										success = m.profile_password_updated_successfully();
+										error = null;
+										passwords = { current: '', new: '', confirm: '' };
+										passwordEditMode = false;
+									}
+								}}
 							>
-								<!-- {m.save()} -->
-								save
+								{m.save_password()}
 							</button>
 						</div>
 					</div>
@@ -261,8 +319,7 @@
 						class="w-full border border-stone-700 px-4 py-2 text-sm uppercase hover:bg-black hover:text-white dark:border-stone-300 dark:hover:bg-white dark:hover:text-black"
 						onclick={() => (passwordEditMode = true)}
 					>
-						<!-- {m.change_password()} -->
-						change password
+						{m.change_password()}
 					</button>
 				{/if}
 			</div>
@@ -279,6 +336,6 @@
 					{m.logout()}
 				</button>
 			</div>
-		</div>
+		</main>
 	</div>
 {/if}
