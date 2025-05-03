@@ -293,7 +293,7 @@
 			{#each [1, 2, 3, 4, 5] as n (n)}
 				<button
 					type="button"
-					class="border border-current px-3 py-2"
+					class="cursor-pointer border border-current px-3 py-2"
 					class:bg-white={mood === n}
 					class:text-black={mood === n}
 					class:text-current={mood !== n}
