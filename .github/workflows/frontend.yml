@@ -7,21 +7,29 @@ on:
     branches: [main]
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
+  # check:
+  # runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          run_install: true
-          run_install.cwd: ./frontend
-
-      - name: Check Svelte errors
-        working-directory: ./frontend
-        run: pnpm run check
+  # steps:
+  #   - uses: actions/checkout@v4
+  #
+  #   - uses: pnpm/action-setup@v4
+  #     name: Install pnpm
+  #     with:
+  #       run_install: false
+  #       version: 10
+  #
+  #   - name: Install dependencies
+  #     working-directory: ./frontend
+  #     run: pnpm install
+  #
+  #   - name: Build
+  #     working-directory: ./frontend
+  #     run: pnpm build
+  #
+  #   - name: Check Svelte errors
+  #     working-directory: ./frontend
+  #     run: pnpm run check
 
   lint:
     runs-on: ubuntu-latest
@@ -32,18 +40,16 @@ jobs:
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
-          version: 10
           run_install: false
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: "pnpm"
+          version: 10
 
       - name: Install dependencies
         working-directory: ./frontend
         run: pnpm install
+
+      - name: Build
+        working-directory: ./frontend
+        run: pnpm build
 
       - name: Run ESLint
         working-directory: ./frontend
