@@ -28,12 +28,12 @@ func (h *AuthHandler) Register(c echo.Context) error {
 
 	result, err := h.service.CreateUser(newUser.Username, newUser.Email, newUser.Password)
 	if err != nil {
-		h.logger.Errorf("Ошибка при создании пользователя: %v", err)
-		if errors.Is(err, errs.ErrEmailValidation) {
+		if errors.Is(err, errs.ErrUserAlreadyExists) {
+			h.logger.Infof("Регистрация отклонена: пользователь с почтой %s уже существует", newUser.Email)
 			return c.JSON(http.StatusConflict, map[string]string{"error": "пользователь с такой почтой уже существует"})
-		} else {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось создать пользователя"})
 		}
+		h.logger.Errorf("Неизвестная ошибка при создании пользователя: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось создать пользователя"})
 	}
 
 	uidStr := fmt.Sprintf("%v", result.Uid)
