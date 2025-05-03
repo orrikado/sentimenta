@@ -39,7 +39,11 @@
 		`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
 	let moodMap = $derived(new Map(moods.map((m) => [getDateKey(m.date), m])));
-	const canSubmit = $derived(() => !!(mood !== 0 && diary.trim() && emotions.trim()));
+	const canSubmit = $derived(() => {
+		const future = new Date(selectedDate) > today;
+		// Ensure the selected date is today or in the past
+		return !!(mood !== 0 && diary.trim() && emotions.trim() && !future);
+	});
 
 	// Effects
 	$effect(() => {

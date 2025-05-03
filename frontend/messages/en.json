@@ -35,5 +35,6 @@
 	"log_for": "log for",
 	"close": "close",
 	"previous": "previous",
-	"next": "next"
+	"next": "next",
+	"cant_submit_future": "can't submit your mood for the future"
 }
