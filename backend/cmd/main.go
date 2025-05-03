@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	preLogger, _ := zap.NewProduction()
+	preLogger, _ := zap.NewDevelopment()
 	defer preLogger.Sync() // flushes buffer, if any
 	logger := preLogger.Sugar()
 

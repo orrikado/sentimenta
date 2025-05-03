@@ -18,10 +18,10 @@ func InitDB(c *c.Config, logger *zap.SugaredLogger) *gorm.DB {
 	if err != nil {
 		logger.Fatalf("Не удалось подключится к БД: %v", err)
 	}
-
+	logger.Info("БД: Подключение | Успешно.")
 	if err := db.AutoMigrate(userService.User{}, moodService.Mood{}); err != nil {
 		logger.Fatalf("Не удалось произвести миграцию: %v", err)
 	}
-
+	logger.Info("БД: Автомиграция | Успешно.")
 	return db
 }
