@@ -35,5 +35,18 @@
 	"log_for": "журнал за",
 	"close": "закрыть",
 	"previous": "предыдущий",
-	"next": "следующий"
+	"next": "следующий",
+	"cant_submit_future": "нельзя сохранить свое будущее настроение",
+	"save_password": "сохранить новый пароль",
+	"profile_password_updated_successfully": "пароль успешно обновлен",
+	"profile_password_update_failed": "обновление пароля не удалось",
+	"profile_passwords_do_not_match": "пароли не совпадают",
+	"profile_password_all_required": "все поля обязательны для заполнения",
+	"cancel": "отмена",
+	"current_password": "текущий пароль",
+	"new_password": "новый пароль",
+	"confirm_password": "подтвердите пароль",
+	"change_password": "изменить пароль",
+	"save": "сохранять",
+	"edit_profile": "редактировать профиль"
 }

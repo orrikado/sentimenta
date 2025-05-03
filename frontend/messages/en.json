@@ -36,5 +36,17 @@
 	"close": "close",
 	"previous": "previous",
 	"next": "next",
-	"cant_submit_future": "can't submit your mood for the future"
+	"cant_submit_future": "can't submit your mood for the future",
+	"save_password": "save new password",
+	"profile_password_updated_successfully": "password updated successfully",
+	"profile_password_update_failed": "password update failed",
+	"profile_passwords_do_not_match": "passwords do not match",
+	"profile_password_all_required": "all fields are required",
+	"cancel": "cancel",
+	"current_password": "current password",
+	"new_password": "new password",
+	"confirm_password": "confirm password",
+	"change_password": "change password",
+	"save": "save",
+	"edit_profile": "edit profile"
 }
