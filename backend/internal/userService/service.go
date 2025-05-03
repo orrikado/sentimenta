@@ -40,7 +40,6 @@ func (s *userService) CreateUser(username string, email string, password string)
 }
 
 func (s *userService) GetUser(id string) (User, error) {
-	fmt.Printf("UID from token: %q (len=%d)\n", id, len(id))
 	return s.repo.GetUser(id)
 }
 

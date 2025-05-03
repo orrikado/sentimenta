@@ -29,7 +29,7 @@ func (h *MoodHandler) PostAddMood(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}
 
-	mood, err := h.service.CreateMood(userID, reqMood.Score, reqMood.Emotions, reqMood.Description)
+	mood, err := h.service.CreateMood(userID, reqMood.Score, reqMood.Emotions, reqMood.Description, reqMood.Date)
 	if err != nil {
 		h.logger.Errorf("Ошибка при создании mood (%v) у пользователя с id: %v: %v", mood, userID, err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось создать mood"})

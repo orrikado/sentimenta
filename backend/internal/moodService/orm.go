@@ -16,10 +16,10 @@ type Mood struct {
 }
 
 type MoodAdd struct {
-	Score       int    `json:"score"`
-	Emotions    string `json:"emotions"`
-	Description string `json:"description,omitempty"`
-	Date        string `json:"date"`
+	Score       int       `json:"score"`
+	Emotions    string    `json:"emotions"`
+	Description string    `json:"description,omitempty"`
+	Date        time.Time `json:"date"`
 }
 
 type MoodUpdate struct {
