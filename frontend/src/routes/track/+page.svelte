@@ -164,7 +164,7 @@
 	<title>Sentimenta | Track moods</title>
 </svelte:head>
 
-<div class="mx-auto my-4 md:max-w-3/5">
+<main class="mx-auto my-4 md:max-w-3/5">
 	<div class="flex items-center justify-between p-4">
 		<button class="text-gray-300 hover:text-yellow-300" onclick={goToPreviousMonth}
 			>{m.previous()}</button
@@ -175,33 +175,48 @@
 
 	<div
 		class="grid grid-cols-7 gap-0.5 border border-stone-300 bg-white p-1 text-sm text-black md:p-2 dark:border-white/10 dark:bg-stone-900 dark:text-white"
+		role="grid"
+		aria-label="Calendar Grid"
 	>
 		{#each [m.sun(), m.mon(), m.tue(), m.wed(), m.thu(), m.fri(), m.sat()] as day (day)}
-			<div class="border-b border-white/10 p-2 text-center font-bold">{day}</div>
+			<div class="border-b border-white/10 p-2 text-center font-bold" role="columnheader">
+				{day}
+			</div>
 		{/each}
 
 		{#each days as date (date)}
-			<button
-				class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center p-2 text-center text-xl`}
-				class:border={date instanceof Date && !isNaN(date.getDate())}
-				onclick={() => {
-					if (date instanceof Date && !isNaN(date.getDate())) {
-						selectedDate = date;
-						showModal = true;
-					}
-				}}
-			>
-				{#if date instanceof Date && !isNaN(date.getDate())}
+			{#if date instanceof Date && !isNaN(date.getDate())}
+				<button
+					class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center p-2 text-center text-xl`}
+					class:border={date instanceof Date && !isNaN(date.getDate())}
+					tabindex="0"
+					role="gridcell"
+					aria-label={`Select ${date.toLocaleDateString()}`}
+					aria-selected={moodMap.has(getDateKey(date)) ? 'true' : 'false'}
+					onclick={() => {
+						if (date instanceof Date && !isNaN(date.getDate())) {
+							selectedDate = date;
+							showModal = true;
+						}
+					}}
+				>
 					{date.getDate()}
-				{/if}
-			</button>
+				</button>
+			{:else}
+				<div class="aspect-square" role="gridcell" aria-hidden="true">
+					<!-- Blank cell -->
+				</div>
+			{/if}
 		{/each}
 	</div>
-</div>
+</main>
 
 <Modal bind:showModal>
 	{#snippet header()}
-		<h2 class="text-center font-bold">{m.log_for()} {selectedDate.toLocaleDateString()}</h2>
+		<h2 id="modal-title" class="text-center font-bold">
+			{m.log_for()}
+			{selectedDate.toLocaleDateString()}
+		</h2>
 	{/snippet}
 
 	<form
@@ -288,10 +303,12 @@
 		<h1 class="text-center text-2xl">{m.start_your_day()}</h1>
 
 		<!-- Mood Rating -->
-		<div class="flex justify-center gap-4">
+		<div role="radiogroup" class="flex justify-center gap-4">
 			{#each [1, 2, 3, 4, 5] as n (n)}
 				<button
 					type="button"
+					role="radio"
+					aria-checked={mood === n}
 					class="cursor-pointer border border-current px-3 py-2"
 					class:bg-white={mood === n}
 					class:text-black={mood === n}
@@ -305,19 +322,21 @@
 		</div>
 
 		<!-- Emotions -->
+		<label for="emotions" class="sr-only">{m.emotions_label()}</label>
 		<input
 			type="text"
+			id="emotions"
 			placeholder={m.start_emotions_placeholder()}
 			bind:value={emotions}
-			aria-describedby="emotions-description"
 			class="w-full border border-current bg-transparent px-3 py-2 placeholder-current"
 		/>
 
 		<!-- Diary -->
+		<label for="diary" class="sr-only">{m.diary_label()}</label>
 		<textarea
 			placeholder={m.start_today()}
+			id="diary"
 			bind:value={diary}
-			aria-describedby="diary-description"
 			class="h-40 w-full border border-current bg-transparent px-3 py-2 placeholder-current"
 		></textarea>
 
@@ -329,16 +348,19 @@
 			class:text-black={canSubmit()}
 			class:opacity-50={!canSubmit()}
 			class:pointer-events-none={!canSubmit()}
+			aria-disabled={!canSubmit}
 			class:cursor-pointer={submitInProcess || canSubmit()}
 		>
 			{m.start_process()}
 		</button>
 
-		{#if formError}
-			<p class="text-sm text-red-500 dark:text-red-400">{formError}</p>
-		{/if}
-		{#if formSuccess}
-			<p class="text-sm text-green-500 dark:text-green-400">{m.mood_upload_success()}</p>
-		{/if}
+		<div aria-live="polite" aria-atomic="true">
+			{#if formError}
+				<p class="text-sm text-red-500 dark:text-red-400">{formError}</p>
+			{/if}
+			{#if formSuccess}
+				<p class="text-sm text-green-500 dark:text-green-400">{m.mood_upload_success()}</p>
+			{/if}
+		</div>
 	</form>
 </Modal>

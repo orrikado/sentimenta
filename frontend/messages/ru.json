@@ -48,5 +48,8 @@
 	"confirm_password": "подтвердите пароль",
 	"change_password": "изменить пароль",
 	"save": "сохранять",
-	"edit_profile": "редактировать профиль"
+	"edit_profile": "редактировать профиль",
+	"close_modal": "закрыть окно",
+	"diary_label": "дневник",
+	"emotions_label": "эмоции"
 }
