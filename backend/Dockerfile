@@ -1,11 +1,24 @@
-FROM python:3.12-slim
+FROM golang:1.24.2-alpine AS builder
+
+RUN apk add --no-cache git
 
 WORKDIR /app
 
-COPY requirements.txt ./
+COPY go.mod go.sum ./
 
-RUN pip install -r requirements.txt
+RUN go mod download
 
 COPY . .
 
-CMD ["python", "src/main.py"]
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/main ./cmd/main.go
+
+
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /app/main /app/main
+
+EXPOSE 8000
+
+CMD [ "/app/main" ]
