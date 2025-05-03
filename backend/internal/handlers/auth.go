@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -8,15 +9,23 @@ import (
 	errs "sentimenta/internal/errors"
 	JWT "sentimenta/internal/jwt"
 	us "sentimenta/internal/userService"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
 type AuthHandler struct {
 	service us.UserService
 	config  c.Config
 	logger  *zap.SugaredLogger
+}
+
+type OAuthCallbackRequest struct {
+	Code         string `json:"code"`
+	CodeVerifier string `json:"codeVerifier"`
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
@@ -86,6 +95,55 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	c.SetCookie(&jwt_cookie)
 	return c.JSON(http.StatusOK, user)
 
+}
+
+func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
+	var reqBody OAuthCallbackRequest
+	if err := c.Bind(&reqBody); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	if reqBody.Code == "" || reqBody.CodeVerifier == "" {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "Missing code or code_verifier",
+		})
+	}
+
+	// Настройка OAuth2 конфигурации
+	conf := &oauth2.Config{
+		ClientID:     h.config.GOOGLE_CLIENT_ID,
+		ClientSecret: h.config.GOOGLE_CLIENT_SECRET,
+		RedirectURL:  h.config.GOOGLE_CLIENT_CALLBACK,
+		Scopes:       []string{"openid", "email", "profile"},
+		Endpoint:     google.Endpoint,
+	}
+
+	// Поддержка PKCE
+	ctx := context.Background()
+	token, err := conf.Exchange(ctx, reqBody.Code, oauth2.SetAuthURLParam("code_verifier", reqBody.CodeVerifier))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "Failed to exchange token",
+		})
+	}
+
+	// Создание безопасной куки
+	cookie := &http.Cookie{
+		Name:     "session",
+		Value:    token.AccessToken,
+		HttpOnly: false, // !!!
+		Secure:   false, // !!!
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   int((time.Hour * 24 * 30).Seconds()),
+		Path:     "/",
+	}
+	c.SetCookie(cookie)
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "Login successful",
+	})
 }
 
 func NewAuthHandler(s us.UserService, cfg c.Config, logger *zap.SugaredLogger) *AuthHandler {

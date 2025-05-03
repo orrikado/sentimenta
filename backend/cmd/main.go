@@ -37,6 +37,8 @@ func main() {
 	e.POST("/api/auth/login", authHandler.Login)
 	e.POST("/api/auth/register", authHandler.Register)
 
+	e.POST("/api/auth/google/callback", authHandler.GoogleAuthCallback)
+
 	e.GET("/api/user/get", userHandler.GetUser)
 	e.PATCH("/api/user/update", userHandler.PatchUpdateUser)
 	e.PUT("/api/user/update/password", userHandler.PutUpdatePasswordUser)

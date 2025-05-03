@@ -8,11 +8,13 @@ require (
 	github.com/labstack/echo/v4 v4.13.3
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.37.0
+	golang.org/x/oauth2 v0.29.0
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.26.0
 )
 
 require (
+	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.5.5 // indirect

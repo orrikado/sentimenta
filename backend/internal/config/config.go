@@ -16,6 +16,10 @@ type Config struct {
 
 	JWT_COOKIE_NAME string
 	JWT_SECRET      string
+
+	GOOGLE_CLIENT_ID       string
+	GOOGLE_CLIENT_SECRET   string
+	GOOGLE_CLIENT_CALLBACK string
 }
 
 func NewConfig() *Config {
@@ -33,6 +37,10 @@ func NewConfig() *Config {
 
 		JWT_COOKIE_NAME: os.Getenv("JWT_COOKIE_NAME"),
 		JWT_SECRET:      os.Getenv("JWT_SECRET"),
+
+		GOOGLE_CLIENT_ID:       os.Getenv("GOOGLE_CLIENT_ID"),
+		GOOGLE_CLIENT_SECRET:   os.Getenv("GOOGLE_CLIENT_SECRET"),
+		GOOGLE_CLIENT_CALLBACK: os.Getenv("GOOGLE_CLIENT_CALLBACK"),
 	}
 }
 
