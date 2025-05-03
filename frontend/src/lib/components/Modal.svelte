@@ -6,7 +6,6 @@
 	// State with proper null handling
 	let modalContent = $state<HTMLElement | null>(null);
 	let firstFocusableElement = $state<HTMLElement | null>(null);
-	let lastFocusableElement = $state<HTMLElement | null>(null);
 
 	function trapFocus(e: KeyboardEvent) {
 		if (!modalContent) return;
@@ -47,7 +46,6 @@
 			);
 
 			firstFocusableElement = focusables[0] ?? null;
-			lastFocusableElement = focusables[focusables.length - 1] ?? null;
 
 			// Set initial focus
 			setTimeout(() => {
