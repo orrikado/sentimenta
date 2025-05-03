@@ -1,32 +1,39 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	c "sentimenta/internal/config"
-	"sentimenta/internal/jwt"
+	JWT "sentimenta/internal/jwt"
 	us "sentimenta/internal/userService"
 
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 type AuthHandler struct {
 	service us.UserService
 	config  c.Config
+	logger  *zap.SugaredLogger
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
 	var newUser us.UserRegister
 	if err := c.Bind(&newUser); err != nil {
-		return c.JSON(http.StatusBadRequest, "неверная форма данных")
+		h.logger.Errorf("Ошибка при Bind UserRegister: %v", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}
 	result, err := h.service.CreateUser(newUser.Username, newUser.Email, newUser.Password)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, "не удалось создать пользователя")
+		h.logger.Errorf("Ошибка при создании пользователя: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось создать пользователя"})
 	}
 
-	jwtToken, err := jwt.GenerateJWT(string(result.Uid))
+	uidStr := fmt.Sprintf("%v", result.Uid)
+	jwtToken, err := JWT.GenerateJWT(uidStr)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, "не удалось сгенерировать токен")
+		h.logger.Errorf("Ошибка при генерации JWT-Токена: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось сгенерировать токен"})
 	}
 
 	jwt_cookie := http.Cookie{
@@ -44,17 +51,21 @@ func (h *AuthHandler) Register(c echo.Context) error {
 func (h *AuthHandler) Login(c echo.Context) error {
 	var reqUser us.UserLogin
 	if err := c.Bind(&reqUser); err != nil {
-		return c.JSON(http.StatusBadRequest, "неверная форма данных")
+		h.logger.Errorf("Ошибка при Bind UserLogin: %v", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}
 
 	user, err := h.service.Authenticate(reqUser.Email, reqUser.Password)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, "данные не верны")
+		h.logger.Errorf("Ошибка аутентификации: %v", err)
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "данные не верны"})
 	}
 
-	jwtToken, err := jwt.GenerateJWT(string(user.Uid))
+	uidStr := fmt.Sprintf("%v", user.Uid)
+	jwtToken, err := JWT.GenerateJWT(uidStr)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, "не удалось сгенерировать токен")
+		h.logger.Errorf("Ошибка при генерации JWT-Токена: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось сгенерировать токен"})
 	}
 
 	jwt_cookie := http.Cookie{
@@ -70,6 +81,6 @@ func (h *AuthHandler) Login(c echo.Context) error {
 
 }
 
-func NewAuthHandler(s us.UserService, cfg c.Config) *AuthHandler {
-	return &AuthHandler{service: s, config: cfg}
+func NewAuthHandler(s us.UserService, cfg c.Config, logger *zap.SugaredLogger) *AuthHandler {
+	return &AuthHandler{service: s, config: cfg, logger: logger}
 }

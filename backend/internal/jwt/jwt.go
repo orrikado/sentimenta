@@ -8,7 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = cfg.Settings.JWT_SECRET
+var config = cfg.NewConfig()
 
 func GenerateJWT(userID string) (string, error) {
 	claims := jwt.MapClaims{
@@ -19,7 +19,7 @@ func GenerateJWT(userID string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(cfg.Settings.JWT_SECRET))
+	return token.SignedString([]byte(config.JWT_SECRET))
 }
 
 func ParseJWT(tokenStr string) (string, error) {
@@ -28,14 +28,14 @@ func ParseJWT(tokenStr string) (string, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("неподдерживаемый метод подписи")
 		}
-		return jwtKey, nil
+		return []byte(config.JWT_SECRET), nil
 	})
 	if err != nil {
 		return "", err
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		if uid, ok := claims["user_id"].(string); ok {
+		if uid, ok := claims["sub"].(string); ok {
 			return uid, nil
 		}
 	}

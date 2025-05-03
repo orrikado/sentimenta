@@ -18,7 +18,7 @@ func (r *moodRepository) CreateMood(mood *Mood) error {
 }
 
 func (r *moodRepository) DeleteMood(id string) error {
-	return r.db.Delete(&Mood{}, "id = ?", id).Error
+	return r.db.Delete(&Mood{}, "uid = ?", id).Error
 }
 
 func (r *moodRepository) GetMoods(userID string) ([]Mood, error) {

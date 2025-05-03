@@ -9,11 +9,16 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.uber.org/zap"
 )
 
 func main() {
+	preLogger, _ := zap.NewProduction()
+	defer preLogger.Sync() // flushes buffer, if any
+	logger := preLogger.Sugar()
+
 	cfg := config.NewConfig()
-	db := db.InitDB(cfg)
+	db := db.InitDB(cfg, logger)
 
 	userRepo := userService.NewRepository(db)
 	userService := userService.NewService(userRepo)
@@ -21,9 +26,9 @@ func main() {
 	moodRepo := moodService.NewRepository(db)
 	moodService := moodService.NewService(moodRepo)
 
-	userHandler := handlers.NewUserHandler(userService)
-	authHandler := handlers.NewAuthHandler(userService, *cfg)
-	moodHandler := handlers.NewMoodHandler(moodService, *cfg)
+	userHandler := handlers.NewUserHandler(userService, logger)
+	authHandler := handlers.NewAuthHandler(userService, *cfg, logger)
+	moodHandler := handlers.NewMoodHandler(moodService, *cfg, logger)
 
 	e := echo.New()
 	e.Use(middleware.CORS())

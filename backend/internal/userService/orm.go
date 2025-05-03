@@ -6,13 +6,22 @@ import (
 )
 
 type User struct {
-	Uid          int       `json:"uid" gorm:"primaryKey;autoIncrement"`
+	Uid          int       `json:"uid" gorm:"primaryKey;autoIncrement;unique"`
 	Username     string    `json:"username"`
-	Email        string    `json:"email"`
+	Email        string    `json:"email" gorm:"unique"`
 	PasswordHash string    `json:"password_hash"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 	Moods        []m.Mood  `json:"moods"`
+}
+
+type UserGet struct {
+	Uid       int       `json:"uid" gorm:"primaryKey;autoIncrement;unique"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email" gorm:"unique"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Moods     []m.Mood  `json:"moods"`
 }
 
 type UserUpdate struct {

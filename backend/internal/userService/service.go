@@ -2,6 +2,7 @@ package userService
 
 import (
 	"errors"
+	"fmt"
 	"sentimenta/internal/hash"
 	"sentimenta/internal/utils"
 )
@@ -31,13 +32,15 @@ func (s *userService) CreateUser(username string, email string, password string)
 		Email:        email,
 		PasswordHash: passwordHash,
 	}
-	if err := s.repo.CreateUser(newUser); err != nil {
+	if err := s.repo.CreateUser(&newUser); err != nil {
 		return User{}, err
 	}
+
 	return newUser, nil
 }
 
 func (s *userService) GetUser(id string) (User, error) {
+	fmt.Printf("UID from token: %q (len=%d)\n", id, len(id))
 	return s.repo.GetUser(id)
 }
 
@@ -76,6 +79,7 @@ func (s *userService) Authenticate(email, password string) (User, error) {
 	if !hash.VerifyPassword(password, user.PasswordHash) {
 		return User{}, errors.New("Неверный пароль")
 	}
+	fmt.Printf("Authenticate User: %v", user)
 	return user, nil
 }
 

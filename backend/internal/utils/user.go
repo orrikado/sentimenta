@@ -1,14 +1,16 @@
 package utils
 
 import (
-	"sentimenta/internal/config"
+	cfg "sentimenta/internal/config"
 	"sentimenta/internal/jwt"
 
 	"github.com/labstack/echo/v4"
 )
 
+var config = cfg.NewConfig()
+
 func GetUserID(c echo.Context) (string, error) {
-	jwtCookie, err := c.Cookie(config.Settings.JWT_COOKIE_NAME)
+	jwtCookie, err := c.Cookie(config.JWT_COOKIE_NAME)
 	if err != nil {
 		return "", err
 	}

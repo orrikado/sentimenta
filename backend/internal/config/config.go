@@ -36,7 +36,5 @@ func NewConfig() *Config {
 	}
 }
 
-var Settings = NewConfig()
-
 //  = 5432
 //  = "access_token"
