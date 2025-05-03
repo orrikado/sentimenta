@@ -119,19 +119,25 @@
 				switch (moods.get(getDateKey(date))?.score) {
 					case 1:
 						classes += 'bg-red-300 dark:bg-red-900 ';
+						break;
 					case 2:
 						classes += 'bg-orange-300 dark:bg-orange-900 ';
+						break;
 					case 3:
 						classes += 'bg-yellow-400 dark:bg-yellow-900 ';
+						break;
 					case 4:
 						classes += 'bg-green-300 dark:bg-green-900 ';
+						break;
 					case 5:
 						classes += 'bg-blue-300 dark:bg-blue-900 ';
+						break;
 				}
 			} else {
 				classes += 'bg-stone-100 dark:bg-stone-800 ';
 			}
 		}
+		console.log(classes);
 		return classes;
 	}
 
@@ -319,11 +325,12 @@
 		<!-- Submit -->
 		<button
 			type="submit"
-			class="border border-current px-6 py-2 text-center"
+			class="border border-current px-6 py-2 text-center transition-colors duration-300"
 			class:bg-white={canSubmit()}
 			class:text-black={canSubmit()}
 			class:opacity-50={!canSubmit()}
 			class:pointer-events-none={!canSubmit()}
+			class:cursor-pointer={submitInProcess || canSubmit()}
 		>
 			{m.start_process()}
 		</button>
