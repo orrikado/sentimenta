@@ -157,9 +157,6 @@
 									body.password = verifyPassword;
 								}
 
-								console.log(body);
-								console.log(JSON.stringify(body));
-
 								let response = await fetch(`/api/user/update`, {
 									method: 'PATCH',
 									headers: {

@@ -137,7 +137,6 @@
 				classes += 'bg-stone-100 dark:bg-stone-800 ';
 			}
 		}
-		console.log(classes);
 		return classes;
 	}
 
