@@ -8,7 +8,7 @@ import (
 	"net/http"
 	c "sentimenta/internal/config"
 	errs "sentimenta/internal/errors"
-	JWT "sentimenta/internal/jwt"
+	"sentimenta/internal/security"
 	us "sentimenta/internal/userService"
 
 	"github.com/labstack/echo/v4"
@@ -21,6 +21,7 @@ type AuthHandler struct {
 	config   c.Config
 	logger   *zap.SugaredLogger
 	oauthCfg *oauth2.Config
+	JWT      security.JWT
 }
 
 type OAuthCallbackRequest struct {
@@ -46,7 +47,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	}
 
 	uidStr := fmt.Sprintf("%v", result.Uid)
-	jwtToken, err := JWT.GenerateJWT(uidStr)
+	jwtToken, err := h.JWT.GenerateJWT(uidStr)
 	if err != nil {
 		h.logger.Errorf("Ошибка при генерации JWT-Токена: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось сгенерировать токен"})
@@ -78,7 +79,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	}
 
 	uidStr := fmt.Sprintf("%v", user.Uid)
-	jwtToken, err := JWT.GenerateJWT(uidStr)
+	jwtToken, err := h.JWT.GenerateJWT(uidStr)
 	if err != nil {
 		h.logger.Errorf("Ошибка при генерации JWT-Токена: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось сгенерировать токен"})
@@ -131,6 +132,6 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 	return c.JSON(http.StatusOK, userInfo)
 }
 
-func NewAuthHandler(s us.UserService, cfg c.Config, logger *zap.SugaredLogger, oauthConfig *oauth2.Config) *AuthHandler {
-	return &AuthHandler{service: s, config: cfg, logger: logger, oauthCfg: oauthConfig}
+func NewAuthHandler(s us.UserService, cfg c.Config, logger *zap.SugaredLogger, oauthConfig *oauth2.Config, JWT security.JWT) *AuthHandler {
+	return &AuthHandler{service: s, config: cfg, logger: logger, oauthCfg: oauthConfig, JWT: JWT}
 }
