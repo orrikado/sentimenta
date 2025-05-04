@@ -11,7 +11,7 @@ import (
 )
 
 type UserService interface {
-	CreateUser(username, email, password string) (User, error)
+	CreateUser(username, email string, password *string) (User, error)
 	GetUser(id string) (User, error)
 	UpdateUser(userID string, u UserUpdate) (User, error)
 	DeleteUser(id string) error
@@ -24,23 +24,28 @@ type userService struct {
 	repo UserRepository
 }
 
-func (s *userService) CreateUser(username string, email string, password string) (User, error) {
+func (s *userService) CreateUser(username string, email string, password *string) (User, error) {
 	if !utils.IsValidEmail(email) {
 		return User{}, errs.ErrEmailValidation
 	}
 
 	existingUser, err := s.repo.GetUserByEmail(email)
 	if err == nil && existingUser != nil {
-		return User{}, errs.ErrUserAlreadyExists
+		return *existingUser, errs.ErrUserAlreadyExists
 	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return User{}, err
 	}
 
-	passwordHash := hash.HashPassword(password)
+	var passwordHashPtr *string
+	if password != nil {
+		hashed := hash.HashPassword(*password)
+		passwordHashPtr = &hashed
+	}
+
 	newUser := User{
 		Username:     username,
 		Email:        email,
-		PasswordHash: passwordHash,
+		PasswordHash: passwordHashPtr,
 	}
 	if err := s.repo.CreateUser(&newUser); err != nil {
 		return User{}, err
@@ -61,7 +66,7 @@ func (s *userService) UpdateUser(userID string, u UserUpdate) (User, error) {
 
 	if u.Password != nil {
 		passwordHash := hash.HashPassword(*u.Password)
-		targetUser.PasswordHash = passwordHash
+		targetUser.PasswordHash = &passwordHash
 	}
 	if u.Username != nil {
 		targetUser.Username = *u.Username
@@ -85,7 +90,7 @@ func (s *userService) Authenticate(email, password string) (User, error) {
 	if err != nil {
 		return User{}, err
 	}
-	if !hash.VerifyPassword(password, user.PasswordHash) {
+	if !hash.VerifyPassword(password, *user.PasswordHash) {
 		return User{}, errs.ErrWrongPassword
 	}
 	fmt.Printf("Authenticate User: %v", user)
@@ -99,7 +104,8 @@ func (s *userService) ChangePassword(userID, password, newPassword string) error
 		return err
 	}
 
-	target.PasswordHash = hash.HashPassword(newPassword)
+	passwordHash := hash.HashPassword(newPassword)
+	target.PasswordHash = &passwordHash
 	if err := s.repo.UpdateUser(target); err != nil {
 		return err
 	}

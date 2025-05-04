@@ -36,7 +36,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}
 
-	result, err := h.service.CreateUser(newUser.Username, newUser.Email, newUser.Password)
+	result, err := h.service.CreateUser(newUser.Username, newUser.Email, &newUser.Password)
 	if err != nil {
 		if errors.Is(err, errs.ErrUserAlreadyExists) {
 			h.logger.Infof("Регистрация отклонена: пользователь с почтой %s уже существует", newUser.Email)
@@ -124,11 +124,43 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to decode user info")
 	}
 
-	// 💡 Здесь ты можешь:
-	// - Создать JWT
-	// - Найти/создать пользователя в БД
-	// - Вернуть JWT/сессию/пользователя
+	email, ok := userInfo["email"].(string)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid email format")
+	}
 
+	name, ok := userInfo["name"].(string)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid name format")
+	}
+
+	user, err := h.service.CreateUser(name, email, nil)
+
+	if err != nil {
+		if err == errs.ErrUserAlreadyExists {
+			h.logger.Infof("Не удалось создать пользователя: %v", err)
+		} else {
+			h.logger.Errorf("Не удалось создать пользователя: %v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create user")
+		}
+	}
+
+	uidStr := fmt.Sprintf("%v", user.Uid)
+	jwtToken, err := h.JWT.GenerateJWT(uidStr)
+	if err != nil {
+		h.logger.Errorf("Ошибка при генерации JWT-Токена: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "не удалось сгенерировать токен")
+	}
+
+	jwt_cookie := http.Cookie{
+		Name:     h.config.JWT_COOKIE_NAME,
+		Value:    jwtToken,
+		HttpOnly: false,
+		Secure:   false,
+		Path:     "/",
+	}
+
+	c.SetCookie(&jwt_cookie)
 	return c.JSON(http.StatusOK, userInfo)
 }
 
