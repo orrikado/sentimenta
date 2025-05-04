@@ -55,6 +55,12 @@ func (h *MoodHandler) GetMoods(c echo.Context) error {
 }
 
 func (h *MoodHandler) PutUpdateMood(c echo.Context) error {
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		h.logger.Errorf("Ошибка. Требуется аутентификация: %v", err)
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
+	}
+
 	var reqMood ms.MoodUpdate
 	if err := c.Bind(&reqMood); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
@@ -67,7 +73,7 @@ func (h *MoodHandler) PutUpdateMood(c echo.Context) error {
 		Description: *reqMood.Description,
 	}
 
-	if err := h.service.UpdateMood(&mood); err != nil {
+	if err := h.service.UpdateMood(userID, &mood); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось обновить mood"})
 	}
 

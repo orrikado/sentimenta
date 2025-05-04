@@ -8,7 +8,7 @@ import (
 type MoodService interface {
 	GetMoods(userID string) ([]Mood, error)
 	CreateMood(userID string, score int, emotions, description string, date time.Time) (Mood, error)
-	UpdateMood(m *Mood) error
+	UpdateMood(userID string, m *Mood) error
 	DeleteMood(id string) error
 }
 
@@ -44,7 +44,12 @@ func (s *moodService) GetMoods(userID string) ([]Mood, error) {
 	return s.repo.GetMoods(userID)
 }
 
-func (s *moodService) UpdateMood(m *Mood) error {
+func (s *moodService) UpdateMood(userID string, m *Mood) error {
+	uidInt, err := strconv.Atoi(userID)
+	if err != nil {
+		return err
+	}
+	m.UserId = uidInt
 	return s.repo.UpdateMood(m)
 }
 
