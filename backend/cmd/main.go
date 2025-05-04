@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sentimenta/internal/auth"
 	"sentimenta/internal/config"
 	"sentimenta/internal/db"
 	"sentimenta/internal/handlers"
@@ -14,11 +15,13 @@ import (
 
 func main() {
 	preLogger, _ := zap.NewDevelopment()
-	defer preLogger.Sync() // flushes buffer, if any
+	defer preLogger.Sync()
 	logger := preLogger.Sugar()
 
 	cfg := config.NewConfig()
 	db := db.InitDB(cfg, logger)
+
+	oauthConfig := auth.NewOAuthConfig(*cfg)
 
 	userRepo := userService.NewRepository(db)
 	userService := userService.NewService(userRepo)
@@ -27,7 +30,7 @@ func main() {
 	moodService := moodService.NewService(moodRepo)
 
 	userHandler := handlers.NewUserHandler(userService, logger)
-	authHandler := handlers.NewAuthHandler(userService, *cfg, logger)
+	authHandler := handlers.NewAuthHandler(userService, *cfg, logger, oauthConfig)
 	moodHandler := handlers.NewMoodHandler(moodService, *cfg, logger)
 
 	e := echo.New()

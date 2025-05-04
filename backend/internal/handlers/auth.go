@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,18 +10,17 @@ import (
 	errs "sentimenta/internal/errors"
 	JWT "sentimenta/internal/jwt"
 	us "sentimenta/internal/userService"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 )
 
 type AuthHandler struct {
-	service us.UserService
-	config  c.Config
-	logger  *zap.SugaredLogger
+	service  us.UserService
+	config   c.Config
+	logger   *zap.SugaredLogger
+	oauthCfg *oauth2.Config
 }
 
 type OAuthCallbackRequest struct {
@@ -94,58 +94,43 @@ func (h *AuthHandler) Login(c echo.Context) error {
 
 	c.SetCookie(&jwt_cookie)
 	return c.JSON(http.StatusOK, user)
-
 }
 
 func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
-	var reqBody OAuthCallbackRequest
-	if err := c.Bind(&reqBody); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "Invalid request body",
-		})
+	var req OAuthCallbackRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payload")
 	}
 
-	if reqBody.Code == "" || reqBody.CodeVerifier == "" {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "Missing code or code_verifier",
-		})
-	}
-
-	// Настройка OAuth2 конфигурации
-	conf := &oauth2.Config{
-		ClientID:     h.config.GOOGLE_CLIENT_ID,
-		ClientSecret: h.config.GOOGLE_CLIENT_SECRET,
-		RedirectURL:  h.config.GOOGLE_CLIENT_CALLBACK,
-		Scopes:       []string{"openid", "email", "profile"},
-		Endpoint:     google.Endpoint,
-	}
-
-	// Поддержка PKCE
 	ctx := context.Background()
-	token, err := conf.Exchange(ctx, reqBody.Code, oauth2.SetAuthURLParam("code_verifier", reqBody.CodeVerifier))
+
+	token, err := h.oauthCfg.Exchange(ctx, req.Code,
+		oauth2.SetAuthURLParam("code_verifier", req.CodeVerifier),
+	)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "Failed to exchange token",
-		})
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Token exchange failed: %v", err))
 	}
 
-	// Создание безопасной куки
-	cookie := &http.Cookie{
-		Name:     "session",
-		Value:    token.AccessToken,
-		HttpOnly: false, // !!!
-		Secure:   false, // !!!
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int((time.Hour * 24 * 30).Seconds()),
-		Path:     "/",
+	client := h.oauthCfg.Client(ctx, token)
+	resp, err := client.Get("https://openidconnect.googleapis.com/v1/userinfo")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get user info: %v", err))
 	}
-	c.SetCookie(cookie)
+	defer resp.Body.Close()
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "Login successful",
-	})
+	var userInfo map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to decode user info")
+	}
+
+	// 💡 Здесь ты можешь:
+	// - Создать JWT
+	// - Найти/создать пользователя в БД
+	// - Вернуть JWT/сессию/пользователя
+
+	return c.JSON(http.StatusOK, userInfo)
 }
 
-func NewAuthHandler(s us.UserService, cfg c.Config, logger *zap.SugaredLogger) *AuthHandler {
-	return &AuthHandler{service: s, config: cfg, logger: logger}
+func NewAuthHandler(s us.UserService, cfg c.Config, logger *zap.SugaredLogger, oauthConfig *oauth2.Config) *AuthHandler {
+	return &AuthHandler{service: s, config: cfg, logger: logger, oauthCfg: oauthConfig}
 }
