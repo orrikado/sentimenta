@@ -16,7 +16,7 @@ func NewJWTMiddleware(cfg config.Config, JWT security.JWT) echo.MiddlewareFunc {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
 			}
 
-			userID, err := JWT.ParseJWT(cookie.Value)
+			userID, err := JWT.ParseJWT(cookie.Value, cfg.JWT_SECRET)
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "невалидный токен"})
 			}

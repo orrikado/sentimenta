@@ -8,3 +8,5 @@ var ErrWrongPassword = errors.New("неверный пароль")
 
 var ErrNotFoundInJWT = errors.New("user_id не найден в токене")
 var ErrUnsupportedSignatureMethod = errors.New("неподдерживаемый метод подписи")
+var ErrTokenExpired = errors.New("токен истек")
+var ErrNoExpClaim = errors.New("не найдено поле exp в токене")

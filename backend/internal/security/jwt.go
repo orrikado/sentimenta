@@ -1,7 +1,6 @@
 package security
 
 import (
-	"sentimenta/internal/config"
 	cfg "sentimenta/internal/config"
 	errs "sentimenta/internal/errors"
 	"time"
@@ -25,19 +24,30 @@ func (j JWT) GenerateJWT(userID string) (string, error) {
 	return token.SignedString([]byte(j.config.JWT_SECRET))
 }
 
-func (j JWT) ParseJWT(tokenStr string) (string, error) {
+func (j JWT) ParseJWT(tokenStr string, secretKey string) (string, error) {
 	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 		// Проверка метода подписи
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errs.ErrUnsupportedSignatureMethod
 		}
-		return []byte(j.config.JWT_SECRET), nil
+		return []byte(secretKey), nil
 	})
 	if err != nil {
 		return "", err
 	}
 
+	// Проверка на валидность токена и срок действия
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		// Проверка срока действия
+		if exp, ok := claims["exp"].(float64); ok {
+			if exp < float64(time.Now().Unix()) {
+				return "", errs.ErrTokenExpired // Если токен истёк
+			}
+		} else {
+			return "", errs.ErrNoExpClaim // Если в токене нет поля exp
+		}
+
+		// Извлечение userID из claim
 		if uid, ok := claims["sub"].(string); ok {
 			return uid, nil
 		}
@@ -46,6 +56,6 @@ func (j JWT) ParseJWT(tokenStr string) (string, error) {
 	return "", errs.ErrNotFoundInJWT
 }
 
-func NewJWT(cfg config.Config) JWT {
+func NewJWT(cfg cfg.Config) JWT {
 	return JWT{config: cfg}
 }
