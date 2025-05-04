@@ -5,7 +5,9 @@ import (
 	"sentimenta/internal/config"
 	"sentimenta/internal/db"
 	"sentimenta/internal/handlers"
+	middlewares "sentimenta/internal/middleware"
 	"sentimenta/internal/moodService"
+	"sentimenta/internal/security"
 	"sentimenta/internal/userService"
 
 	"github.com/labstack/echo/v4"
@@ -20,7 +22,7 @@ func main() {
 
 	cfg := config.NewConfig()
 	db := db.InitDB(cfg, logger)
-
+	jwt := security.NewJWT(*cfg)
 	oauthConfig := auth.NewOAuthConfig(*cfg)
 
 	userRepo := userService.NewRepository(db)
@@ -30,7 +32,7 @@ func main() {
 	moodService := moodService.NewService(moodRepo)
 
 	userHandler := handlers.NewUserHandler(userService, logger)
-	authHandler := handlers.NewAuthHandler(userService, *cfg, logger, oauthConfig)
+	authHandler := handlers.NewAuthHandler(userService, *cfg, logger, oauthConfig, jwt)
 	moodHandler := handlers.NewMoodHandler(moodService, *cfg, logger)
 
 	e := echo.New()
@@ -42,13 +44,17 @@ func main() {
 
 	e.POST("/api/auth/google/callback", authHandler.GoogleAuthCallback)
 
-	e.GET("/api/user/get", userHandler.GetUser)
-	e.PATCH("/api/user/update", userHandler.PatchUpdateUser)
-	e.PUT("/api/user/update/password", userHandler.PutUpdatePasswordUser)
+	userGroup := e.Group("/api/user")
+	userGroup.Use(middlewares.NewJWTMiddleware(*cfg, jwt))
+	userGroup.GET("/get", userHandler.GetUser)
+	userGroup.PATCH("/update", userHandler.PatchUpdateUser)
+	userGroup.PUT("/update/password", userHandler.PutUpdatePasswordUser)
 
-	e.POST("/api/moods/add", moodHandler.PostAddMood)
-	e.GET("/api/moods/get", moodHandler.GetMoods)
-	e.PUT("/api/moods/update", moodHandler.PutUpdateMood)
+	moodGroup := e.Group("/api/moods")
+	moodGroup.Use(middlewares.NewJWTMiddleware(*cfg, jwt))
+	moodGroup.POST("/add", moodHandler.PostAddMood)
+	moodGroup.GET("/get", moodHandler.GetMoods)
+	moodGroup.PUT("/update", moodHandler.PutUpdateMood)
 
 	e.Logger.Fatal(e.Start("0.0.0.0:8000"))
 }
