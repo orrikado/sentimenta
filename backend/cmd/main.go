@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sentimenta/internal/auth"
 	"sentimenta/internal/config"
 	"sentimenta/internal/db"
@@ -17,7 +18,11 @@ import (
 
 func main() {
 	preLogger, _ := zap.NewDevelopment()
-	defer preLogger.Sync()
+	defer func() {
+		if err := preLogger.Sync(); err != nil {
+			fmt.Printf("Failed to sync preLogger: %v\n", err)
+		}
+	}()
 	logger := preLogger.Sugar()
 
 	cfg := config.NewConfig()
