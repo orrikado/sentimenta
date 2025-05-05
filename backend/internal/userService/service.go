@@ -99,14 +99,19 @@ func (s *userService) Authenticate(email, password string) (User, error) {
 }
 
 func (s *userService) ChangePassword(userID, password, newPassword string) error {
-	target, err := s.repo.GetUser(userID)
+	user, err := s.repo.GetUser(userID)
 	if err != nil {
 		return err
 	}
 
+	if *user.PasswordHash != hash.HashPassword(password) {
+		return errs.ErrWrongPassword
+	}
+
 	passwordHash := hash.HashPassword(newPassword)
-	target.PasswordHash = &passwordHash
-	if err := s.repo.UpdateUser(target); err != nil {
+	user.PasswordHash = &passwordHash
+
+	if err := s.repo.UpdateUser(user); err != nil {
 		return err
 	}
 	return nil
