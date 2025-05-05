@@ -24,6 +24,7 @@
 	let diary = $state('');
 	let formError = $state<string | null>(null);
 	let formSuccess = $state<boolean>(false);
+	let notificationMessage = $state('');
 
 	// Types
 	type MoodEntry = {
@@ -173,6 +174,14 @@
 		<button class="text-gray-300 hover:text-yellow-300" onclick={goToNextMonth}>{m.next()}</button>
 	</div>
 
+	{#if notificationMessage}
+		<div
+			class="animate-fade-in-out fixed top-20 right-2 z-50 bg-red-500 px-4 py-2 text-white shadow-md"
+		>
+			{notificationMessage}
+		</div>
+	{/if}
+
 	<div
 		class="grid grid-cols-7 gap-0.5 border border-stone-300 bg-white p-1 text-sm text-black md:p-2 dark:border-white/10 dark:bg-stone-900 dark:text-white"
 		role="grid"
@@ -193,14 +202,21 @@
 					class:dark:hover:bg-slate-700={!(date > today)}
 					tabindex="0"
 					class:cursor-pointer={!(date > today)}
+					class:cursor-not-allowed={date > today}
 					aria-disabled={date > today}
 					role="gridcell"
 					aria-label={`Select ${date.toLocaleDateString()}`}
 					aria-selected={moodMap.has(getDateKey(date)) ? 'true' : 'false'}
 					onclick={() => {
 						if (date instanceof Date && !isNaN(date.getDate())) {
-							selectedDate = date;
-							showModal = true;
+							if (date > today) {
+								notificationMessage = m.cant_submit_future();
+								setTimeout(() => (notificationMessage = ''), 3000);
+								return;
+							} else {
+								selectedDate = date;
+								showModal = true;
+							}
 						}
 					}}
 				>
@@ -368,3 +384,27 @@
 		</div>
 	</form>
 </Modal>
+
+<style>
+	@keyframes fade-in-out {
+		0% {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		10% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+		90% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+		100% {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+	}
+	.animate-fade-in-out {
+		animation: fade-in-out 3s ease-in-out;
+	}
+</style>
