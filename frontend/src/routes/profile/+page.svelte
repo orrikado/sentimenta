@@ -38,10 +38,59 @@
 		}
 	}
 
+	async function changePassword() {
+		// Reset previous messages
+		error = null;
+		success = null;
+
+		// Validate input fields
+		if (!passwords.current || !passwords.new || !passwords.confirm) {
+			error = m.profile_password_all_required();
+			return;
+		}
+
+		if (hasSpace(passwords.new.toString())) {
+			error = m.password_spaces_error();
+			return;
+		}
+
+		if (passwords.new !== passwords.confirm) {
+			error = m.profile_passwords_do_not_match();
+			return;
+		}
+
+		// Send request to update password
+		const response = await fetch('/api/user/update/password', {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				password: passwords.current,
+				new_password: passwords.new
+			})
+		});
+
+		// Handle response
+		if (!response.ok) {
+			const data = await response.json().catch(() => ({}));
+			error = data.message || m.profile_password_update_failed();
+		} else {
+			success = m.profile_password_updated_successfully();
+			error = null;
+			passwords = { current: '', new: '', confirm: '' };
+			passwordEditMode = false;
+		}
+	}
+
 	// Format date to something readable
 	function formatDate(str: string | number | Date) {
 		const d = new Date(str);
 		return d.toLocaleString();
+	}
+
+	function hasSpace(str: string) {
+		return str.indexOf(' ') >= 0;
 	}
 </script>
 
@@ -211,7 +260,10 @@
 			</div>
 
 			<!-- Password Update Card -->
-			<div class="border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
+			<form
+				onsubmit={changePassword}
+				class="border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900"
+			>
 				<h2 class="mb-4 text-xl font-bold">
 					{m.change_password()}
 				</h2>
@@ -225,6 +277,9 @@
 							<input
 								type="password"
 								id="current-password"
+								name="password"
+								required
+								minlength="8"
 								bind:value={passwords.current}
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 								aria-required="true"
@@ -239,6 +294,9 @@
 								id="new-password"
 								aria-required="true"
 								type="password"
+								name="password"
+								required
+								minlength="8"
 								bind:value={passwords.new}
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 							/>
@@ -252,6 +310,9 @@
 								id="confirm-password"
 								aria-required="true"
 								type="password"
+								name="password"
+								required
+								minlength="8"
 								bind:value={passwords.confirm}
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 							/>
@@ -269,46 +330,8 @@
 								{m.cancel()}
 							</button>
 							<button
+								type="submit"
 								class="bg-black px-4 py-2 text-sm text-white uppercase hover:bg-stone-800 dark:bg-white dark:text-black dark:hover:bg-stone-200"
-								onclick={async () => {
-									// Reset previous messages
-									error = null;
-									success = null;
-
-									// Validate input fields
-									if (!passwords.current || !passwords.new || !passwords.confirm) {
-										error = m.profile_password_all_required();
-										return;
-									}
-
-									if (passwords.new !== passwords.confirm) {
-										error = m.profile_passwords_do_not_match();
-										return;
-									}
-
-									// Send request to update password
-									const response = await fetch('/api/user/update/password', {
-										method: 'PUT',
-										headers: {
-											'Content-Type': 'application/json'
-										},
-										body: JSON.stringify({
-											password: passwords.current,
-											new_password: passwords.new
-										})
-									});
-
-									// Handle response
-									if (!response.ok) {
-										const data = await response.json().catch(() => ({}));
-										error = data.message || m.profile_password_update_failed();
-									} else {
-										success = m.profile_password_updated_successfully();
-										error = null;
-										passwords = { current: '', new: '', confirm: '' };
-										passwordEditMode = false;
-									}
-								}}
 							>
 								{m.save_password()}
 							</button>
@@ -322,7 +345,7 @@
 						{m.change_password()}
 					</button>
 				{/if}
-			</div>
+			</form>
 
 			<!-- Logout Button -->
 			<div class="text-right">
