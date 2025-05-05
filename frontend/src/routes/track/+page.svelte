@@ -42,7 +42,7 @@
 	const canSubmit = $derived(() => {
 		const future = new Date(selectedDate) > today;
 		// Ensure the selected date is today or in the past
-		return !!(mood !== 0 && diary.trim() && emotions.trim() && !future);
+		return !!(mood !== 0 && emotions.trim() && !future);
 	});
 
 	// Effects
