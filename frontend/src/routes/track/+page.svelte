@@ -164,7 +164,7 @@
 	<title>Sentimenta | Track moods</title>
 </svelte:head>
 
-<main class="mx-auto my-4 md:max-w-3/5">
+<main class="mx-auto my-4 md:max-w-3/5 xl:max-w-1/2">
 	<div class="flex items-center justify-between p-4">
 		<button class="text-gray-300 hover:text-yellow-300" onclick={goToPreviousMonth}
 			>{m.previous()}</button
