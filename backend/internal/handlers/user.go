@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"sentimenta/internal/config"
 	us "sentimenta/internal/userService"
 	"sentimenta/internal/utils"
 
@@ -12,6 +13,7 @@ import (
 type UserHandler struct {
 	service us.UserService
 	logger  *zap.SugaredLogger
+	config  config.Config
 }
 
 func (h *UserHandler) GetUser(c echo.Context) error {
@@ -63,6 +65,11 @@ func (h *UserHandler) PutUpdatePasswordUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}
 
+	if len([]rune(reqUser.Password)) < h.config.PASSWORD_LENGTH_MIN {
+		h.logger.Infof("Регистрация отклонена: длина пароля меньше нужного")
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "длина пароля меньше нужного"})
+	}
+
 	if err := h.service.ChangePassword(userID, reqUser.Password, reqUser.NewPassword); err != nil {
 		h.logger.Errorf("Ошибка при смене пароля: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Не удалось сменить пароль"})
@@ -70,6 +77,6 @@ func (h *UserHandler) PutUpdatePasswordUser(c echo.Context) error {
 	return nil
 }
 
-func NewUserHandler(s us.UserService, logger *zap.SugaredLogger) *UserHandler {
-	return &UserHandler{service: s, logger: logger}
+func NewUserHandler(s us.UserService, config config.Config, logger *zap.SugaredLogger) *UserHandler {
+	return &UserHandler{service: s, logger: logger, config: config}
 }

@@ -36,6 +36,11 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}
 
+	if len([]rune(newUser.Password)) < h.config.PASSWORD_LENGTH_MIN {
+		h.logger.Infof("Регистрация отклонена: длина пароля меньше нужного")
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "длина пароля меньше нужного"})
+	}
+
 	result, err := h.service.CreateUser(newUser.Username, newUser.Email, &newUser.Password)
 	if err != nil {
 		if errors.Is(err, errs.ErrUserAlreadyExists) {

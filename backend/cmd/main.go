@@ -36,7 +36,7 @@ func main() {
 	moodRepo := moodService.NewRepository(db)
 	moodService := moodService.NewService(moodRepo)
 
-	userHandler := handlers.NewUserHandler(userService, logger)
+	userHandler := handlers.NewUserHandler(userService, *cfg, logger)
 	authHandler := handlers.NewAuthHandler(userService, *cfg, logger, oauthConfig, jwt)
 	moodHandler := handlers.NewMoodHandler(moodService, *cfg, logger)
 

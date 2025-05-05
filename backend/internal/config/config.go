@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -20,12 +21,18 @@ type Config struct {
 	GOOGLE_CLIENT_ID       string
 	GOOGLE_CLIENT_SECRET   string
 	GOOGLE_CLIENT_CALLBACK string
+	PASSWORD_LENGTH_MIN    int
 }
 
 func NewConfig() *Config {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Printf("не удалось загрузить .env: %v\n", err)
+	}
+
+	passwordLenMin, err := strconv.Atoi(os.Getenv("PASSWORD_LENGTH_MIN"))
+	if err != nil {
+		fmt.Printf("не удалось преобразовать переменную PASSWORD_LENGTH_MIN в целое число: %v\n", err)
 	}
 
 	return &Config{
@@ -41,6 +48,8 @@ func NewConfig() *Config {
 		GOOGLE_CLIENT_ID:       os.Getenv("GOOGLE_CLIENT_ID"),
 		GOOGLE_CLIENT_SECRET:   os.Getenv("GOOGLE_CLIENT_SECRET"),
 		GOOGLE_CLIENT_CALLBACK: os.Getenv("GOOGLE_CLIENT_CALLBACK"),
+
+		PASSWORD_LENGTH_MIN: passwordLenMin,
 	}
 }
 

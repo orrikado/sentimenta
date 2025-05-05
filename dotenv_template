@@ -6,4 +6,8 @@ POSTGRES_PASSWORD=sentimenta
 
 JWT_SECRET=secret # generate https://jwtsecret.com/generate or use `openssl rand -hex 256`
 
-OAUTH2_GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CLIENT_CALLBACK=http://localhost:5173/auth/google/callback
+
+PASSWORD_LENGTH_MIN=8
