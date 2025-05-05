@@ -187,9 +187,13 @@
 		{#each days as date (date)}
 			{#if date instanceof Date && !isNaN(date.getDate())}
 				<button
-					class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center p-2 text-center text-xl`}
+					class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center p-2 text-center text-xl transition-colors duration-200 `}
 					class:border={date instanceof Date && !isNaN(date.getDate())}
+					class:hover:bg-slate-200={!(date > today)}
+					class:dark:hover:bg-slate-700={!(date > today)}
 					tabindex="0"
+					class:cursor-pointer={!(date > today)}
+					aria-disabled={date > today}
 					role="gridcell"
 					aria-label={`Select ${date.toLocaleDateString()}`}
 					aria-selected={moodMap.has(getDateKey(date)) ? 'true' : 'false'}
