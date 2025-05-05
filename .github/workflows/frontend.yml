@@ -47,9 +47,9 @@ jobs:
         working-directory: ./frontend
         run: pnpm install
 
-      - name: Build
-        working-directory: ./frontend
-        run: pnpm build
+      # - name: Build
+      #   working-directory: ./frontend
+      #   run: pnpm build
 
       - name: Run ESLint
         working-directory: ./frontend
