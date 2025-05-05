@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { refreshUserId } from '$lib/user';
 	import { onMount } from 'svelte';
 
 	onMount(async () => {
@@ -39,6 +40,7 @@
 				sessionStorage.removeItem('google_state');
 
 				// Redirect user to dashboard
+				refreshUserId();
 				goto('/track');
 			} else {
 				console.error('Google auth failed');
