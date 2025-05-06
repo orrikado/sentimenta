@@ -50,13 +50,13 @@ func main() {
 	e.POST("/api/auth/google/callback", authHandler.GoogleAuthCallback)
 
 	userGroup := e.Group("/api/user")
-	userGroup.Use(middlewares.NewJWTMiddleware(*cfg, jwt))
+	userGroup.Use(middlewares.NewJWTMiddleware(cfg, jwt))
 	userGroup.GET("/get", userHandler.GetUser)
 	userGroup.PATCH("/update", userHandler.PatchUpdateUser)
 	userGroup.PUT("/update/password", userHandler.PutUpdatePasswordUser)
 
 	moodGroup := e.Group("/api/moods")
-	moodGroup.Use(middlewares.NewJWTMiddleware(*cfg, jwt))
+	moodGroup.Use(middlewares.NewJWTMiddleware(cfg, jwt))
 	moodGroup.POST("/add", moodHandler.PostAddMood)
 	moodGroup.GET("/get", moodHandler.GetMoods)
 	moodGroup.PUT("/update", moodHandler.PutUpdateMood)

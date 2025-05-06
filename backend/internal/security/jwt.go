@@ -56,6 +56,6 @@ func (j JWT) ParseJWT(tokenStr string, secretKey string) (string, error) {
 	return "", errs.ErrNotFoundInJWT
 }
 
-func NewJWT(cfg *cfg.Config) JWT {
-	return JWT{config: cfg}
+func NewJWT(cfg *cfg.Config) *JWT {
+	return &JWT{config: cfg}
 }

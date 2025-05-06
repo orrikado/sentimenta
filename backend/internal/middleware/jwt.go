@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func NewJWTMiddleware(cfg config.Config, JWT security.JWT) echo.MiddlewareFunc {
+func NewJWTMiddleware(cfg *config.Config, JWT *security.JWT) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			cookie, err := c.Cookie(cfg.JWT_COOKIE_NAME)

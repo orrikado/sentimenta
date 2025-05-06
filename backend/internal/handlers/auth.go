@@ -21,7 +21,7 @@ type AuthHandler struct {
 	config   *c.Config
 	logger   *zap.SugaredLogger
 	oauthCfg *oauth2.Config
-	JWT      security.JWT
+	JWT      *security.JWT
 }
 
 type OAuthCallbackRequest struct {
@@ -173,6 +173,6 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 	return c.JSON(http.StatusOK, userInfo)
 }
 
-func NewAuthHandler(s us.UserService, cfg *c.Config, logger *zap.SugaredLogger, oauthConfig *oauth2.Config, JWT security.JWT) *AuthHandler {
+func NewAuthHandler(s us.UserService, cfg *c.Config, logger *zap.SugaredLogger, oauthConfig *oauth2.Config, JWT *security.JWT) *AuthHandler {
 	return &AuthHandler{service: s, config: cfg, logger: logger, oauthCfg: oauthConfig, JWT: JWT}
 }
