@@ -104,7 +104,8 @@ func (s *userService) ChangePassword(userID, password, newPassword string) error
 		return err
 	}
 
-	if *user.PasswordHash != hash.HashPassword(password) {
+	newPasswordHash := hash.HashPassword(newPassword)
+	if !hash.VerifyPassword(newPasswordHash, *user.PasswordHash) {
 		return errs.ErrWrongPassword
 	}
 
