@@ -12,7 +12,7 @@ import (
 
 type MoodHandler struct {
 	service ms.MoodService
-	config  c.Config
+	config  *c.Config
 	logger  *zap.SugaredLogger
 }
 
@@ -80,6 +80,6 @@ func (h *MoodHandler) PutUpdateMood(c echo.Context) error {
 	return c.JSON(http.StatusOK, mood)
 }
 
-func NewMoodHandler(s ms.MoodService, cfg c.Config, logger *zap.SugaredLogger) *MoodHandler {
+func NewMoodHandler(s ms.MoodService, cfg *c.Config, logger *zap.SugaredLogger) *MoodHandler {
 	return &MoodHandler{service: s, config: cfg, logger: logger}
 }

@@ -9,7 +9,7 @@ import (
 )
 
 type JWT struct {
-	config cfg.Config
+	config *cfg.Config
 }
 
 func (j JWT) GenerateJWT(userID string) (string, error) {
@@ -56,6 +56,6 @@ func (j JWT) ParseJWT(tokenStr string, secretKey string) (string, error) {
 	return "", errs.ErrNotFoundInJWT
 }
 
-func NewJWT(cfg cfg.Config) JWT {
+func NewJWT(cfg *cfg.Config) JWT {
 	return JWT{config: cfg}
 }

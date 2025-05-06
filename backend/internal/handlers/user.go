@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"sentimenta/internal/config"
+	c "sentimenta/internal/config"
 	us "sentimenta/internal/userService"
 	"sentimenta/internal/utils"
 
@@ -13,7 +13,7 @@ import (
 type UserHandler struct {
 	service us.UserService
 	logger  *zap.SugaredLogger
-	config  config.Config
+	config  *c.Config
 }
 
 func (h *UserHandler) GetUser(c echo.Context) error {
@@ -77,6 +77,6 @@ func (h *UserHandler) PutUpdatePasswordUser(c echo.Context) error {
 	return nil
 }
 
-func NewUserHandler(s us.UserService, config config.Config, logger *zap.SugaredLogger) *UserHandler {
+func NewUserHandler(s us.UserService, config *c.Config, logger *zap.SugaredLogger) *UserHandler {
 	return &UserHandler{service: s, logger: logger, config: config}
 }

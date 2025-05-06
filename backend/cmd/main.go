@@ -27,8 +27,8 @@ func main() {
 
 	cfg := config.NewConfig()
 	db := db.InitDB(cfg, logger)
-	jwt := security.NewJWT(*cfg)
-	oauthConfig := auth.NewOAuthConfig(*cfg)
+	jwt := security.NewJWT(cfg)
+	oauthConfig := auth.NewOAuthConfig(cfg)
 
 	userRepo := userService.NewRepository(db)
 	userService := userService.NewService(userRepo)
@@ -36,9 +36,9 @@ func main() {
 	moodRepo := moodService.NewRepository(db)
 	moodService := moodService.NewService(moodRepo)
 
-	userHandler := handlers.NewUserHandler(userService, *cfg, logger)
-	authHandler := handlers.NewAuthHandler(userService, *cfg, logger, oauthConfig, jwt)
-	moodHandler := handlers.NewMoodHandler(moodService, *cfg, logger)
+	userHandler := handlers.NewUserHandler(userService, cfg, logger)
+	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauthConfig, jwt)
+	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger)
 
 	e := echo.New()
 	e.Use(middleware.CORS())
