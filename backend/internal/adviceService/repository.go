@@ -31,7 +31,7 @@ func (r *adviceRepository) GetAdvice(userID string, date time.Time) (Advice, err
 	var advice Advice
 	err := r.db.
 		Where("DATE(date) = ?", date.Format("2006-01-02")).
-		Find(&advice).
+		First(&advice).
 		Error
 	return advice, err
 }

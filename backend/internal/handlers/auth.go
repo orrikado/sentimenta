@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sentimenta/internal/auth"
 	c "sentimenta/internal/config"
 	errs "sentimenta/internal/errors"
 	"sentimenta/internal/security"
@@ -17,11 +18,11 @@ import (
 )
 
 type AuthHandler struct {
-	service  us.UserService
-	config   *c.Config
-	logger   *zap.SugaredLogger
-	oauthCfg *oauth2.Config
-	JWT      *security.JWT
+	service us.UserService
+	config  *c.Config
+	logger  *zap.SugaredLogger
+	oauth   *auth.OAuth
+	JWT     *security.JWT
 }
 
 type OAuthCallbackRequest struct {
@@ -110,14 +111,14 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 
 	ctx := context.Background()
 
-	token, err := h.oauthCfg.Exchange(ctx, req.Code,
+	token, err := h.oauth.GoogleConfig.Exchange(ctx, req.Code,
 		oauth2.SetAuthURLParam("code_verifier", req.CodeVerifier),
 	)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Token exchange failed: %v", err))
 	}
 
-	client := h.oauthCfg.Client(ctx, token)
+	client := h.oauth.GoogleConfig.Client(ctx, token)
 	resp, err := client.Get("https://openidconnect.googleapis.com/v1/userinfo")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get user info: %v", err))
@@ -173,6 +174,77 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 	return c.JSON(http.StatusOK, userInfo)
 }
 
-func NewAuthHandler(s us.UserService, cfg *c.Config, logger *zap.SugaredLogger, oauthConfig *oauth2.Config, JWT *security.JWT) *AuthHandler {
-	return &AuthHandler{service: s, config: cfg, logger: logger, oauthCfg: oauthConfig, JWT: JWT}
+func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
+	var req OAuthCallbackRequest
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payload")
+	}
+
+	ctx := context.Background()
+
+	token, err := h.oauth.GithubConfig.Exchange(ctx, req.Code,
+		oauth2.SetAuthURLParam("code_verifier", req.CodeVerifier),
+	)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Token exchange failed: %v", err))
+	}
+
+	client := h.oauth.GithubConfig.Client(ctx, token)
+	resp, err := client.Get("https://api.github.com/user")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get user info: %v", err))
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			h.logger.Errorf("Failed to close response body: %v", err)
+		}
+	}()
+
+	var userInfo map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to decode user info")
+	}
+
+	email, ok := userInfo["email"].(string)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid email format")
+	}
+
+	name, ok := userInfo["name"].(string)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid name format")
+	}
+
+	user, err := h.service.CreateUser(name, email, nil)
+
+	if err != nil {
+		if err == errs.ErrUserAlreadyExists {
+			h.logger.Infof("Не удалось создать пользователя: %v", err)
+		} else {
+			h.logger.Errorf("Не удалось создать пользователя: %v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create user")
+		}
+	}
+
+	uidStr := fmt.Sprintf("%v", user.Uid)
+	jwtToken, err := h.JWT.GenerateJWT(uidStr)
+	if err != nil {
+		h.logger.Errorf("Ошибка при генерации JWT-Токена: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "не удалось сгенерировать токен")
+	}
+
+	jwt_cookie := http.Cookie{
+		Name:     h.config.JWT_COOKIE_NAME,
+		Value:    jwtToken,
+		HttpOnly: false,
+		Secure:   false,
+		Path:     "/",
+	}
+
+	c.SetCookie(&jwt_cookie)
+	return c.JSON(http.StatusOK, userInfo)
+}
+
+func NewAuthHandler(s us.UserService, cfg *c.Config, logger *zap.SugaredLogger, oauthConfig *auth.OAuth, JWT *security.JWT) *AuthHandler {
+	return &AuthHandler{service: s, config: cfg, logger: logger, oauth: oauthConfig, JWT: JWT}
 }

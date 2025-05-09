@@ -29,7 +29,7 @@ func main() {
 	cfg := config.NewConfig()
 	db := db.InitDB(cfg, logger)
 	jwt := security.NewJWT(cfg)
-	oauthConfig := auth.NewOAuthConfig(cfg)
+	oauth := auth.NewOAuth(cfg)
 
 	userRepo := userService.NewRepository(db)
 	userService := userService.NewService(userRepo)
@@ -41,7 +41,7 @@ func main() {
 	adviceServ := adviceService.NewService(adviceRepo, moodRepo, userRepo, cfg)
 
 	userHandler := handlers.NewUserHandler(userService, cfg, logger)
-	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauthConfig, jwt)
+	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauth, jwt)
 	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger)
 	adviceHandler := handlers.NewAdviceHandler(adviceServ, logger)
 
@@ -58,6 +58,7 @@ func main() {
 	e.POST("/api/auth/register", authHandler.Register)
 
 	e.POST("/api/auth/google/callback", authHandler.GoogleAuthCallback)
+	e.POST("/api/auth/github/callback", authHandler.GithubAuthCallback)
 
 	userGroup := e.Group("/api/user")
 	userGroup.Use(middlewares.NewJWTMiddleware(cfg, jwt))

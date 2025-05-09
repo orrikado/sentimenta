@@ -22,6 +22,10 @@ type Config struct {
 	GOOGLE_CLIENT_SECRET   string
 	GOOGLE_CLIENT_CALLBACK string
 
+	GITHUB_CLIENT_ID       string
+	GITHUB_CLIENT_SECRET   string
+	GITHUB_CLIENT_CALLBACK string
+
 	SYSTEM_PROMPT string
 	AI_API_KEY    string
 
@@ -86,6 +90,10 @@ func NewConfig() *Config {
 		GOOGLE_CLIENT_ID:       os.Getenv("GOOGLE_CLIENT_ID"),
 		GOOGLE_CLIENT_SECRET:   os.Getenv("GOOGLE_CLIENT_SECRET"),
 		GOOGLE_CLIENT_CALLBACK: os.Getenv("GOOGLE_CLIENT_CALLBACK"),
+
+		GITHUB_CLIENT_ID:       os.Getenv("GITHUB_CLIENT_ID"),
+		GITHUB_CLIENT_SECRET:   os.Getenv("GITHUB_CLIENT_SECRET"),
+		GITHUB_CLIENT_CALLBACK: os.Getenv("GITHUB_CLIENT_CALLBACK"),
 
 		SYSTEM_PROMPT: systemPrompt,
 		AI_API_KEY:    os.Getenv("AI_API_KEY"),
