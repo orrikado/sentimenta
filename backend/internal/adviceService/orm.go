@@ -8,7 +8,7 @@ import (
 type Advice struct {
 	UserID int       `json:"user_id"`
 	Text   string    `json:"text"`
-	Date   time.Time `json:"date"`
+	Date   time.Time `json:"date" gorm:"type:date"`
 }
 
 type AdviceRequest struct {
