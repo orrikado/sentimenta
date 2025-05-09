@@ -20,6 +20,7 @@
 	let selectedDate: Date = $state(new Date());
 	let submitInProcess = $state(false);
 	let moods = $state<MoodEntry[]>([]);
+	let loading = $state(true);
 
 	let mood = $state<number>(0);
 	let emotions = $state('');
@@ -135,6 +136,7 @@
 		updateDimensions();
 		window.addEventListener('resize', updateDimensions);
 		await updateMoods();
+		loading = false; // Stop loading after data is fetched
 	});
 
 	onDestroy(() => {
@@ -303,6 +305,7 @@
 					date: new Date(m.date)
 				}));
 				moods = parsed;
+				loading = false;
 			} else {
 				console.error('Failed to fetch moods');
 				refreshUserId();
@@ -470,6 +473,23 @@
 			{/if}
 		{/each}
 	</div>
+	{#if loading}
+		<div
+			class="bg-opacity-50 fixed inset-0 z-40 bg-black backdrop-blur-sm transition-opacity duration-300"
+		></div>
+		<div class="fixed inset-0 z-50 flex items-center justify-center">
+			<svg
+				class="h-12 w-12 animate-spin text-white"
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+			>
+				<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+				></circle>
+				<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+			</svg>
+		</div>
+	{/if}
 </main>
 
 <Modal bind:showModal>
