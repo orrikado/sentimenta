@@ -7,7 +7,7 @@ import (
 
 type MoodService interface {
 	GetMoods(userID string) ([]Mood, error)
-	CreateMood(userID string, score int, emotions, description string, date time.Time) (Mood, error)
+	CreateMood(userID string, score int16, emotions, description string, date time.Time) (Mood, error)
 	UpdateMood(userID string, m *Mood) error
 	DeleteMood(id string) error
 }
@@ -16,7 +16,7 @@ type moodService struct {
 	repo MoodRepository
 }
 
-func (s *moodService) CreateMood(userID string, score int, emotions, description string, date time.Time) (Mood, error) {
+func (s *moodService) CreateMood(userID string, score int16, emotions, description string, date time.Time) (Mood, error) {
 	uidInt, err := strconv.Atoi(userID)
 	if err != nil {
 		return Mood{}, err
