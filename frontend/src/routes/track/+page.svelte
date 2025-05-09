@@ -534,6 +534,15 @@
 		</h2>
 	{/snippet}
 
+	{#snippet sideContent()}
+		{#if adviceMap.has(getDateKey(selectedDate))}
+			<div class="justify-center text-center">
+				<h3 class="text-lg font-bold">{m.advice()}</h3>
+				<p><i>{adviceMap.get(getDateKey(selectedDate))?.text}</i></p>
+			</div>
+		{/if}
+	{/snippet}
+
 	<form
 		class="flex w-full max-w-md flex-col gap-6"
 		onsubmit={async () => {
