@@ -22,7 +22,9 @@ type Config struct {
 	GOOGLE_CLIENT_SECRET   string
 	GOOGLE_CLIENT_CALLBACK string
 
-	AI_API_KEY          string
+	SYSTEM_PROMPT string
+	AI_API_KEY    string
+
 	PASSWORD_LENGTH_MIN int
 }
 
@@ -51,7 +53,9 @@ func NewConfig() *Config {
 		GOOGLE_CLIENT_SECRET:   os.Getenv("GOOGLE_CLIENT_SECRET"),
 		GOOGLE_CLIENT_CALLBACK: os.Getenv("GOOGLE_CLIENT_CALLBACK"),
 
-		AI_API_KEY:          os.Getenv("AI_API_KEY"),
+		SYSTEM_PROMPT: os.Getenv("SYSTEM_PROMPT"),
+		AI_API_KEY:    os.Getenv("AI_API_KEY"),
+
 		PASSWORD_LENGTH_MIN: passwordLenMin,
 	}
 }

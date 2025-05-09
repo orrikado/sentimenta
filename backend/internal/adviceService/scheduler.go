@@ -11,17 +11,18 @@ type Scheduler struct {
 	logger  *zap.SugaredLogger
 }
 
-func NewScheduler(service AdviceService) *Scheduler {
+func NewScheduler(service AdviceService, logger *zap.SugaredLogger) *Scheduler {
 	return &Scheduler{
 		cron:    cron.New(),
 		service: service,
+		logger:  logger,
 	}
 }
 
 func (s *Scheduler) Start() {
 	// Каждый день в 3:00 ночи
+	s.logger.Info("Scheduler started")
 	_, err := s.cron.AddFunc("0 3 * * *", func() {
-		s.logger.Info("Scheduler started")
 		err := s.service.GenerateAdviceForAllUsers()
 		if err != nil {
 			s.logger.Errorln("Ошибка при генерации советов:", err)

@@ -45,8 +45,10 @@ func main() {
 	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger)
 	adviceHandler := handlers.NewAdviceHandler(adviceServ, logger)
 
-	scheduler := adviceService.NewScheduler(adviceServ)
+	scheduler := adviceService.NewScheduler(adviceServ, logger)
 	scheduler.Start()
+
+	adviceServ.GenerateAdviceForAllUsers()
 
 	e := echo.New()
 	e.Use(middleware.CORS())

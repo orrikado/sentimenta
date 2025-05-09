@@ -107,7 +107,7 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (Advice, erro
 	}
 
 	// Преобразуем в JSON (например, для отправки куда-то)
-	systemPrompt := `Ты — умный и заботливый помощник. На основе настроения пользователя за последние дни и предыдущего совета, составь короткий полезный совет по улучшению настроения. Учитывай, если настроение падало или росло.`
+	// systemPrompt := `Ты — умный и заботливый помощник. На основе настроения пользователя за последние дни и предыдущего совета, составь короткий полезный совет по улучшению настроения. Учитывай, если настроение падало или росло.`
 
 	userContentBytes, err := json.MarshalIndent(payload, "", "  ")
 	if err != nil {
@@ -115,11 +115,11 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (Advice, erro
 	}
 
 	reqBody := utils.OpenRouterRequest{
-		Model: "openai/gpt-4o",
+		Model: "google/gemma-3-27b-it:free",
 		Messages: []utils.OpenRouterMessage{
 			{
 				Role:    "system",
-				Content: systemPrompt,
+				Content: s.config.SYSTEM_PROMPT,
 			},
 			{
 				Role:    "user",

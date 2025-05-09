@@ -31,6 +31,9 @@ func (h *AdviceHandler) GetAdvice(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось получить Advice"})
 		}
 		advice, err := h.service.GetAdvice(userID, date)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось получить Advice"})
+		}
 		return c.JSON(http.StatusOK, advice)
 	}
 	advices, err := h.service.GetAdvices(userID)

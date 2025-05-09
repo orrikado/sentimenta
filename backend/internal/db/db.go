@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 
+	"sentimenta/internal/adviceService"
 	c "sentimenta/internal/config"
 	"sentimenta/internal/moodService"
 	"sentimenta/internal/userService"
@@ -19,7 +20,7 @@ func InitDB(c *c.Config, logger *zap.SugaredLogger) *gorm.DB {
 		logger.Fatalf("Не удалось подключится к БД: %v", err)
 	}
 	logger.Info("БД: Подключение | Успешно.")
-	if err := db.AutoMigrate(userService.User{}, moodService.Mood{}); err != nil {
+	if err := db.AutoMigrate(userService.User{}, moodService.Mood{}, adviceService.Advice{}); err != nil {
 		logger.Fatalf("Не удалось произвести миграцию: %v", err)
 	}
 	logger.Info("БД: Автомиграция | Успешно.")
