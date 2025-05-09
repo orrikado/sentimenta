@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sentimenta/internal/adviceService"
 	"sentimenta/internal/auth"
 	"sentimenta/internal/config"
 	"sentimenta/internal/db"
@@ -36,9 +37,13 @@ func main() {
 	moodRepo := moodService.NewRepository(db)
 	moodService := moodService.NewService(moodRepo)
 
+	adviceRepo := adviceService.NewRepository(db)
+	adviceService := adviceService.NewService(adviceRepo)
+
 	userHandler := handlers.NewUserHandler(userService, cfg, logger)
 	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauthConfig, jwt)
 	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger)
+	adviceHandler := handlers.NewAdviceHandler(adviceService, logger)
 
 	e := echo.New()
 	e.Use(middleware.CORS())
@@ -60,6 +65,8 @@ func main() {
 	moodGroup.POST("/add", moodHandler.PostAddMood)
 	moodGroup.GET("/get", moodHandler.GetMoods)
 	moodGroup.PUT("/update", moodHandler.PutUpdateMood)
+
+	e.GET("/api/advice", adviceHandler.GetAdvice, middlewares.NewJWTMiddleware(cfg, jwt))
 
 	e.Logger.Fatal(e.Start("0.0.0.0:8000"))
 }
