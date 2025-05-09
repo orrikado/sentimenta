@@ -184,7 +184,6 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (Advice, erro
 		Date:   date,
 		Text:   generatedText,
 	}
-	err = s.repo.CreateAdvice(&advice)
 	if err != nil {
 		return Advice{}, err
 	}
