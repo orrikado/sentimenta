@@ -20,6 +20,7 @@
 	let selectedDate: Date = $state(new Date());
 	let submitInProcess = $state(false);
 	let moods = $state<MoodEntry[]>([]);
+	let advice = $state<AdviceEntry[]>([]);
 	let loading = $state(true);
 
 	let mood = $state<number>(0);
@@ -38,11 +39,20 @@
 		emotions: string;
 	};
 
+	type AdviceEntry = {
+		uid: number | undefined;
+		date: Date;
+		text: string;
+	};
+
 	// Derived values
-	const getDateKey = (date: Date) =>
-		`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+	const getDateKey = (dateInput: string | number | Date) => {
+		const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+		return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+	};
 
 	let moodMap = $derived(new Map(moods.map((m) => [getDateKey(m.date), m])));
+	let adviceMap = $derived(new Map(advice.map((a) => [getDateKey(a.date), a])));
 	const canSubmit = $derived(() => {
 		const future = new Date(selectedDate) > today;
 		// Ensure the selected date is today or in the past
@@ -90,6 +100,12 @@
 		tooltip.select('.score').text(d.score);
 		tooltip.select('.emotions').text(d.emotions);
 		tooltip.select('.description').text(d.description);
+		const adviceText = adviceMap.get(getDateKey(d.date))?.text || '';
+		tooltip.select('.advice').text(adviceText);
+		const adviceSpan = tooltip.select('.advice').node();
+		if (adviceSpan && adviceSpan instanceof HTMLElement && adviceSpan.parentElement) {
+			d3.select(adviceSpan.parentElement).classed('hidden', !adviceText);
+		}
 
 		// Set position instantly
 		tooltip
@@ -136,6 +152,7 @@
 		updateDimensions();
 		window.addEventListener('resize', updateDimensions);
 		await updateMoods();
+		await updateAdvice();
 		loading = false; // Stop loading after data is fetched
 	});
 
@@ -269,7 +286,7 @@
 			.tickValues(filteredMoods.map((d) => d.date))
 			.tickFormat((dateObj) => {
 				const date = dateObj as Date;
-				return d3.timeFormat(window.innerWidth < 768 ? '%d' : '%b %d')(date);
+				return d3.timeFormat('%d')(date);
 			});
 
 		const yAxis = d3.axisLeft(yScale).ticks(5);
@@ -305,9 +322,25 @@
 					date: new Date(m.date)
 				}));
 				moods = parsed;
-				loading = false;
 			} else {
 				console.error('Failed to fetch moods');
+				refreshUserId();
+				if (!$userId) goto('/login');
+			}
+		} catch (e) {
+			console.error('Network error:', e);
+		}
+	}
+
+	async function updateAdvice() {
+		try {
+			const res = await fetch('/api/advice');
+			if (res.ok) {
+				const data = await res.json();
+				console.log(data);
+				advice = data;
+			} else {
+				console.error('Failed to fetch advice');
 				refreshUserId();
 				if (!$userId) goto('/login');
 			}
@@ -405,6 +438,7 @@
 		<div><span class="font-medium">Score:</span> <span class="score"></span>/5</div>
 		<div><span class="font-medium">Emotions:</span> <span class="emotions"></span></div>
 		<div><span class="font-medium">Diary:</span> <span class="description"></span></div>
+		<div><span class="font-medium">Advice:</span> <span class="advice"></span></div>
 	</div>
 	<div class="flex items-center justify-between p-4">
 		<button
