@@ -316,9 +316,9 @@
 	function parseEmotions(input: string): string {
 		return input
 			.toLowerCase()
-			.split(/[\s,|./\\;:!?&]+|(?:\band\b)/gi)
-			.map((word) => word.trim())
-			.filter((word) => word.length > 0)
+			.split(',')
+			.map((phrase) => phrase.trim())
+			.filter((phrase) => phrase.length > 0)
 			.join(',');
 	}
 
