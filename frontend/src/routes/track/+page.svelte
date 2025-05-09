@@ -1,12 +1,14 @@
 <script lang="ts">
 	// External imports
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { getMonthDays } from '$lib/calendar-utils';
 	import { m } from '$lib/paraglide/messages';
 	import { refreshUserId } from '$lib/user';
 	import { userId } from '$lib/stores/user';
 	import Modal from '$lib/components/Modal.svelte';
+	import * as d3 from 'd3';
+	import { browser } from '$app/environment';
 
 	// State variables
 	let today = new Date();
@@ -46,6 +48,14 @@
 		return !!(mood !== 0 && emotions.trim() && !future);
 	});
 
+	let filteredMoods = $derived(
+		moods
+			.filter((m) => {
+				return m.date.getMonth() === currentMonth && m.date.getFullYear() === currentYear;
+			})
+			.sort((a, b) => a.date.getTime() - b.date.getTime())
+	);
+
 	// Effects
 	$effect(() => {
 		if (showModal && !submitInProcess) {
@@ -65,13 +75,221 @@
 		}
 	});
 
+	let dimensions = $state({
+		width: 600,
+		height: 200,
+		margin: { top: 20, right: 30, bottom: 40, left: 50 }
+	});
+
+	function showTooltip(event: any, d: MoodEntry) {
+		const dateStr = d3.timeFormat('%B %d, %Y')(d.date);
+		const tooltip = d3.select('#tooltip');
+
+		tooltip.select('.date').text(dateStr);
+		tooltip.select('.score').text(d.score);
+		tooltip.select('.emotions').text(d.emotions);
+		tooltip.select('.description').text(d.description);
+
+		// Set position instantly
+		tooltip
+			.classed('hidden', false)
+			.style('left', `${event.pageX + 10}px`)
+			.style('top', `${event.pageY - 28}px`)
+			.style('opacity', 0); // Start invisible
+
+		// Fade in (only opacity transition)
+		setTimeout(() => {
+			tooltip.style('opacity', 1);
+		}, 10); // Small delay to ensure DOM updates
+	}
+
+	function hideTooltip() {
+		const tooltip = d3.select('#tooltip');
+
+		// Fade out
+		tooltip.style('opacity', 0);
+
+		// Hide after fade
+		setTimeout(() => {
+			tooltip.classed('hidden', true);
+		}, 200); // Match duration-200
+	}
+
+	function updateDimensions() {
+		const svgContainer = document.getElementById('mood-chart')?.parentElement;
+		if (svgContainer) {
+			const containerWidth = svgContainer.clientWidth;
+			dimensions.width = Math.min(containerWidth * 0.9, 800); // Max width 800
+			dimensions.height = Math.min(containerWidth * 0.4, 250); // 1/3 of width
+		}
+	}
+
 	// Lifecycle
 	onMount(async () => {
+		if (!browser) return;
+		if (typeof window === 'undefined') return;
 		if (!$userId) {
 			goto('/login');
 			return;
 		}
+		updateDimensions();
+		window.addEventListener('resize', updateDimensions);
 		await updateMoods();
+	});
+
+	onDestroy(() => {
+		if (!browser) return;
+		window.removeEventListener('resize', updateDimensions);
+	});
+
+	function getLineColor() {
+		return document.documentElement.classList.contains('dark')
+			? '#9ca3af' // stone-400
+			: '#4b5563'; // stone-600
+	}
+
+	function getDotColor(score: number) {
+		type ColorMap = { [key: number]: string };
+		const isDark = document.documentElement.classList.contains('dark');
+		const lightColors: ColorMap = {
+			1: 'oklch(63.7% 0.237 25.331)', // red-500
+			2: 'oklch(70.5% 0.213 47.604)', // orange-500
+			3: 'oklch(79.5% 0.184 86.047)', // yellow-500
+			4: 'oklch(72.3% 0.219 149.579)', // green-500
+			5: 'oklch(54.6% 0.245 262.881)' // blue-500
+		};
+		const darkColors: ColorMap = {
+			1: 'oklch(70.4% 0.191 22.216)', // red-400
+			2: 'oklch(82.8% 0.189 84.429)', // amber-400
+			3: 'oklch(85.2% 0.199 91.936)', // yellow-400
+			4: 'oklch(84.1% 0.238 128.85)', // green-400
+			5: 'oklch(70.7% 0.165 254.624)' // blue-400
+		};
+		return isDark ? darkColors[score] || '#9ca3af' : lightColors[score] || '#9ca3af';
+	}
+
+	// draw the chart
+	$effect(() => {
+		const svg = d3.select('svg');
+
+		// Clear previous chart content
+		svg.selectAll('g').remove(); // Remove all <g> elements
+		svg.selectAll('.axis').remove(); // Remove old axes
+
+		const g = svg
+			.append('g')
+			.attr('transform', `translate(${dimensions.margin.left}, ${dimensions.margin.top})`);
+
+		const innerWidth = dimensions.width - dimensions.margin.left - dimensions.margin.right;
+		const innerHeight = dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
+
+		if (filteredMoods.length === 0) {
+			g.append('text')
+				.attr('x', innerWidth / 2)
+				.attr('y', innerHeight / 2)
+				.attr('text-anchor', 'middle')
+				.attr('fill', '#666')
+				.text('No data for this month');
+			return;
+		}
+
+		// Scales
+		const xScale = d3
+			.scaleTime()
+			.domain(d3.extent(filteredMoods, (d) => d.date) as [Date, Date])
+			.range([10, innerWidth - 10]);
+
+		const yScale = d3
+			.scaleLinear()
+			.domain([1, 5])
+			.range([innerHeight - 10, 10]);
+
+		// Line generator
+		const line = d3
+			.line<MoodEntry>()
+			.x((d) => xScale(d.date))
+			.y((d) => yScale(d.score));
+
+		// Draw path
+		g.append('path')
+			.datum(filteredMoods)
+			.attr('fill', 'none')
+			.attr('stroke', getLineColor())
+			.attr('stroke-width', 2)
+			.attr('stroke-opacity', 0.8)
+			.attr('d', line)
+			.style('opacity', 0)
+			.transition()
+			.duration(200)
+			.style('opacity', 1);
+
+		// Draw circles with transitions
+		const circles = g
+			.selectAll<SVGCircleElement, MoodEntry>('circle')
+			.data<MoodEntry>(filteredMoods, (d) => d.date.toISOString());
+
+		circles.exit().transition().duration(300).style('opacity', 0).remove();
+
+		circles
+			.enter()
+			.append('circle')
+			.attr('cx', (d) => xScale(d.date))
+			.attr('cy', (d) => yScale(d.score))
+			.attr('r', 0)
+			.attr('fill', (d) => getDotColor(d.score)) // Dynamic color
+			.style('cursor', 'pointer')
+			.on('mouseover', (event, d) => {
+				showTooltip(event, d);
+				d3.select(event.currentTarget).transition().duration(100).attr('r', 8);
+			})
+			.on('mouseout', (event) => {
+				hideTooltip();
+				d3.select(event.currentTarget).transition().duration(100).attr('r', 5);
+			})
+			.on('click', (_, d) => {
+				selectedDate = d.date;
+				showModal = true;
+			})
+			.transition()
+			.duration(200)
+			.attr('r', 5);
+
+		// Update existing circles
+		circles
+			.transition()
+			.duration(200)
+			.attr('cx', (d) => xScale(d.date))
+			.attr('cy', (d) => yScale(d.score));
+
+		// Axes
+		const xAxis = d3
+			.axisBottom(xScale)
+			.tickValues(filteredMoods.map((d) => d.date))
+			.tickFormat((dateObj) => {
+				const date = dateObj as Date;
+				return d3.timeFormat(window.innerWidth < 768 ? '%d' : '%b %d')(date);
+			});
+
+		const yAxis = d3.axisLeft(yScale).ticks(5);
+
+		// Draw x-axis with transition
+		g.append('g')
+			.attr('transform', `translate(0,${innerHeight})`)
+			.attr('class', 'axis')
+			.call(xAxis)
+			.style('opacity', 0)
+			.transition()
+			.duration(200)
+			.style('opacity', 1);
+
+		// Draw y-axis with transition
+		g.append('g')
+			.attr('class', 'axis')
+			.call(yAxis)
+			.style('opacity', 0)
+			.transition()
+			.duration(200)
+			.style('opacity', 1);
 	});
 
 	// Functions
@@ -166,12 +384,35 @@
 </svelte:head>
 
 <main class="mx-auto my-4 md:max-w-3/5 xl:max-w-1/2">
+	<div
+		class=" flex justify-center border border-stone-300 bg-stone-100 dark:border-white/10 dark:bg-stone-900"
+	>
+		<svg
+			id="mood-chart"
+			class="h-auto w-full max-w-2xl"
+			viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+			preserveAspectRatio="xMidYMid meet"
+		></svg>
+	</div>
+	<div
+		id="tooltip"
+		class="absolute z-10 hidden border bg-white p-2 text-sm shadow-md dark:bg-stone-900"
+	>
+		<div><span class="font-medium">Date:</span> <span class="date"></span></div>
+		<div><span class="font-medium">Score:</span> <span class="score"></span>/5</div>
+		<div><span class="font-medium">Emotions:</span> <span class="emotions"></span></div>
+		<div><span class="font-medium">Diary:</span> <span class="description"></span></div>
+	</div>
 	<div class="flex items-center justify-between p-4">
-		<button class="text-gray-300 hover:text-yellow-300" onclick={goToPreviousMonth}
-			>{m.previous()}</button
+		<button
+			class="  text-gray-900 hover:text-yellow-600 dark:text-gray-300 dark:hover:text-yellow-300"
+			onclick={goToPreviousMonth}>{m.previous()}</button
 		>
 		<h1 class="my-4 text-center text-2xl font-bold">{currentYear}/{currentMonth + 1}</h1>
-		<button class="text-gray-300 hover:text-yellow-300" onclick={goToNextMonth}>{m.next()}</button>
+		<button
+			class="  text-gray-900 hover:text-yellow-600 dark:text-gray-300 dark:hover:text-yellow-300"
+			onclick={goToNextMonth}>{m.next()}</button
+		>
 	</div>
 
 	{#if notificationMessage}
@@ -386,6 +627,38 @@
 </Modal>
 
 <style>
+	/* Base axis styles */
+	:global(.axis text) {
+		font-size: 10px;
+		fill: #000; /* Dark text for light mode */
+	}
+
+	/* Dark mode axis text */
+	@media (prefers-color-scheme: dark) {
+		:global(.axis text) {
+			fill: #fff; /* Light text for dark mode */
+		}
+	}
+
+	/* Responsive font sizing */
+	@media (min-width: 768px) {
+		:global(.axis text) {
+			font-size: 12px;
+		}
+	}
+
+	@media (min-width: 1536px) {
+		:global(.axis text) {
+			font-size: 14px;
+		}
+	}
+
+	/* Optional: Improve tick spacing for larger screens */
+	@media (min-width: 1024px) {
+		:global(.axis line, .axis path) {
+			stroke-width: 1.5px;
+		}
+	}
 	@keyframes fade-in-out {
 		0% {
 			opacity: 0;
