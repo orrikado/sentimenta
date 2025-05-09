@@ -66,6 +66,10 @@ func (s *adviceService) GenerateAdviceForAllUsers() error {
 		return err
 	}
 	for _, user := range users {
+		uidStr := fmt.Sprintf("%v", user.Uid)
+		if _, err := s.repo.GetAdvice(uidStr, time.Now()); err == nil {
+			continue
+		}
 		advice, err := s.GenerateAdvice(user.Uid, time.Now())
 		if err != nil {
 			continue
