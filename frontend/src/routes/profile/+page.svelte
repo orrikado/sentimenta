@@ -4,6 +4,7 @@
 	import { userId } from '$lib/stores/user';
 	import { logout } from '$lib/user';
 	import { m } from '$lib/paraglide/messages';
+	import { preventDefault } from 'svelte/legacy';
 
 	let user: {
 		username: string;
@@ -261,7 +262,10 @@
 
 			<!-- Password Update Card -->
 			<form
-				onsubmit={changePassword}
+				onsubmit={(event) => {
+					event.preventDefault();
+					changePassword();
+				}}
 				class="border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900"
 			>
 				<h2 class="mb-4 text-xl font-bold">
