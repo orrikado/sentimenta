@@ -28,3 +28,7 @@ type MoodUpdate struct {
 	Emotions    *string `json:"emotions,omitempty"`
 	Description *string `json:"description,omitempty"`
 }
+
+type MoodDTO struct {
+	MoodAdd
+}

@@ -38,12 +38,15 @@ func main() {
 	moodService := moodService.NewService(moodRepo)
 
 	adviceRepo := adviceService.NewRepository(db)
-	adviceService := adviceService.NewService(adviceRepo)
+	adviceServ := adviceService.NewService(adviceRepo, moodRepo, userRepo, cfg)
 
 	userHandler := handlers.NewUserHandler(userService, cfg, logger)
 	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauthConfig, jwt)
 	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger)
-	adviceHandler := handlers.NewAdviceHandler(adviceService, logger)
+	adviceHandler := handlers.NewAdviceHandler(adviceServ, logger)
+
+	scheduler := adviceService.NewScheduler(adviceServ)
+	scheduler.Start()
 
 	e := echo.New()
 	e.Use(middleware.CORS())

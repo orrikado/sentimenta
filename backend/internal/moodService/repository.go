@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type MoodRepository interface {
 	GetMoods(userID string) ([]Mood, error)
+	GetLastMoods(userID string, limit int) ([]Mood, error)
 	CreateMood(m *Mood) error
 	UpdateMood(m *Mood) error
 	DeleteMood(id string) error
@@ -24,6 +25,12 @@ func (r *moodRepository) DeleteMood(id string) error {
 func (r *moodRepository) GetMoods(userID string) ([]Mood, error) {
 	var moods []Mood
 	err := r.db.Find(&moods, "user_id = ?", userID).Error
+	return moods, err
+}
+
+func (r *moodRepository) GetLastMoods(userID string, limit int) ([]Mood, error) {
+	var moods []Mood
+	err := r.db.Find(&moods, "user_id = ?", userID).Limit(limit).Order("date DESC").Error
 	return moods, err
 }
 
