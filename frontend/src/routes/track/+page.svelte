@@ -483,80 +483,81 @@
 	<form
 		class="flex w-full max-w-md flex-col gap-6"
 		onsubmit={async () => {
-			if (canSubmit()) {
-				let nextDay = new Date(selectedDate);
-				nextDay.setDate(nextDay.getDate() + 1); // workaround because js is stupid
+			if (!canSubmit() || submitInProcess) return;
 
-				if (moodMap.has(getDateKey(selectedDate))) {
-					submitInProcess = true;
-					if (moodMap.get(getDateKey(selectedDate))?.uid == undefined) {
-						await updateMoods();
-					}
-					let result = await fetch('/api/moods/update', {
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({
-							uid: moodMap.get(getDateKey(selectedDate))?.uid,
-							score: mood,
-							description: diary,
-							date: nextDay,
-							emotions: parseEmotions(emotions)
-						})
-					});
-					if (!result.ok) {
-						const errorData = result;
-						console.error('Error:', errorData);
-						formError = (await result.text()) || m.error_occured();
-					} else {
-						moods.map((m) => {
-							if (m.uid == moodMap.get(getDateKey(selectedDate))?.uid) {
-								m.score = mood;
-								m.description = diary;
-								m.emotions = parseEmotions(emotions);
-							}
-						});
+			submitInProcess = true; // Show spinner right away
 
-						formError = null;
-						formSuccess = true;
-						showModal = false;
-					}
-				} else {
-					let result = await fetch('/api/moods/add', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({
-							score: mood,
-							description: diary,
-							date: nextDay,
-							emotions: parseEmotions(emotions)
-						})
-					});
-					if (!result.ok) {
-						const errorData = result;
-						console.error('Error:', errorData);
-						formError = m.error_occured();
-					} else {
-						const newMood: MoodEntry = {
-							uid: undefined,
-							date: selectedDate,
-							score: mood,
-							description: diary,
-							emotions: parseEmotions(emotions)
-						};
+			let nextDay = new Date(selectedDate);
+			nextDay.setDate(nextDay.getDate() + 1); // workaround because js is stupid
 
-						moods = [...moods, newMood];
-
-						formError = null;
-						formSuccess = true;
-						showModal = false;
-					}
+			if (moodMap.has(getDateKey(selectedDate))) {
+				if (moodMap.get(getDateKey(selectedDate))?.uid == undefined) {
+					await updateMoods();
 				}
-				submitInProcess = false;
+				let result = await fetch('/api/moods/update', {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						uid: moodMap.get(getDateKey(selectedDate))?.uid,
+						score: mood,
+						description: diary,
+						date: nextDay,
+						emotions: parseEmotions(emotions)
+					})
+				});
+				if (!result.ok) {
+					const errorData = result;
+					console.error('Error:', errorData);
+					formError = (await result.text()) || m.error_occured();
+				} else {
+					moods.map((m) => {
+						if (m.uid == moodMap.get(getDateKey(selectedDate))?.uid) {
+							m.score = mood;
+							m.description = diary;
+							m.emotions = parseEmotions(emotions);
+						}
+					});
+
+					formError = null;
+					formSuccess = true;
+					showModal = false;
+				}
+			} else {
+				let result = await fetch('/api/moods/add', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						score: mood,
+						description: diary,
+						date: nextDay,
+						emotions: parseEmotions(emotions)
+					})
+				});
+				if (!result.ok) {
+					const errorData = result;
+					console.error('Error:', errorData);
+					formError = m.error_occured();
+				} else {
+					const newMood: MoodEntry = {
+						uid: undefined,
+						date: selectedDate,
+						score: mood,
+						description: diary,
+						emotions: parseEmotions(emotions)
+					};
+
+					moods = [...moods, newMood];
+
+					formError = null;
+					formSuccess = true;
+					showModal = false;
+				}
 			}
+			submitInProcess = false;
 		}}
 	>
 		<h1 class="text-center text-2xl">{m.start_your_day()}</h1>
@@ -602,15 +603,28 @@
 		<!-- Submit -->
 		<button
 			type="submit"
-			class="border border-current px-6 py-2 text-center transition-colors duration-300"
+			class="relative flex items-center justify-center border border-current px-6 py-2 text-center transition-colors duration-300"
 			class:bg-white={canSubmit()}
 			class:text-black={canSubmit()}
 			class:opacity-50={!canSubmit()}
-			class:pointer-events-none={!canSubmit()}
-			aria-disabled={!canSubmit}
-			class:cursor-pointer={submitInProcess || canSubmit()}
+			class:pointer-events-none={!canSubmit() || submitInProcess}
+			aria-disabled={!canSubmit() || submitInProcess}
+			disabled={submitInProcess}
 		>
-			{m.start_process()}
+			{#if submitInProcess}
+				<svg
+					class="mr-2 h-5 w-5 animate-spin"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+				>
+					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+					></circle>
+					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+					></path>
+				</svg>
+			{/if}
+			<span>{m.start_process()}</span>
 		</button>
 
 		<div aria-live="polite" aria-atomic="true">
