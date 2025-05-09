@@ -81,7 +81,7 @@
 		margin: { top: 20, right: 30, bottom: 40, left: 50 }
 	});
 
-	function showTooltip(event: any, d: MoodEntry) {
+	function showTooltip(event: { pageX: number; pageY: number }, d: MoodEntry) {
 		const dateStr = d3.timeFormat('%B %d, %Y')(d.date);
 		const tooltip = d3.select('#tooltip');
 
