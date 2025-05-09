@@ -484,10 +484,8 @@
 		class="flex w-full max-w-md flex-col gap-6"
 		onsubmit={async () => {
 			if (canSubmit()) {
-				// TEMP: Add 1 day to match backend timezone handling
-				// TODO: Fix backend to handle timezones
 				let nextDay = new Date(selectedDate);
-				nextDay.setDate(nextDay.getDate() + 1);
+				nextDay.setDate(nextDay.getDate() + 1); // workaround because js is stupid
 
 				if (moodMap.has(getDateKey(selectedDate))) {
 					submitInProcess = true;
