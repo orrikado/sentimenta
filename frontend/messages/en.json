@@ -62,5 +62,6 @@
 	"aria_calendar_grid": "calendar grid",
 	"aria_select_date": "select {date}",
 	"no_data_for_month": "no data for this month",
-	"aria_select_mood": "select mood {mood}"
+	"aria_select_mood": "select mood {mood}",
+	"email": "email"
 }

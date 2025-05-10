@@ -4,7 +4,6 @@
 	import { userId } from '$lib/stores/user';
 	import { logout } from '$lib/user';
 	import { m } from '$lib/paraglide/messages';
-	import { preventDefault } from 'svelte/legacy';
 
 	let user: {
 		username: string;
