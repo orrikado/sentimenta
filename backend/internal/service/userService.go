@@ -13,7 +13,7 @@ import (
 )
 
 type UserService interface {
-	CreateUser(username, email string, password *string) (m.User, error)
+	CreateUser(username, email string, password *string, timezone string) (m.User, error)
 	GetUser(id string) (m.User, error)
 	UpdateUser(userID string, u m.UserUpdate) (m.User, error)
 	DeleteUser(id string) error
@@ -26,7 +26,7 @@ type userService struct {
 	repo repo.UserRepository
 }
 
-func (s *userService) CreateUser(username string, email string, password *string) (m.User, error) {
+func (s *userService) CreateUser(username string, email string, password *string, timezone string) (m.User, error) {
 	if !utils.IsValidEmail(email) {
 		return m.User{}, errs.ErrEmailValidation
 	}
@@ -48,6 +48,7 @@ func (s *userService) CreateUser(username string, email string, password *string
 		Username:     username,
 		Email:        email,
 		PasswordHash: passwordHashPtr,
+		Timezone:     timezone,
 	}
 	if err := s.repo.CreateUser(&newUser); err != nil {
 		return m.User{}, err

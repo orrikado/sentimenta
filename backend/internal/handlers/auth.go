@@ -29,6 +29,7 @@ type AuthHandler struct {
 type OAuthCallbackRequest struct {
 	Code         string `json:"code"`
 	CodeVerifier string `json:"codeVerifier"`
+	Timezone     string `json:"timezone"`
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
@@ -43,7 +44,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "длина пароля меньше нужного"})
 	}
 
-	result, err := h.service.CreateUser(newUser.Username, newUser.Email, &newUser.Password)
+	result, err := h.service.CreateUser(newUser.Username, newUser.Email, &newUser.Password, newUser.Timezone)
 	if err != nil {
 		if errors.Is(err, errs.ErrUserAlreadyExists) {
 			h.logger.Infof("Регистрация отклонена: пользователь с почтой %s уже существует", newUser.Email)
@@ -145,7 +146,7 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid name format")
 	}
 
-	user, err := h.service.CreateUser(name, email, nil)
+	user, err := h.service.CreateUser(name, email, nil, req.Timezone)
 
 	if err != nil {
 		if err == errs.ErrUserAlreadyExists {
@@ -216,7 +217,7 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid name format")
 	}
 
-	user, err := h.service.CreateUser(name, email, nil)
+	user, err := h.service.CreateUser(name, email, nil, req.Timezone)
 
 	if err != nil {
 		if err == errs.ErrUserAlreadyExists {
