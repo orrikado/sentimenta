@@ -35,7 +35,7 @@ func (r *moodRepository) GetLastMoods(userID string, limit int) ([]Mood, error) 
 }
 
 func (r *moodRepository) UpdateMood(mood *Mood) error {
-	return r.db.Save(&mood).Error
+	return r.db.Model(&Mood{}).Where("uid = ?", mood.Uid).Updates(mood).Error
 }
 
 func NewRepository(db *gorm.DB) MoodRepository {
