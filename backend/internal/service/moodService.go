@@ -66,6 +66,6 @@ func (s *moodService) UpdateMood(userID string, m *m.Mood) error {
 	return s.repo.UpdateMood(m)
 }
 
-func NewMoodService(repo repo.MoodRepository) MoodService {
-	return &moodService{repo: repo}
+func NewMoodService(repo repo.MoodRepository, userRepo repo.UserRepository) MoodService {
+	return &moodService{repo: repo, userRepo: userRepo}
 }
