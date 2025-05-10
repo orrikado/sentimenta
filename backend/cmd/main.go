@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"sentimenta/internal/adviceService"
 	"sentimenta/internal/auth"
 	"sentimenta/internal/config"
 	"sentimenta/internal/db"
 	"sentimenta/internal/handlers"
 	middlewares "sentimenta/internal/middleware"
-	"sentimenta/internal/moodService"
+	"sentimenta/internal/repository"
+	"sentimenta/internal/scheduler"
 	"sentimenta/internal/security"
-	"sentimenta/internal/userService"
+	"sentimenta/internal/service"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -31,24 +31,23 @@ func main() {
 	jwt := security.NewJWT(cfg)
 	oauth := auth.NewOAuth(cfg)
 
-	userRepo := userService.NewRepository(db)
-	userService := userService.NewService(userRepo)
+	userRepo := repository.NewUserRepository(db)
+	moodRepo := repository.NewMoodRepository(db)
+	adviceRepo := repository.NewAdviceRepository(db)
 
-	moodRepo := moodService.NewRepository(db)
-	moodService := moodService.NewService(moodRepo)
-
-	adviceRepo := adviceService.NewRepository(db)
-	adviceServ := adviceService.NewService(adviceRepo, moodRepo, userRepo, cfg)
+	userService := service.NewUserService(userRepo)
+	moodService := service.NewMoodService(moodRepo)
+	adviceService := service.NewAdviceService(adviceRepo, moodRepo, userRepo, cfg)
 
 	userHandler := handlers.NewUserHandler(userService, cfg, logger)
 	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauth, jwt)
 	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger)
-	adviceHandler := handlers.NewAdviceHandler(adviceServ, logger)
+	adviceHandler := handlers.NewAdviceHandler(adviceService, logger)
 
-	scheduler := adviceService.NewScheduler(adviceServ, logger)
+	scheduler := scheduler.NewScheduler(adviceService, logger)
 	scheduler.Start()
 
-	adviceServ.GenerateAdviceForAllUsers()
+	adviceService.GenerateAdviceForAllUsers()
 
 	e := echo.New()
 	e.Use(middleware.CORS())

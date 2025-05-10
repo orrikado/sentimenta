@@ -1,4 +1,4 @@
-package adviceService
+package service
 
 import (
 	"bytes"
@@ -8,8 +8,8 @@ import (
 	"io"
 	"net/http"
 	"sentimenta/internal/config"
-	ms "sentimenta/internal/moodService"
-	us "sentimenta/internal/userService"
+	"sentimenta/internal/models"
+	repo "sentimenta/internal/repository"
 	"sentimenta/internal/utils"
 	"strconv"
 	"time"
@@ -18,45 +18,45 @@ import (
 )
 
 type AdviceService interface {
-	GetAdvice(userID string, date time.Time) (Advice, error)
-	GetAdvices(userID string) ([]Advice, error)
-	CreateAdvice(userID string, text string, date time.Time) (Advice, error)
-	GetLastAdvice(userID string) (Advice, error)
+	GetAdvice(userID string, date time.Time) (models.Advice, error)
+	GetAdvices(userID string) ([]models.Advice, error)
+	CreateAdvice(userID string, text string, date time.Time) (models.Advice, error)
+	GetLastAdvice(userID string) (models.Advice, error)
 	GenerateAdviceForAllUsers() error
-	GenerateAdvice(userID int, date time.Time) (Advice, error)
+	GenerateAdvice(userID int, date time.Time) (models.Advice, error)
 }
 
 type adviceService struct {
-	repo     AdviceRepository
-	moodRepo ms.MoodRepository
-	userRepo us.UserRepository
+	repo     repo.AdviceRepository
+	moodRepo repo.MoodRepository
+	userRepo repo.UserRepository
 	config   *config.Config
 }
 
-func (s *adviceService) CreateAdvice(userID string, text string, date time.Time) (Advice, error) {
+func (s *adviceService) CreateAdvice(userID string, text string, date time.Time) (models.Advice, error) {
 	uidInt, err := strconv.Atoi(userID)
 	if err != nil {
-		return Advice{}, err
+		return models.Advice{}, err
 	}
 
-	newAdvice := Advice{
+	newAdvice := models.Advice{
 		UserID: uidInt,
 		Text:   text,
 		Date:   date,
 	}
 
 	if err := s.repo.CreateAdvice(&newAdvice); err != nil {
-		return Advice{}, err
+		return models.Advice{}, err
 	}
 
 	return newAdvice, nil
 }
 
-func (s *adviceService) GetAdvices(userID string) ([]Advice, error) {
+func (s *adviceService) GetAdvices(userID string) ([]models.Advice, error) {
 	return s.repo.GetAdvices(userID)
 }
 
-func (s *adviceService) GetAdvice(userID string, date time.Time) (Advice, error) {
+func (s *adviceService) GetAdvice(userID string, date time.Time) (models.Advice, error) {
 	return s.repo.GetAdvice(userID, date)
 }
 
@@ -83,21 +83,21 @@ func (s *adviceService) GenerateAdviceForAllUsers() error {
 	return nil
 }
 
-func (s *adviceService) GenerateAdvice(userID int, date time.Time) (Advice, error) {
+func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advice, error) {
 	uidStr := fmt.Sprintf("%v", userID)
 	lastMoods, err := s.moodRepo.GetLastMoods(uidStr, 30)
 	if err != nil {
-		return Advice{}, err
+		return models.Advice{}, err
 	}
 	lastAdvice, err := s.repo.GetLastAdvice(uidStr)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		lastAdvice = Advice{Text: ""}
+		lastAdvice = models.Advice{Text: ""}
 	}
 
 	// Строим DTO
-	var moodsDTO []ms.MoodAdd
+	var moodsDTO []models.MoodAdd
 	for _, m := range lastMoods {
-		moodsDTO = append(moodsDTO, ms.MoodAdd{
+		moodsDTO = append(moodsDTO, models.MoodAdd{
 			Score:       m.Score,
 			Emotions:    m.Emotions,
 			Description: m.Description,
@@ -105,7 +105,7 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (Advice, erro
 		})
 	}
 
-	payload := AdviceRequest{
+	payload := models.AdviceRequest{
 		PreviousAdvice: lastAdvice.Text,
 		Moods:          moodsDTO,
 	}
@@ -115,7 +115,7 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (Advice, erro
 
 	userContentBytes, err := json.MarshalIndent(payload, "", "  ")
 	if err != nil {
-		return Advice{}, err
+		return models.Advice{}, err
 	}
 
 	reqBody := utils.OpenRouterRequest{
@@ -134,12 +134,12 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (Advice, erro
 
 	reqBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return Advice{}, err
+		return models.Advice{}, err
 	}
 
 	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(reqBytes))
 	if err != nil {
-		return Advice{}, err
+		return models.Advice{}, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -150,13 +150,13 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (Advice, erro
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return Advice{}, err
+		return models.Advice{}, err
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Advice{}, err
+		return models.Advice{}, err
 	}
 
 	// Можно логировать полный ответ
@@ -173,31 +173,31 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (Advice, erro
 
 	err = json.Unmarshal(bodyBytes, &result)
 	if err != nil {
-		return Advice{}, err
+		return models.Advice{}, err
 	}
 
 	if len(result.Choices) == 0 {
-		return Advice{}, fmt.Errorf("OpenRouter вернул пустой результат")
+		return models.Advice{}, fmt.Errorf("OpenRouter вернул пустой результат")
 	}
 
 	generatedText := result.Choices[0].Message.Content
 
 	// Сохраняем результат как Advice
-	advice := Advice{
+	advice := models.Advice{
 		UserID: userID,
 		Date:   date,
 		Text:   generatedText,
 	}
 	if err != nil {
-		return Advice{}, err
+		return models.Advice{}, err
 	}
 
 	return advice, nil
 }
 
-func (s *adviceService) GetLastAdvice(userID string) (Advice, error) {
+func (s *adviceService) GetLastAdvice(userID string) (models.Advice, error) {
 	return s.repo.GetLastAdvice(userID)
 }
-func NewService(repo AdviceRepository, moodRepo ms.MoodRepository, userRepo us.UserRepository, config *config.Config) AdviceService {
+func NewAdviceService(repo repo.AdviceRepository, moodRepo repo.MoodRepository, userRepo repo.UserRepository, config *config.Config) AdviceService {
 	return &adviceService{repo: repo, moodRepo: moodRepo, userRepo: userRepo, config: config}
 }

@@ -3,7 +3,8 @@ package handlers
 import (
 	"net/http"
 	c "sentimenta/internal/config"
-	ms "sentimenta/internal/moodService"
+	"sentimenta/internal/models"
+	"sentimenta/internal/service"
 	"sentimenta/internal/utils"
 
 	"github.com/labstack/echo/v4"
@@ -11,7 +12,7 @@ import (
 )
 
 type MoodHandler struct {
-	service ms.MoodService
+	service service.MoodService
 	config  *c.Config
 	logger  *zap.SugaredLogger
 }
@@ -23,7 +24,7 @@ func (h *MoodHandler) PostAddMood(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
 	}
 
-	var reqMood ms.MoodAdd
+	var reqMood models.MoodAdd
 	if err := c.Bind(&reqMood); err != nil {
 		h.logger.Errorf("Ошибка при привязке данных MoodAdd: %v", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
@@ -61,12 +62,12 @@ func (h *MoodHandler) PutUpdateMood(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
 	}
 
-	var reqMood ms.MoodUpdate
+	var reqMood models.MoodUpdate
 	if err := c.Bind(&reqMood); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}
 
-	mood := ms.Mood{
+	mood := models.Mood{
 		Uid:         reqMood.Uid,
 		Score:       *reqMood.Score,
 		Emotions:    *reqMood.Emotions,
@@ -80,6 +81,6 @@ func (h *MoodHandler) PutUpdateMood(c echo.Context) error {
 	return c.JSON(http.StatusOK, mood)
 }
 
-func NewMoodHandler(s ms.MoodService, cfg *c.Config, logger *zap.SugaredLogger) *MoodHandler {
+func NewMoodHandler(s service.MoodService, cfg *c.Config, logger *zap.SugaredLogger) *MoodHandler {
 	return &MoodHandler{service: s, config: cfg, logger: logger}
 }

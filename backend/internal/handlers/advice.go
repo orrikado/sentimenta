@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	as "sentimenta/internal/adviceService"
+	"sentimenta/internal/service"
 	"sentimenta/internal/utils"
 	"time"
 
@@ -11,7 +11,7 @@ import (
 )
 
 type AdviceHandler struct {
-	service as.AdviceService
+	service service.AdviceService
 	logger  *zap.SugaredLogger
 }
 
@@ -45,6 +45,6 @@ func (h *AdviceHandler) GetAdvice(c echo.Context) error {
 
 }
 
-func NewAdviceHandler(service as.AdviceService, logger *zap.SugaredLogger) *AdviceHandler {
+func NewAdviceHandler(service service.AdviceService, logger *zap.SugaredLogger) *AdviceHandler {
 	return &AdviceHandler{service: service, logger: logger}
 }

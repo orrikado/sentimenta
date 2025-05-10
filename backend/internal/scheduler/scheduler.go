@@ -1,17 +1,19 @@
-package adviceService
+package scheduler
 
 import (
+	"sentimenta/internal/service"
+
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
 )
 
 type Scheduler struct {
 	cron    *cron.Cron
-	service AdviceService
+	service service.AdviceService
 	logger  *zap.SugaredLogger
 }
 
-func NewScheduler(service AdviceService, logger *zap.SugaredLogger) *Scheduler {
+func NewScheduler(service service.AdviceService, logger *zap.SugaredLogger) *Scheduler {
 	return &Scheduler{
 		cron:    cron.New(),
 		service: service,

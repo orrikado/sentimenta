@@ -3,7 +3,8 @@ package handlers
 import (
 	"net/http"
 	c "sentimenta/internal/config"
-	us "sentimenta/internal/userService"
+	"sentimenta/internal/models"
+	"sentimenta/internal/service"
 	"sentimenta/internal/utils"
 
 	"github.com/labstack/echo/v4"
@@ -11,7 +12,7 @@ import (
 )
 
 type UserHandler struct {
-	service us.UserService
+	service service.UserService
 	logger  *zap.SugaredLogger
 	config  *c.Config
 }
@@ -39,7 +40,7 @@ func (h *UserHandler) PatchUpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
 	}
 
-	var reqUser us.UserUpdate
+	var reqUser models.UserUpdate
 	if err := c.Bind(&reqUser); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}
@@ -60,7 +61,7 @@ func (h *UserHandler) PutUpdatePasswordUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
 	}
 
-	var reqUser us.UserChangePass
+	var reqUser models.UserChangePass
 	if err := c.Bind(&reqUser); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}
@@ -77,6 +78,6 @@ func (h *UserHandler) PutUpdatePasswordUser(c echo.Context) error {
 	return nil
 }
 
-func NewUserHandler(s us.UserService, config *c.Config, logger *zap.SugaredLogger) *UserHandler {
+func NewUserHandler(s service.UserService, config *c.Config, logger *zap.SugaredLogger) *UserHandler {
 	return &UserHandler{service: s, logger: logger, config: config}
 }

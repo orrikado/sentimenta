@@ -1,4 +1,4 @@
-package moodService
+package models
 
 import (
 	"time"

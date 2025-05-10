@@ -1,7 +1,6 @@
-package adviceService
+package models
 
 import (
-	"sentimenta/internal/moodService"
 	"time"
 )
 
@@ -13,6 +12,6 @@ type Advice struct {
 }
 
 type AdviceRequest struct {
-	PreviousAdvice string                `json:"previous_advice"`
-	Moods          []moodService.MoodAdd `json:"moods"`
+	PreviousAdvice string    `json:"previous_advice"`
+	Moods          []MoodAdd `json:"moods"`
 }

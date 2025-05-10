@@ -1,39 +1,41 @@
-package userService
+package service
 
 import (
 	"errors"
 	"fmt"
 	errs "sentimenta/internal/errors"
 	"sentimenta/internal/hash"
+	m "sentimenta/internal/models"
+	repo "sentimenta/internal/repository"
 	"sentimenta/internal/utils"
 
 	"gorm.io/gorm"
 )
 
 type UserService interface {
-	CreateUser(username, email string, password *string) (User, error)
-	GetUser(id string) (User, error)
-	UpdateUser(userID string, u UserUpdate) (User, error)
+	CreateUser(username, email string, password *string) (m.User, error)
+	GetUser(id string) (m.User, error)
+	UpdateUser(userID string, u m.UserUpdate) (m.User, error)
 	DeleteUser(id string) error
 	ChangePassword(userID, password, newPassword string) error
-	Authenticate(email, password string) (User, error)
-	GetUserByEmail(email string) (User, error)
+	Authenticate(email, password string) (m.User, error)
+	GetUserByEmail(email string) (m.User, error)
 }
 
 type userService struct {
-	repo UserRepository
+	repo repo.UserRepository
 }
 
-func (s *userService) CreateUser(username string, email string, password *string) (User, error) {
+func (s *userService) CreateUser(username string, email string, password *string) (m.User, error) {
 	if !utils.IsValidEmail(email) {
-		return User{}, errs.ErrEmailValidation
+		return m.User{}, errs.ErrEmailValidation
 	}
 
 	existingUser, err := s.repo.GetUserByEmail(email)
 	if err == nil && existingUser != nil {
 		return *existingUser, errs.ErrUserAlreadyExists
 	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return User{}, err
+		return m.User{}, err
 	}
 
 	var passwordHashPtr *string
@@ -42,26 +44,26 @@ func (s *userService) CreateUser(username string, email string, password *string
 		passwordHashPtr = &hashed
 	}
 
-	newUser := User{
+	newUser := m.User{
 		Username:     username,
 		Email:        email,
 		PasswordHash: passwordHashPtr,
 	}
 	if err := s.repo.CreateUser(&newUser); err != nil {
-		return User{}, err
+		return m.User{}, err
 	}
 
 	return newUser, nil
 }
 
-func (s *userService) GetUser(id string) (User, error) {
+func (s *userService) GetUser(id string) (m.User, error) {
 	return s.repo.GetUser(id)
 }
 
-func (s *userService) UpdateUser(userID string, u UserUpdate) (User, error) {
+func (s *userService) UpdateUser(userID string, u m.UserUpdate) (m.User, error) {
 	targetUser, err := s.repo.GetUser(userID)
 	if err != nil {
-		return User{}, err
+		return m.User{}, err
 	}
 
 	if u.Password != nil {
@@ -76,7 +78,7 @@ func (s *userService) UpdateUser(userID string, u UserUpdate) (User, error) {
 	}
 
 	if err := s.repo.UpdateUser(targetUser); err != nil {
-		return User{}, err
+		return m.User{}, err
 	}
 	return targetUser, nil
 }
@@ -85,15 +87,15 @@ func (s *userService) DeleteUser(id string) error {
 	return s.repo.DeleteUser(id)
 }
 
-func (s *userService) Authenticate(email, password string) (User, error) {
+func (s *userService) Authenticate(email, password string) (m.User, error) {
 	user, err := s.repo.GetUserByEmail(email)
 	if err != nil {
-		return User{}, err
+		return m.User{}, err
 	}
 	if !hash.VerifyPassword(password, *user.PasswordHash) {
-		return User{}, errs.ErrWrongPassword
+		return m.User{}, errs.ErrWrongPassword
 	}
-	fmt.Printf("Authenticate User: %v", user)
+	fmt.Printf("Authenticate m.User: %v", user)
 
 	return *user, nil
 }
@@ -118,11 +120,11 @@ func (s *userService) ChangePassword(userID, password, newPassword string) error
 	return nil
 }
 
-func (s *userService) GetUserByEmail(email string) (User, error) {
+func (s *userService) GetUserByEmail(email string) (m.User, error) {
 	result, err := s.repo.GetUserByEmail(email)
 	return *result, err
 }
 
-func NewService(r UserRepository) UserService {
+func NewUserService(r repo.UserRepository) UserService {
 	return &userService{repo: r}
 }

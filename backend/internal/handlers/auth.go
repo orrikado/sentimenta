@@ -9,8 +9,9 @@ import (
 	"sentimenta/internal/auth"
 	c "sentimenta/internal/config"
 	errs "sentimenta/internal/errors"
+	"sentimenta/internal/models"
 	"sentimenta/internal/security"
-	us "sentimenta/internal/userService"
+	"sentimenta/internal/service"
 
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -18,7 +19,7 @@ import (
 )
 
 type AuthHandler struct {
-	service us.UserService
+	service service.UserService
 	config  *c.Config
 	logger  *zap.SugaredLogger
 	oauth   *auth.OAuth
@@ -31,7 +32,7 @@ type OAuthCallbackRequest struct {
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
-	var newUser us.UserRegister
+	var newUser models.UserRegister
 	if err := c.Bind(&newUser); err != nil {
 		h.logger.Errorf("Ошибка при Bind UserRegister: %v", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
@@ -72,7 +73,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
-	var reqUser us.UserLogin
+	var reqUser models.UserLogin
 	if err := c.Bind(&reqUser); err != nil {
 		h.logger.Errorf("Ошибка при Bind UserLogin: %v", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
@@ -245,6 +246,6 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	return c.JSON(http.StatusOK, userInfo)
 }
 
-func NewAuthHandler(s us.UserService, cfg *c.Config, logger *zap.SugaredLogger, oauthConfig *auth.OAuth, JWT *security.JWT) *AuthHandler {
+func NewAuthHandler(s service.UserService, cfg *c.Config, logger *zap.SugaredLogger, oauthConfig *auth.OAuth, JWT *security.JWT) *AuthHandler {
 	return &AuthHandler{service: s, config: cfg, logger: logger, oauth: oauthConfig, JWT: JWT}
 }

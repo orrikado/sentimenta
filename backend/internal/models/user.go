@@ -1,7 +1,6 @@
-package userService
+package models
 
 import (
-	m "sentimenta/internal/moodService"
 	"time"
 )
 
@@ -10,9 +9,11 @@ type User struct {
 	Username     string    `json:"username"`
 	Email        string    `json:"email" gorm:"unique"`
 	PasswordHash *string   `json:"password_hash"`
+	Timezone     string    `json:"timezone" gorm:"default:UTC"`
+	IsActive     bool      `json:"is_active" gorm:"default:false"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
-	Moods        []m.Mood  `json:"moods"`
+	Moods        []Mood    `json:"moods"`
 }
 
 type UserGet struct {
@@ -21,7 +22,7 @@ type UserGet struct {
 	Email     string    `json:"email" gorm:"unique"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	Moods     []m.Mood  `json:"moods"`
+	Moods     []Mood    `json:"moods"`
 }
 
 type UserUpdate struct {
