@@ -61,7 +61,7 @@
 
 <button
 	type="button"
-	class="flex w-full items-center justify-center gap-2 border border-black bg-stone-100 px-4 py-2 text-black transition-none hover:bg-black hover:text-white dark:border-white dark:bg-stone-900 dark:text-white dark:hover:bg-white dark:hover:text-stone-900"
+	class="flex w-full cursor-pointer items-center justify-center gap-2 border border-black bg-stone-100 px-4 py-2 text-black transition-none hover:bg-black hover:text-white dark:border-white dark:bg-stone-900 dark:text-white dark:hover:bg-white dark:hover:text-stone-900"
 	on:click={handleGoogleLogin}
 >
 	<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 30 30">

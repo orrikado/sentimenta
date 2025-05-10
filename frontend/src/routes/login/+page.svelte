@@ -48,14 +48,17 @@
 
 		if (!email || !password) {
 			formError = m.field_error();
+			submitInProcess = false;
 			return;
 		}
 		if (hasSpace(password.toString())) {
 			formError = m.password_spaces_error();
+			submitInProcess = false;
 			return;
 		}
 		if (!email_regex.test(email.toString())) {
 			formError = m.invalid_email_error();
+			submitInProcess = false;
 			return;
 		}
 
@@ -72,12 +75,15 @@
 				const errorData = await response.json();
 				formError = errorData.message || m.login_fail();
 				console.error(errorData);
+				submitInProcess = false;
 				return;
 			}
 
+			submitInProcess = false;
 			refreshUserId();
 			goto('/track');
 		} catch {
+			submitInProcess = false;
 			formError = m.error_occured();
 		}
 	}
@@ -131,10 +137,11 @@
 				class="relative flex items-center justify-center border border-current px-6 py-2 text-center transition-colors duration-300"
 				class:bg-white={canSubmit()}
 				class:text-black={canSubmit()}
+				class:cursor-pointer={canSubmit()}
 				class:opacity-50={!canSubmit()}
 				class:pointer-events-none={!canSubmit() || submitInProcess}
 				aria-disabled={!canSubmit() || submitInProcess}
-				disabled={submitInProcess}
+				disabled={submitInProcess || !canSubmit()}
 			>
 				{m.login()}
 			</button>
