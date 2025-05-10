@@ -66,17 +66,22 @@ func (s *adviceService) GenerateAdviceForAllUsers() error {
 		return err
 	}
 	for _, user := range users {
-		uidStr := fmt.Sprintf("%v", user.Uid)
-		if _, err := s.repo.GetAdvice(uidStr, time.Now()); err == nil {
-			continue
-		}
-		advice, err := s.GenerateAdvice(user.Uid, time.Now())
-		if err != nil {
-			continue
-		}
-		err = s.repo.CreateAdvice(&advice)
-		if err != nil {
-			continue
+		if user.IsActive {
+			uidStr := fmt.Sprintf("%v", user.Uid)
+			if _, err := s.repo.GetAdvice(uidStr, time.Now()); err == nil {
+				continue
+			}
+			advice, err := s.GenerateAdvice(user.Uid, time.Now())
+			if err != nil {
+				continue
+			}
+			if err := s.repo.CreateAdvice(&advice); err != nil {
+				continue
+			}
+			user.IsActive = false
+			if err := s.userRepo.UpdateUser(user); err != nil {
+				continue
+			}
 		}
 	}
 
