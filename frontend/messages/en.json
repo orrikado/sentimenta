@@ -54,5 +54,13 @@
 	"emotions_label": "emotions",
 	"advice": "emotional advice",
 	"login_with_google": "login with google",
-	"google_login_failed": "google login failed"
+	"google_login_failed": "google login failed",
+	"tooltip_date_label": "date: ",
+	"tooltip_score_label": "score: ",
+	"tooltip_emotions_label": "emotions: ",
+	"tooltip_diary_label": "diary: ",
+	"aria_calendar_grid": "calendar grid",
+	"aria_select_date": "select {date}",
+	"no_data_for_month": "no data for this month",
+	"aria_select_mood": "select mood {mood}"
 }

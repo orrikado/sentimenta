@@ -194,7 +194,7 @@
 				.attr('y', innerHeight / 2)
 				.attr('text-anchor', 'middle')
 				.attr('fill', '#666')
-				.text('No data for this month');
+				.text(m.no_data_for_month());
 			return;
 		}
 
@@ -420,11 +420,19 @@
 		id="tooltip"
 		class="absolute z-10 hidden border bg-white p-2 text-sm shadow-md dark:bg-stone-900"
 	>
-		<div><span class="font-medium">Date:</span> <span class="date"></span></div>
-		<div><span class="font-medium">Score:</span> <span class="score"></span>/5</div>
-		<div><span class="font-medium">Emotions:</span> <span class="emotions"></span></div>
-		<div><span class="font-medium">Diary:</span> <span class="description"></span></div>
-		<div><span class="font-medium">Advice:</span> <span class="advice"></span></div>
+		<div><span class="font-medium">{m.tooltip_date_label()}</span> <span class="date"></span></div>
+		<div>
+			<span class="font-medium">{m.tooltip_score_label()}</span> <span class="score"></span>/5
+		</div>
+		<div>
+			<span class="font-medium">{m.tooltip_emotions_label()}</span> <span class="emotions"></span>
+		</div>
+		<div>
+			<span class="font-medium">{m.tooltip_diary_label()}</span> <span class="description"></span>
+		</div>
+		<div>
+			<span class="font-medium">{m.advice()}</span> <span class="advice"></span>
+		</div>
 	</div>
 	<div class="flex items-center justify-between p-4">
 		<button
@@ -449,7 +457,7 @@
 	<div
 		class="grid grid-cols-7 gap-0.5 border border-stone-300 bg-white p-1 text-sm text-black md:p-2 dark:border-white/10 dark:bg-stone-900 dark:text-white"
 		role="grid"
-		aria-label="Calendar Grid"
+		aria-label={m.aria_calendar_grid()}
 	>
 		{#each [m.sun(), m.mon(), m.tue(), m.wed(), m.thu(), m.fri(), m.sat()] as day (day)}
 			<div class="border-b border-white/10 p-2 text-center font-bold" role="columnheader">
@@ -468,7 +476,7 @@
 					class:cursor-not-allowed={date > today}
 					aria-disabled={date > today}
 					role="gridcell"
-					aria-label={`Select ${date.toLocaleDateString()}`}
+					aria-label={m.aria_select_date({ date: date.toLocaleDateString() })}
 					aria-selected={moodMap.has(getDateKey(date)) ? 'true' : 'false'}
 					onclick={() => {
 						if (date instanceof Date && !isNaN(date.getDate())) {
@@ -622,7 +630,7 @@
 					class:text-black={mood === n}
 					class:text-current={mood !== n}
 					onclick={() => (mood = n)}
-					aria-label={`select mood ${n}`}
+					aria-label={m.aria_select_mood({ mood: n })}
 				>
 					{n}
 				</button>

@@ -54,5 +54,13 @@
 	"emotions_label": "эмоции",
 	"advice": "эмоциональный совет",
 	"login_with_google": "войти через google",
-	"google_login_failed": "вход в систему google не удался"
+	"google_login_failed": "вход в систему google не удался",
+	"tooltip_date_label": "дата: ",
+	"tooltip_score_label": "настроение: ",
+	"tooltip_emotions_label": "эмоции: ",
+	"tooltip_diary_label": "дневник: ",
+	"aria_calendar_grid": "календарь",
+	"aria_select_date": "выберите {date}",
+	"no_data_for_month": "нет данных за этот месяц",
+	"aria_select_mood": "выберите настроение {mood}"
 }
