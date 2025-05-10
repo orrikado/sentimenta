@@ -15,7 +15,21 @@
 	let currentMonth = $state(today.getMonth());
 	let currentYear = $state(today.getFullYear());
 
-	let days: Date[] = $derived(getMonthDays(currentYear, currentMonth));
+	// State for first day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+	let firstDayOfWeek = $state(1);
+	if (browser) {
+		firstDayOfWeek = parseInt(localStorage.getItem('firstDayOfWeek') || '1');
+	}
+
+	let dayHeaders = $state<string[]>([]);
+
+	// Rebuild headers whenever firstDayOfWeek or locale messages change
+	$effect(() => {
+		const allDays = [m.sun(), m.mon(), m.tue(), m.wed(), m.thu(), m.fri(), m.sat()];
+		dayHeaders = [...allDays.slice(firstDayOfWeek), ...allDays.slice(0, firstDayOfWeek)];
+	});
+
+	let days: Date[] = $derived(getMonthDays(currentYear, currentMonth, firstDayOfWeek));
 	let showModal = $state(false);
 	let selectedDate: Date = $state(new Date());
 	let submitInProcess = $state(false);
@@ -459,7 +473,7 @@
 		role="grid"
 		aria-label={m.aria_calendar_grid()}
 	>
-		{#each [m.sun(), m.mon(), m.tue(), m.wed(), m.thu(), m.fri(), m.sat()] as day (day)}
+		{#each dayHeaders as day (day)}
 			<div class="border-b border-white/10 p-2 text-center font-bold" role="columnheader">
 				{day}
 			</div>

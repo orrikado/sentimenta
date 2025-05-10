@@ -1,16 +1,18 @@
-export function getMonthDays(year: number, month: number): Date[] {
-	const days = [];
-	const firstDay = new Date(year, month, 1);
-	const startDay = firstDay.getDay(); // 0 = Sunday
+export function getMonthDays(year: number, month: number, firstDayOfWeek: number = 0): Date[] {
+	const firstDayOfMonth = new Date(year, month, 1);
+	const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
 
-	// Push empty placeholders before the 1st
-	for (let i = 0; i < startDay; i++) {
-		days.push(new Date(NaN));
+	const days: Date[] = [];
+
+	// Step 1: Calculate how many placeholder days (NaN) to insert before the 1st
+	const firstDayIndex = firstDayOfMonth.getDay(); // 0 = Sunday
+	const adjustedStartDay = (firstDayIndex - firstDayOfWeek + 7) % 7;
+
+	for (let i = 0; i < adjustedStartDay; i++) {
+		days.push(new Date(NaN)); // Placeholder before the 1st
 	}
 
-	const lastDay = new Date(year, month + 1, 0).getDate();
-
-	for (let i = 1; i <= lastDay; i++) {
+	for (let i = 1; i <= lastDayOfMonth; i++) {
 		days.push(new Date(year, month, i));
 	}
 

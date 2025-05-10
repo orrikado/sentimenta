@@ -4,6 +4,7 @@
 	import { userId } from '$lib/stores/user';
 	import { logout } from '$lib/user';
 	import { m } from '$lib/paraglide/messages';
+	import { browser } from '$app/environment';
 
 	let user: {
 		username: string;
@@ -11,6 +12,16 @@
 		created_at: string | number | Date;
 		updated_at: string | number | Date;
 	} = $state({ username: '', email: '', created_at: '', updated_at: '' });
+
+	// Add new state variable for first day of week
+	let selectedFirstDay = $state(
+		browser ? parseInt(localStorage.getItem('firstDayOfWeek') || '1') : 1
+	);
+
+	// Save to localStorage when changed
+	$effect(() => {
+		localStorage.setItem('firstDayOfWeek', selectedFirstDay.toString());
+	});
 
 	let editMode = $state(false);
 	let passwordEditMode = $state(false);
@@ -101,6 +112,25 @@
 {#if user.email.length > 0}
 	<div class="flex min-h-screen items-center justify-center bg-stone-100 px-4 dark:bg-stone-950">
 		<main class="w-full max-w-md space-y-6">
+			<!-- First Day of Week Setting -->
+			<div>
+				<label for="first-day-select" class="text-stone-500 uppercase dark:text-stone-400">
+					{m.first_day_of_week()}
+				</label>
+				<select
+					id="first-day-select"
+					bind:value={selectedFirstDay}
+					class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
+				>
+					<option value={0}>{m.sunday()}</option>
+					<option value={1}>{m.monday()}</option>
+					<option value={2}>{m.tuesday()}</option>
+					<option value={3}>{m.wednesday()}</option>
+					<option value={4}>{m.thursday()}</option>
+					<option value={5}>{m.friday()}</option>
+					<option value={6}>{m.saturday()}</option>
+				</select>
+			</div>
 			<!-- Profile Card -->
 			<div class="border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
 				<h1 class="mb-4 text-center text-2xl font-bold">{m.profile()}</h1>

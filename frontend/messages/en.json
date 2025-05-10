@@ -63,5 +63,13 @@
 	"aria_select_date": "select {date}",
 	"no_data_for_month": "no data for this month",
 	"aria_select_mood": "select mood {mood}",
-	"email": "email"
+	"email": "email",
+	"first_day_of_week": "first day of the week",
+	"monday": "monday",
+	"tuesday": "tuesday",
+	"wednesday": "wednesday",
+	"thursday": "thursday",
+	"friday": "friday",
+	"saturday": "saturday",
+	"sunday": "sunday"
 }
