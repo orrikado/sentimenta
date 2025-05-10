@@ -1,4 +1,4 @@
-FROM golang:1.24.2-alpine AS builder
+FROM golang:1.24.3-alpine AS builder
 
 RUN apk add --no-cache git
 
@@ -14,6 +14,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /app/main ./cmd/main.go
 
 
 FROM alpine:latest
+
+RUN apk add --no-cache tzdata
 
 WORKDIR /app
 

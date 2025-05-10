@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	m "sentimenta/internal/models"
 	repo "sentimenta/internal/repository"
 	"strconv"
@@ -47,15 +46,15 @@ func (s *moodService) CreateMood(userID string, score int16, emotions, descripti
 		return m.Mood{}, err
 	}
 
-	dateStr := date.Format("2006-01-02")
 	loc, err := time.LoadLocation(user.Timezone)
 	if err != nil {
 		s.logger.Errorf("не удалось загрузить часовой пояс: %v", err)
 	}
+	dateStr := date.Format("2006-01-02")
 	dateNowStr := time.Now().In(loc).Format("2006-01-02")
+	dateYesterdayStr := time.Now().AddDate(0, 0, -1).In(loc).Format("2006-01-02")
 
-	fmt.Println(dateStr, dateNowStr)
-	if dateStr == dateNowStr {
+	if dateStr == dateNowStr || dateStr == dateYesterdayStr {
 		if err := s.userRepo.UpdateUser(uidInt, map[string]interface{}{"is_active": true}); err != nil {
 			return m.Mood{}, err
 		}
