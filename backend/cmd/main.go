@@ -47,7 +47,9 @@ func main() {
 	scheduler := scheduler.NewScheduler(adviceService, logger)
 	scheduler.Start()
 
-	adviceService.GenerateAdviceForAllUsers()
+	if err := adviceService.GenerateAdviceForAllUsers(); err != nil {
+		logger.Errorf("Не удалось сгенерировать advice: %v", err)
+	}
 
 	e := echo.New()
 	e.Use(middleware.CORS())

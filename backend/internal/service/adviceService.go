@@ -194,7 +194,7 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advic
 	}
 
 	if len(result.Choices) == 0 {
-		return models.Advice{}, fmt.Errorf("OpenRouter вернул пустой результат")
+		return models.Advice{}, fmt.Errorf("AI вернул пустой результат")
 	}
 
 	generatedText := result.Choices[0].Message.Content
