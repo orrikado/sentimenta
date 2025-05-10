@@ -6,7 +6,7 @@
 	import { refreshUserId } from '$lib/user';
 	import { onMount } from 'svelte';
 
-	let formError: string | null = null;
+	let formError: string | null = $state(null);
 	const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 	let email = $state('');
@@ -101,7 +101,7 @@
 	>
 		<h1 class="text-center text-2xl">{m.m_signup()}</h1>
 
-		<form on:submit={handleSubmit} class="flex flex-col gap-4">
+		<form onsubmit={handleSubmit} class="flex flex-col gap-4">
 			<!-- username -->
 			<div class="flex flex-col gap-1">
 				<label for="username" class="text-sm">{m.username()}</label>
