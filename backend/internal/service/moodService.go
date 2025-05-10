@@ -40,12 +40,9 @@ func (s *moodService) CreateMood(userID string, score int16, emotions, descripti
 	dateStr := date.Format("2006-01-02")
 	dateNowStr := time.Now().Format("2006-01-02")
 
+	isActive := true
 	if dateStr != dateNowStr {
-		userUpdate := m.User{
-			Uid:      uidInt,
-			IsActive: true,
-		}
-		if err := s.userRepo.UpdateUser(userUpdate); err != nil {
+		if err := s.userRepo.UpdateUser(uidInt, map[string]interface{}{"is_active": isActive}); err != nil {
 			return m.Mood{}, err
 		}
 	}

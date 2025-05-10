@@ -15,7 +15,7 @@ import (
 type UserService interface {
 	CreateUser(username, email string, password *string, timezone string) (m.User, error)
 	GetUser(id string) (m.User, error)
-	UpdateUser(userID string, u m.UserUpdate) (m.User, error)
+	UpdateUser(userID string, u m.UserUpdateReq) (m.User, error)
 	DeleteUser(id string) error
 	ChangePassword(userID, password, newPassword string) error
 	Authenticate(email, password string) (m.User, error)
@@ -61,7 +61,7 @@ func (s *userService) GetUser(id string) (m.User, error) {
 	return s.repo.GetUser(id)
 }
 
-func (s *userService) UpdateUser(userID string, u m.UserUpdate) (m.User, error) {
+func (s *userService) UpdateUser(userID string, u m.UserUpdateReq) (m.User, error) {
 	targetUser, err := s.repo.GetUser(userID)
 	if err != nil {
 		return m.User{}, err
@@ -78,7 +78,7 @@ func (s *userService) UpdateUser(userID string, u m.UserUpdate) (m.User, error) 
 		targetUser.Email = *u.Email
 	}
 
-	if err := s.repo.UpdateUser(targetUser); err != nil {
+	if err := s.repo.UpdateUser(targetUser.Uid, targetUser); err != nil {
 		return m.User{}, err
 	}
 	return targetUser, nil
@@ -115,7 +115,7 @@ func (s *userService) ChangePassword(userID, password, newPassword string) error
 	passwordHash := hash.HashPassword(newPassword)
 	user.PasswordHash = &passwordHash
 
-	if err := s.repo.UpdateUser(user); err != nil {
+	if err := s.repo.UpdateUser(user.Uid, user); err != nil {
 		return err
 	}
 	return nil

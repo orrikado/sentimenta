@@ -40,7 +40,7 @@ func (h *UserHandler) PatchUpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
 	}
 
-	var reqUser models.UserUpdate
+	var reqUser models.UserUpdateReq
 	if err := c.Bind(&reqUser); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
 	}

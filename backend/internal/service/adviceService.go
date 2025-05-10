@@ -90,7 +90,7 @@ func (s *adviceService) GenerateAdviceForAllUsers() error {
 				continue
 			}
 			user.IsActive = false
-			if err := s.userRepo.UpdateUser(user); err != nil {
+			if err := s.userRepo.UpdateUser(user.Uid, user); err != nil {
 				s.logger.Errorf("не удалось обновить пользователя: %v", err)
 				continue
 			}

@@ -11,7 +11,7 @@ type UserRepository interface {
 	GetUser(id string) (m.User, error)
 	GetAllUsers() ([]m.User, error)
 	GetUserByEmail(email string) (*m.User, error)
-	UpdateUser(user m.User) error
+	UpdateUser(userID int, updates any) error
 	DeleteUser(id string) error
 }
 
@@ -31,8 +31,8 @@ func (r *userRepository) CreateUser(user *m.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *userRepository) UpdateUser(user m.User) error {
-	return r.db.Save(&user).Error
+func (r *userRepository) UpdateUser(userID int, updates any) error {
+	return r.db.Model(&m.User{}).Where("uid = ?", userID).Updates(updates).Error
 }
 
 func (r *userRepository) DeleteUser(id string) error {
