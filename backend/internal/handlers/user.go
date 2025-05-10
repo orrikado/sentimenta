@@ -30,7 +30,14 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось получить данные пользователя"})
 	}
 
-	return c.JSON(http.StatusOK, user)
+	userGet := models.UserGet{
+		Uid:       user.Uid,
+		Username:  user.Username,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+	return c.JSON(http.StatusOK, userGet)
 }
 
 func (h *UserHandler) PatchUpdateUser(c echo.Context) error {

@@ -17,12 +17,11 @@ type User struct {
 }
 
 type UserGet struct {
-	Uid       int       `json:"uid" gorm:"primaryKey;autoIncrement;unique"`
+	Uid       int       `json:"uid"`
 	Username  string    `json:"username"`
-	Email     string    `json:"email" gorm:"unique"`
+	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	Moods     []Mood    `json:"moods"`
 }
 
 type UserUpdateReq struct {
