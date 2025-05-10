@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import GoogleLoginButton from '$lib/components/GoogleLoginButton.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { userId } from '$lib/stores/user';
 	import { refreshUserId } from '$lib/user';
@@ -69,7 +70,7 @@
 <div
 	class="flex min-h-screen items-center justify-center bg-stone-100 font-mono text-black dark:bg-stone-950 dark:text-white"
 >
-	<div class="flex w-full max-w-md flex-col gap-6 border border-black p-6 dark:border-white">
+	<main class="flex w-full max-w-md flex-col gap-6 border border-black p-6 dark:border-white">
 		<h1 class="text-center text-2xl">{m.m_signup()}</h1>
 
 		<form on:submit={handleSubmit} class="flex flex-col gap-4">
@@ -124,5 +125,6 @@
 				<p class="text-sm text-red-500 dark:text-red-400">{formError}</p>
 			{/if}
 		</form>
-	</div>
+		<GoogleLoginButton />
+	</main>
 </div>

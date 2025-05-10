@@ -53,5 +53,6 @@
 	"diary_label": "diary",
 	"emotions_label": "emotions",
 	"advice": "emotional advice",
-	"login_with_google": "login with google"
+	"login_with_google": "login with google",
+	"google_login_failed": "google login failed"
 }

@@ -53,5 +53,6 @@
 	"diary_label": "дневник",
 	"emotions_label": "эмоции",
 	"advice": "эмоциональный совет",
-	"login_with_google": "войти через google"
+	"login_with_google": "войти через google",
+	"google_login_failed": "вход в систему google не удался"
 }
