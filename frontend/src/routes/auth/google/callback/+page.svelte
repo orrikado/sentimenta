@@ -30,7 +30,11 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ code, codeVerifier }),
+				body: JSON.stringify({
+					code,
+					codeVerifier,
+					timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+				}),
 				credentials: 'include' // Required for cookies
 			});
 
