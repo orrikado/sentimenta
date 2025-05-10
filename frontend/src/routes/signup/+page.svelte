@@ -74,7 +74,7 @@
 
 			if (!response.ok) {
 				const errorData = await response.json();
-				formError = errorData.message || m.signup_fail();
+				formError = errorData.error || m.signup_fail();
 				submitInProcess = false;
 				return;
 			}

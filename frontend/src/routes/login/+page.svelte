@@ -73,7 +73,7 @@
 
 			if (!response.ok) {
 				const errorData = await response.json();
-				formError = errorData.message || m.login_fail();
+				formError = errorData.error || m.login_fail();
 				console.error(errorData);
 				submitInProcess = false;
 				return;

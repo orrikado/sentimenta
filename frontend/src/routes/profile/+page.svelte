@@ -74,7 +74,7 @@
 		// Handle response
 		if (!response.ok) {
 			const data = await response.json().catch(() => ({}));
-			error = data.message || m.profile_password_update_failed();
+			error = data.error || m.profile_password_update_failed();
 		} else {
 			success = m.profile_password_updated_successfully();
 			error = null;
