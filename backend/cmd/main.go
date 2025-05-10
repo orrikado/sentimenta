@@ -36,8 +36,8 @@ func main() {
 	adviceRepo := repository.NewAdviceRepository(db)
 
 	userService := service.NewUserService(userRepo)
-	moodService := service.NewMoodService(moodRepo, userRepo)
 	adviceService := service.NewAdviceService(adviceRepo, moodRepo, userRepo, cfg, logger)
+	moodService := service.NewMoodService(moodRepo, userRepo, adviceRepo, adviceService, logger)
 
 	userHandler := handlers.NewUserHandler(userService, cfg, logger)
 	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauth, jwt)

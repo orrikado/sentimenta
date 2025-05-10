@@ -112,9 +112,9 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advic
 	}
 
 	// Строим DTO
-	var moodsDTO []models.MoodAdd
+	var moods []models.MoodAdd
 	for _, m := range lastMoods {
-		moodsDTO = append(moodsDTO, models.MoodAdd{
+		moods = append(moods, models.MoodAdd{
 			Score:       m.Score,
 			Emotions:    m.Emotions,
 			Description: m.Description,
@@ -124,7 +124,7 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advic
 
 	payload := models.AdviceRequest{
 		PreviousAdvice: lastAdvice.Text,
-		Moods:          moodsDTO,
+		Moods:          moods,
 	}
 
 	// Преобразуем в JSON (например, для отправки куда-то)
