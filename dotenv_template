@@ -10,4 +10,9 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_CLIENT_CALLBACK=http://localhost:5173/auth/google/callback
 
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GITHUB_CLIENT_CALLBACK=http://localhost:5173/auth/github/callback
+
+AI_API_KEY= # openrouter api key
 PASSWORD_LENGTH_MIN=8
