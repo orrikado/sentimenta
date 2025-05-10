@@ -52,5 +52,6 @@
 	"close_modal": "close modal",
 	"diary_label": "diary",
 	"emotions_label": "emotions",
-	"advice": "emotional advice"
+	"advice": "emotional advice",
+	"login_with_google": "login with google"
 }

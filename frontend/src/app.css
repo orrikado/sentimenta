@@ -1,6 +1,37 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 
+:root {
+	--color-mood-1: oklch(0.75 0.2 30);
+	/* Really Bad */
+	--color-mood-2: oklch(0.75 0.2 55);
+	/* Bad */
+	--color-mood-3: oklch(0.75 0.2 90);
+	/* Neutral */
+	--color-mood-4: oklch(0.75 0.2 120);
+	/* Good */
+	--color-mood-5: oklch(0.75 0.2 145);
+	/* Really Good */
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-mood-1: oklch(0.46 0.2 30);
+		--color-mood-2: oklch(0.46 0.2 55);
+		--color-mood-3: oklch(0.46 0.2 90);
+		--color-mood-4: oklch(0.46 0.2 120);
+		--color-mood-5: oklch(0.46 0.2 145);
+	}
+}
+
+@theme {
+	--color-mood-1: var(--color-mood-1);
+	--color-mood-2: var(--color-mood-2);
+	--color-mood-3: var(--color-mood-3);
+	--color-mood-4: var(--color-mood-4);
+	--color-mood-5: var(--color-mood-5);
+}
+
 body {
 	font-family: 'Zen Maru Gothic', serif;
 }

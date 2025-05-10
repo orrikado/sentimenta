@@ -168,23 +168,9 @@
 	}
 
 	function getDotColor(score: number) {
-		type ColorMap = { [key: number]: string };
-		const isDark = document.documentElement.classList.contains('dark');
-		const lightColors: ColorMap = {
-			1: 'oklch(63.7% 0.237 25.331)', // red-500
-			2: 'oklch(70.5% 0.213 47.604)', // orange-500
-			3: 'oklch(79.5% 0.184 86.047)', // yellow-500
-			4: 'oklch(72.3% 0.219 149.579)', // green-500
-			5: 'oklch(54.6% 0.245 262.881)' // blue-500
-		};
-		const darkColors: ColorMap = {
-			1: 'oklch(70.4% 0.191 22.216)', // red-400
-			2: 'oklch(82.8% 0.189 84.429)', // amber-400
-			3: 'oklch(85.2% 0.199 91.936)', // yellow-400
-			4: 'oklch(84.1% 0.238 128.85)', // green-400
-			5: 'oklch(70.7% 0.165 254.624)' // blue-400
-		};
-		return isDark ? darkColors[score] || '#9ca3af' : lightColors[score] || '#9ca3af';
+		return getComputedStyle(document.documentElement)
+			.getPropertyValue(`--color-mood-${score}`)
+			.trim();
 	}
 
 	// draw the chart
@@ -373,19 +359,19 @@
 			if (moods.has(getDateKey(date))) {
 				switch (moods.get(getDateKey(date))?.score) {
 					case 1:
-						classes += 'bg-red-300 dark:bg-red-900 ';
+						classes += 'bg-mood-1 ';
 						break;
 					case 2:
-						classes += 'bg-orange-300 dark:bg-orange-900 ';
+						classes += 'bg-mood-2 ';
 						break;
 					case 3:
-						classes += 'bg-yellow-400 dark:bg-yellow-900 ';
+						classes += 'bg-mood-3 ';
 						break;
 					case 4:
-						classes += 'bg-green-300 dark:bg-green-900 ';
+						classes += 'bg-mood-4 ';
 						break;
 					case 5:
-						classes += 'bg-blue-300 dark:bg-blue-900 ';
+						classes += 'bg-mood-5 ';
 						break;
 				}
 			} else {
