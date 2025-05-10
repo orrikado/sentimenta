@@ -460,10 +460,9 @@
 		{#each days as date (date)}
 			{#if date instanceof Date && !isNaN(date.getDate())}
 				<button
-					class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center p-2 text-center text-xl transition-colors duration-200 `}
+					class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center p-2 text-center text-xl transition-all duration-200 `}
 					class:border={date instanceof Date && !isNaN(date.getDate())}
-					class:hover:bg-slate-200={!(date > today)}
-					class:dark:hover:bg-slate-700={!(date > today)}
+					class:hover:brightness-85={!(date > today)}
 					tabindex="0"
 					class:cursor-pointer={!(date > today)}
 					class:cursor-not-allowed={date > today}
