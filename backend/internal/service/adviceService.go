@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"time"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -30,6 +31,7 @@ type adviceService struct {
 	repo     repo.AdviceRepository
 	moodRepo repo.MoodRepository
 	userRepo repo.UserRepository
+	logger   *zap.SugaredLogger
 	config   *config.Config
 }
 
@@ -71,15 +73,25 @@ func (s *adviceService) GenerateAdviceForAllUsers() error {
 			if _, err := s.repo.GetAdvice(uidStr, time.Now()); err == nil {
 				continue
 			}
-			advice, err := s.GenerateAdvice(user.Uid, time.Now())
+
+			loc, err := time.LoadLocation(user.Timezone)
 			if err != nil {
+				s.logger.Errorf("не удалось загрузить часовой пояс: %v", err)
+				continue
+			}
+			userTime := time.Now().In(loc)
+			advice, err := s.GenerateAdvice(user.Uid, userTime)
+			if err != nil {
+				s.logger.Errorf("не удалось сгенерировать advice: %v", err)
 				continue
 			}
 			if err := s.repo.CreateAdvice(&advice); err != nil {
+				s.logger.Errorf("не удалось добавить advice: %v", err)
 				continue
 			}
 			user.IsActive = false
 			if err := s.userRepo.UpdateUser(user); err != nil {
+				s.logger.Errorf("не удалось обновить пользователя: %v", err)
 				continue
 			}
 		}
@@ -203,6 +215,6 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advic
 func (s *adviceService) GetLastAdvice(userID string) (models.Advice, error) {
 	return s.repo.GetLastAdvice(userID)
 }
-func NewAdviceService(repo repo.AdviceRepository, moodRepo repo.MoodRepository, userRepo repo.UserRepository, config *config.Config) AdviceService {
-	return &adviceService{repo: repo, moodRepo: moodRepo, userRepo: userRepo, config: config}
+func NewAdviceService(repo repo.AdviceRepository, moodRepo repo.MoodRepository, userRepo repo.UserRepository, config *config.Config, logger *zap.SugaredLogger) AdviceService {
+	return &adviceService{repo: repo, moodRepo: moodRepo, userRepo: userRepo, config: config, logger: logger}
 }

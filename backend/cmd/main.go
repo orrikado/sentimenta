@@ -37,7 +37,7 @@ func main() {
 
 	userService := service.NewUserService(userRepo)
 	moodService := service.NewMoodService(moodRepo)
-	adviceService := service.NewAdviceService(adviceRepo, moodRepo, userRepo, cfg)
+	adviceService := service.NewAdviceService(adviceRepo, moodRepo, userRepo, cfg, logger)
 
 	userHandler := handlers.NewUserHandler(userService, cfg, logger)
 	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauth, jwt)
