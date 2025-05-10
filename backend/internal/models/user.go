@@ -9,7 +9,7 @@ type User struct {
 	Username     string    `json:"username"`
 	Email        string    `json:"email" gorm:"unique"`
 	PasswordHash *string   `json:"password_hash"`
-	Timezone     string    `json:"timezone" gorm:"default:UTC"`
+	Timezone     string    `json:"timezone"`
 	IsActive     bool      `json:"is_active" gorm:"default:false"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`

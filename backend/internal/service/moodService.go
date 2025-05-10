@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	m "sentimenta/internal/models"
 	repo "sentimenta/internal/repository"
 	"strconv"
@@ -29,6 +30,10 @@ func (s *moodService) CreateMood(userID string, score int16, emotions, descripti
 	if err != nil {
 		return m.Mood{}, err
 	}
+	user, err := s.userRepo.GetUser(userID)
+	if err != nil {
+		return m.Mood{}, err
+	}
 
 	newMood := m.Mood{
 		Score:       score,
@@ -43,19 +48,26 @@ func (s *moodService) CreateMood(userID string, score int16, emotions, descripti
 	}
 
 	dateStr := date.Format("2006-01-02")
-	dateNowStr := time.Now().Format("2006-01-02")
+	loc, err := time.LoadLocation(user.Timezone)
+	if err != nil {
+		s.logger.Errorf("не удалось загрузить часовой пояс: %v", err)
+	}
+	dateNowStr := time.Now().In(loc).Format("2006-01-02")
 
+	fmt.Println(dateStr, dateNowStr)
 	if dateStr == dateNowStr {
 		if err := s.userRepo.UpdateUser(uidInt, map[string]interface{}{"is_active": true}); err != nil {
 			return m.Mood{}, err
 		}
-		advice, err := s.adviceServ.GenerateAdvice(uidInt, date)
-		if err != nil {
-			return m.Mood{}, err
-		}
-		if err := s.adviceRepo.CreateAdvice(&advice); err != nil {
-			return m.Mood{}, err
-		}
+		go func() {
+			advice, err := s.adviceServ.GenerateAdvice(uidInt, date)
+			if err != nil {
+				s.logger.Errorf("не удалось сгенерировать advice: %v", err)
+			}
+			if err := s.adviceRepo.CreateAdvice(&advice); err != nil {
+				s.logger.Errorf("не удалось добавить advice: %v", err)
+			}
+		}()
 	}
 	return newMood, nil
 }
