@@ -1,12 +1,19 @@
 import { jwtDecode } from 'jwt-decode';
-import { userId } from './stores/user';
+import { user, userId } from './stores/user';
+
+export type User = {
+	username: string;
+	email: string;
+	created_at: Date;
+	updated_at: Date;
+};
 
 function getCookie(name: string) {
 	const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
 	return match ? match[2] : null;
 }
 
-function logout() {
+export function logout() {
 	deleteCookie('access_token');
 	userId.set(undefined);
 }
@@ -15,7 +22,7 @@ function deleteCookie(name: string) {
 	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 }
 
-function isTokenExpired(token: string | null) {
+export function isTokenExpired(token: string | null) {
 	if (!token) return true; // No token means expired or invalid
 	try {
 		const decodedToken = jwtDecode(token);
@@ -54,4 +61,13 @@ export function refreshUserId() {
 	}
 }
 
-export { logout, isTokenExpired };
+export async function refreshUser() {
+	if (!userId) return;
+	try {
+		const response = await fetch(`/api/user/get`);
+		if (!response.ok) throw new Error('Failed to fetch user');
+		user.set(await response.json());
+	} catch (err) {
+		throw err;
+	}
+}

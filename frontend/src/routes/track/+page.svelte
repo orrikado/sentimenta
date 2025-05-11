@@ -4,11 +4,14 @@
 	import { goto } from '$app/navigation';
 	import { getMonthDays } from '$lib/calendar-utils';
 	import { m } from '$lib/paraglide/messages';
-	import { refreshUserId } from '$lib/user';
 	import { userId } from '$lib/stores/user';
 	import Modal from '$lib/components/Modal.svelte';
 	import * as d3 from 'd3';
 	import { browser } from '$app/environment';
+	import { moods } from '$lib/stores/moods';
+	import { updateMoods, type MoodEntry } from '$lib/moods';
+	import { advice } from '$lib/stores/advice';
+	import { updateAdvice } from '$lib/advice';
 
 	// State variables
 	let today = new Date();
@@ -33,8 +36,6 @@
 	let showModal = $state(false);
 	let selectedDate: Date = $state(new Date());
 	let submitInProcess = $state(false);
-	let moods = $state<MoodEntry[]>([]);
-	let advice = $state<AdviceEntry[]>([]);
 	let loading = $state(true);
 
 	let mood = $state<number>(0);
@@ -44,29 +45,14 @@
 	let formSuccess = $state<boolean>(false);
 	let notificationMessage = $state('');
 
-	// Types
-	type MoodEntry = {
-		uid: number | undefined;
-		date: Date;
-		score: number;
-		description: string;
-		emotions: string;
-	};
-
-	type AdviceEntry = {
-		uid: number | undefined;
-		date: Date;
-		text: string;
-	};
-
 	// Derived values
 	const getDateKey = (dateInput: string | number | Date) => {
 		const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
 		return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 	};
 
-	let moodMap = $derived(new Map(moods.map((m) => [getDateKey(m.date), m])));
-	let adviceMap = $derived(new Map(advice.map((a) => [getDateKey(a.date), a])));
+	let moodMap = $derived(new Map($moods.map((m) => [getDateKey(m.date), m])));
+	let adviceMap = $derived(new Map($advice.map((a) => [getDateKey(a.date), a])));
 	const canSubmit = $derived(() => {
 		const future = new Date(selectedDate) > today;
 		// Ensure the selected date is today or in the past
@@ -74,7 +60,7 @@
 	});
 
 	let filteredMoods = $derived(
-		moods
+		$moods
 			.filter((m) => {
 				return m.date.getMonth() === currentMonth && m.date.getFullYear() === currentYear;
 			})
@@ -165,8 +151,13 @@
 		}
 		updateDimensions();
 		window.addEventListener('resize', updateDimensions);
-		await updateMoods();
-		await updateAdvice();
+
+		if ($moods.length === 0) {
+			await updateMoods();
+		}
+		if ($advice.length === 0) {
+			await updateAdvice();
+		}
 		loading = false; // Stop loading after data is fetched
 	});
 
@@ -312,43 +303,6 @@
 	});
 
 	// Functions
-	async function updateMoods() {
-		try {
-			const res = await fetch('/api/moods/get');
-			if (res.ok) {
-				const data = await res.json();
-				const parsed = data.map((m: { date: string | number | Date }) => ({
-					...m,
-					date: new Date(m.date)
-				}));
-				moods = parsed;
-			} else {
-				console.error('Failed to fetch moods');
-				refreshUserId();
-				if (!$userId) goto('/login');
-			}
-		} catch (e) {
-			console.error('Network error:', e);
-		}
-	}
-
-	async function updateAdvice() {
-		try {
-			const res = await fetch('/api/advice');
-			if (res.ok) {
-				const data = await res.json();
-				console.log(data);
-				advice = data;
-			} else {
-				console.error('Failed to fetch advice');
-				refreshUserId();
-				if (!$userId) goto('/login');
-			}
-		} catch (e) {
-			console.error('Network error:', e);
-		}
-	}
-
 	function parseEmotions(input: string): string {
 		return input
 			.toLowerCase()
@@ -582,7 +536,7 @@
 					console.error('Error:', errorData);
 					formError = (await result.text()) || m.error_occured();
 				} else {
-					moods.map((m) => {
+					$moods.map((m) => {
 						if (m.uid == moodMap.get(getDateKey(selectedDate))?.uid) {
 							m.score = mood;
 							m.description = diary;
@@ -620,7 +574,7 @@
 						emotions: parseEmotions(emotions)
 					};
 
-					moods = [...moods, newMood];
+					moods.set([...$moods, newMood]);
 
 					formError = null;
 					formSuccess = true;

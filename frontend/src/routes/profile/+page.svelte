@@ -1,17 +1,10 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { userId } from '$lib/stores/user';
-	import { logout } from '$lib/user';
+	import { user, userId } from '$lib/stores/user';
+	import { logout, refreshUser } from '$lib/user';
 	import { m } from '$lib/paraglide/messages';
 	import { browser } from '$app/environment';
-
-	let user: {
-		username: string;
-		email: string;
-		created_at: string | number | Date;
-		updated_at: string | number | Date;
-	} = $state({ username: '', email: '', created_at: '', updated_at: '' });
 
 	// Add new state variable for first day of week
 	let selectedFirstDay = $state(
@@ -30,24 +23,24 @@
 	let tempUser = $state({ username: '', email: '' });
 	let verifyPassword = $state('');
 	let passwords = $state({ current: '', new: '', confirm: '' });
-	let showPassword = $derived(tempUser.email != user.email);
+	let showPassword = $derived(tempUser.email != $user?.email);
 
 	onMount(async () => {
 		if (!$userId) return goto('/');
-		await loadUser();
-	});
-
-	async function loadUser() {
-		try {
-			const response = await fetch(`/api/user/get`);
-			if (!response.ok) throw new Error('Failed to fetch user');
-			user = await response.json();
-			tempUser = { username: user.username, email: user.email };
-		} catch (err) {
-			console.error('Error fetching user:', err);
-			goto('/login');
+		if (!$user) {
+			try {
+				await refreshUser();
+			} catch (err) {
+				goto('/login');
+			}
 		}
-	}
+		if (!$user) {
+			logout();
+			goto('/');
+		} else {
+			tempUser = { username: $user.username, email: $user.email };
+		}
+	});
 
 	async function changePassword() {
 		// Reset previous messages
@@ -109,7 +102,7 @@
 	<title>Sentimenta | Profile</title>
 </svelte:head>
 
-{#if user.email.length > 0}
+{#if $user?.email}
 	<div class="flex min-h-screen items-center justify-center bg-stone-100 px-4 dark:bg-stone-950">
 		<main class="w-full max-w-md space-y-6">
 			<!-- First Day of Week Setting -->
@@ -169,7 +162,7 @@
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 							/>
 						{:else}
-							<p class="text-lg">{user.username}</p>
+							<p class="text-lg">{$user.username}</p>
 						{/if}
 					</div>
 
@@ -182,7 +175,7 @@
 								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 							/>
 						{:else}
-							<p class="text-lg">{user.email}</p>
+							<p class="text-lg">{$user.email}</p>
 						{/if}
 					</div>
 
@@ -203,12 +196,12 @@
 
 					<div>
 						<span class="text-stone-500 uppercase dark:text-stone-400">{m.created_at()}</span>
-						<p class="text-lg">{formatDate(user.created_at)}</p>
+						<p class="text-lg">{formatDate($user.created_at)}</p>
 					</div>
 
 					<div>
 						<span class="text-stone-500 uppercase dark:text-stone-400">{m.last_updated()}</span>
-						<p class="text-lg">{formatDate(user.updated_at)}</p>
+						<p class="text-lg">{formatDate($user.updated_at)}</p>
 					</div>
 				</div>
 
@@ -219,7 +212,7 @@
 							onclick={() => {
 								editMode = false;
 								if (user !== undefined) {
-									tempUser = { username: user.username, email: user.email };
+									tempUser = { username: $user.username, email: $user.email };
 								}
 							}}
 						>
@@ -238,10 +231,10 @@
 									password: undefined
 								};
 
-								if (tempUser.username !== user.username) {
+								if (tempUser.username !== $user.username) {
 									body.username = tempUser.username;
 								}
-								if (tempUser.email !== user.email) {
+								if (tempUser.email !== $user.email) {
 									if (verifyPassword.length == 0) {
 										error = 'Password is required';
 										return;
@@ -275,8 +268,8 @@
 							onclick={async () => {
 								editMode = true;
 
-								if (user !== undefined) {
-									tempUser = { username: user.username, email: user.email };
+								if ($user) {
+									tempUser = { username: $user.username, email: $user.email };
 								}
 								// Focus the first input after the DOM updates
 								await tick();
