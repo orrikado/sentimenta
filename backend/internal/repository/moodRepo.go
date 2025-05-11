@@ -6,14 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type MoodRepository interface {
-	GetMoods(userID string) ([]m.Mood, error)
-	GetLastMoods(userID string, limit int) ([]m.Mood, error)
-	CreateMood(m *m.Mood) error
-	UpdateMood(m *m.Mood) error
-	DeleteMood(id string) error
-}
-
 type moodRepository struct {
 	db *gorm.DB
 }

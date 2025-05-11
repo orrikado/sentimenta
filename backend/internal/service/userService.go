@@ -12,16 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserService interface {
-	CreateUser(username, email string, password *string, timezone string) (m.User, error)
-	GetUser(id string) (m.User, error)
-	UpdateUser(userID string, u m.UserUpdateReq) (m.User, error)
-	DeleteUser(id string) error
-	ChangePassword(userID, password, newPassword string) error
-	Authenticate(email, password string) (m.User, error)
-	GetUserByEmail(email string) (m.User, error)
-}
-
 type userService struct {
 	repo repo.UserRepository
 }

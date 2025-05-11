@@ -9,13 +9,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type MoodService interface {
-	GetMoods(userID string) ([]m.Mood, error)
-	CreateMood(userID string, score int16, emotions, description string, date time.Time) (m.Mood, error)
-	UpdateMood(userID string, m *m.Mood) error
-	DeleteMood(id string) error
-}
-
 type moodService struct {
 	repo       repo.MoodRepository
 	userRepo   repo.UserRepository

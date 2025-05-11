@@ -18,15 +18,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type AdviceService interface {
-	GetAdvice(userID string, date time.Time) (models.Advice, error)
-	GetAdvices(userID string) ([]models.Advice, error)
-	CreateAdvice(userID string, text string, date time.Time) (models.Advice, error)
-	GetLastAdvice(userID string) (models.Advice, error)
-	GenerateAdviceForAllUsers() error
-	GenerateAdvice(userID int, date time.Time) (models.Advice, error)
-}
-
 type adviceService struct {
 	repo     repo.AdviceRepository
 	moodRepo repo.MoodRepository

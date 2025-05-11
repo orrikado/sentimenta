@@ -6,15 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepository interface {
-	CreateUser(user *m.User) error
-	GetUser(id string) (m.User, error)
-	GetAllUsers() ([]m.User, error)
-	GetUserByEmail(email string) (*m.User, error)
-	UpdateUser(userID int, updates any) error
-	DeleteUser(id string) error
-}
-
 type userRepository struct {
 	db *gorm.DB
 }

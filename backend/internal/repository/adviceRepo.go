@@ -7,13 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type AdviceRepository interface {
-	GetAdvices(userID string) ([]m.Advice, error)
-	GetAdvice(userID string, date time.Time) (m.Advice, error)
-	CreateAdvice(a *m.Advice) error
-	GetLastAdvice(userID string) (m.Advice, error)
-}
-
 type adviceRepository struct {
 	db *gorm.DB
 }
