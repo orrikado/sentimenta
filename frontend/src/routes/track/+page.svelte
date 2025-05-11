@@ -286,7 +286,7 @@
 			.tickValues(filteredMoods.map((d) => d.date))
 			.tickFormat((dateObj) => {
 				const date = dateObj as Date;
-				return d3.timeFormat('%d')(date);
+				return d3.timeFormat('%e')(date);
 			});
 
 		const yAxis = d3.axisLeft(yScale).ticks(5);
