@@ -8,7 +8,6 @@ import (
 	"sentimenta/internal/handlers"
 	middlewares "sentimenta/internal/middleware"
 	"sentimenta/internal/repository"
-	"sentimenta/internal/scheduler"
 	"sentimenta/internal/security"
 	"sentimenta/internal/service"
 
@@ -43,13 +42,6 @@ func main() {
 	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauth, jwt)
 	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger)
 	adviceHandler := handlers.NewAdviceHandler(adviceService, logger)
-
-	scheduler := scheduler.NewScheduler(adviceService, logger)
-	scheduler.Start()
-
-	if err := adviceService.GenerateAdviceForAllUsers(); err != nil {
-		logger.Errorf("Не удалось сгенерировать advice: %v", err)
-	}
 
 	e := echo.New()
 	e.Use(middleware.CORS())

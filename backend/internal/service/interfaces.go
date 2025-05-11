@@ -30,6 +30,5 @@ type AdviceService interface {
 	GetAdvices(userID string) ([]models.Advice, error)
 	CreateAdvice(userID string, text string, date time.Time) (models.Advice, error)
 	GetLastAdvice(userID string) (models.Advice, error)
-	GenerateAdviceForAllUsers() error
 	GenerateAdvice(userID int, date time.Time) (models.Advice, error)
 }

@@ -53,44 +53,6 @@ func (s *adviceService) GetAdvice(userID string, date time.Time) (models.Advice,
 	return s.repo.GetAdvice(userID, date)
 }
 
-func (s *adviceService) GenerateAdviceForAllUsers() error {
-	users, err := s.userRepo.GetAllUsers() // нужен userRepo
-	if err != nil {
-		return err
-	}
-	for _, user := range users {
-		if user.IsActive {
-			uidStr := fmt.Sprintf("%v", user.Uid)
-			if _, err := s.repo.GetAdvice(uidStr, time.Now()); err == nil {
-				continue
-			}
-
-			loc, err := time.LoadLocation(user.Timezone)
-			if err != nil {
-				s.logger.Errorf("не удалось загрузить часовой пояс: %v", err)
-				continue
-			}
-			userTime := time.Now().In(loc)
-			advice, err := s.GenerateAdvice(user.Uid, userTime)
-			if err != nil {
-				s.logger.Errorf("не удалось сгенерировать advice: %v", err)
-				continue
-			}
-			if err := s.repo.CreateAdvice(&advice); err != nil {
-				s.logger.Errorf("не удалось добавить advice: %v", err)
-				continue
-			}
-			user.IsActive = false
-			if err := s.userRepo.UpdateUser(user.Uid, user); err != nil {
-				s.logger.Errorf("не удалось обновить пользователя: %v", err)
-				continue
-			}
-		}
-	}
-
-	return nil
-}
-
 func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advice, error) {
 	uidStr := fmt.Sprintf("%v", userID)
 	lastMoods, err := s.moodRepo.GetLastMoods(uidStr, 30)

@@ -39,27 +39,29 @@ func (s *moodService) CreateMood(userID string, score int16, emotions, descripti
 		return m.Mood{}, err
 	}
 
-	loc, err := time.LoadLocation(user.Timezone)
-	if err != nil {
-		s.logger.Errorf("не удалось загрузить часовой пояс: %v", err)
-	}
-	dateStr := date.Format("2006-01-02")
-	dateNowStr := time.Now().In(loc).Format("2006-01-02")
-	dateYesterdayStr := time.Now().AddDate(0, 0, -1).In(loc).Format("2006-01-02")
-
-	if dateStr == dateNowStr || dateStr == dateYesterdayStr {
-		if err := s.userRepo.UpdateUser(uidInt, map[string]interface{}{"is_active": true}); err != nil {
-			return m.Mood{}, err
+	if user.UseAI {
+		loc, err := time.LoadLocation(user.Timezone)
+		if err != nil {
+			s.logger.Errorf("не удалось загрузить часовой пояс: %v", err)
 		}
-		go func() {
-			advice, err := s.adviceServ.GenerateAdvice(uidInt, date)
-			if err != nil {
-				s.logger.Errorf("не удалось сгенерировать advice: %v", err)
+		dateStr := date.Format("2006-01-02")
+		dateNowStr := time.Now().In(loc).Format("2006-01-02")
+		dateYesterdayStr := time.Now().AddDate(0, 0, -1).In(loc).Format("2006-01-02")
+
+		if dateStr == dateNowStr || dateStr == dateYesterdayStr {
+			if err := s.userRepo.UpdateUser(uidInt, map[string]interface{}{"is_active": true}); err != nil {
+				return m.Mood{}, err
 			}
-			if err := s.adviceRepo.CreateAdvice(&advice); err != nil {
-				s.logger.Errorf("не удалось добавить advice: %v", err)
-			}
-		}()
+			go func() {
+				advice, err := s.adviceServ.GenerateAdvice(uidInt, date)
+				if err != nil {
+					s.logger.Errorf("не удалось сгенерировать advice: %v", err)
+				}
+				if err := s.adviceRepo.CreateAdvice(&advice); err != nil {
+					s.logger.Errorf("не удалось добавить advice: %v", err)
+				}
+			}()
+		}
 	}
 	return newMood, nil
 }
