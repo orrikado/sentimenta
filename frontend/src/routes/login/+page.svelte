@@ -5,7 +5,11 @@
 	import { refreshUserId } from '$lib/user';
 	import { onMount } from 'svelte';
 
+	import { PUBLIC_GITHUB_CLIENT_ID } from '$env/static/public';
+
 	import GoogleLoginButton from '$lib/components/GoogleLoginButton.svelte';
+	import { generateCodeVerifier, generateCodeChallenge, generateRandomString } from '$lib/auth';
+	import GithubLoginButton from '$lib/components/GithubLoginButton.svelte';
 
 	let submitInProcess = $state(false);
 
@@ -151,5 +155,6 @@
 			{/if}
 		</form>
 		<GoogleLoginButton />
+		<GithubLoginButton />
 	</main>
 </div>

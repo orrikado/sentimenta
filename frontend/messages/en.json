@@ -71,5 +71,6 @@
 	"thursday": "thursday",
 	"friday": "friday",
 	"saturday": "saturday",
-	"sunday": "sunday"
+	"sunday": "sunday",
+	"login_with_github": "login with github"
 }

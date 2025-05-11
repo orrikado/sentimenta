@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { PUBLIC_GOOGLE_CLIENT_ID } from '$env/static/public';
+	import { generateCodeVerifier, generateCodeChallenge, generateRandomString } from '$lib/auth';
 	import { m } from '$lib/paraglide/messages';
 
 	// Handle Google Login flow
@@ -32,37 +33,12 @@
 			alert(m.google_login_failed());
 		}
 	}
-
-	// PKCE Helpers
-	function generateRandomString() {
-		return window.crypto.randomUUID();
-	}
-
-	function generateCodeVerifier() {
-		const array = new Uint8Array(32);
-		window.crypto.getRandomValues(array);
-		return btoa(String.fromCharCode(...array)).replace(/[^a-zA-Z0-9]/g, '');
-	}
-
-	async function generateCodeChallenge(codeVerifier: string) {
-		const encoder = new TextEncoder();
-		const digestBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(codeVerifier));
-
-		// Convert buffer to Uint8Array, then to Base64 string
-		const digestArray = Array.from(new Uint8Array(digestBuffer));
-		const base64Digest = btoa(String.fromCharCode(...digestArray));
-
-		// Replace + -> -, / -> _, and remove padding (=)
-		const urlSafeBase64 = base64Digest.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-		return urlSafeBase64;
-	}
 </script>
 
 <button
 	type="button"
 	class="flex w-full cursor-pointer items-center justify-center gap-2 border border-black bg-stone-100 px-4 py-2 text-black transition-none hover:bg-black hover:text-white dark:border-white dark:bg-stone-900 dark:text-white dark:hover:bg-white dark:hover:text-stone-900"
-	on:click={handleGoogleLogin}
+	onclick={handleGoogleLogin}
 >
 	<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 30 30">
 		<defs>
