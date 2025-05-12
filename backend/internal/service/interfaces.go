@@ -1,7 +1,6 @@
 package service
 
 import (
-	"sentimenta/internal/models"
 	m "sentimenta/internal/models"
 	"time"
 )
@@ -26,9 +25,9 @@ type MoodService interface {
 }
 
 type AdviceService interface {
-	GetAdvice(userID string, date time.Time) (models.Advice, error)
-	GetAdvices(userID string) ([]models.Advice, error)
-	CreateAdvice(userID string, text string, date time.Time) (models.Advice, error)
-	GetLastAdvice(userID string) (models.Advice, error)
-	GenerateAdvice(userID int, date time.Time) (models.Advice, error)
+	GetAdvice(userID string, date time.Time) (m.Advice, error)
+	GetAdvices(userID string) ([]m.Advice, error)
+	CreateAdvice(userID string, text string, date time.Time) (m.Advice, error)
+	GetLastAdvice(userID string) (m.Advice, error)
+	GenerateAdvice(userID int, date time.Time) (m.Advice, error)
 }

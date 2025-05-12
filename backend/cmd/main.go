@@ -7,12 +7,14 @@ import (
 	"sentimenta/internal/db"
 	"sentimenta/internal/handlers"
 	middlewares "sentimenta/internal/middleware"
+	prometh "sentimenta/internal/prometheus"
 	"sentimenta/internal/repository"
 	"sentimenta/internal/security"
 	"sentimenta/internal/service"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 )
 
@@ -29,6 +31,8 @@ func main() {
 	db := db.InitDB(cfg, logger)
 	jwt := security.NewJWT(cfg)
 	oauth := auth.NewOAuth(cfg)
+	prometheusController := prometh.NewPrometheus()
+	responser := handlers.NewResponser(prometheusController, logger)
 
 	userRepo := repository.NewUserRepository(db)
 	moodRepo := repository.NewMoodRepository(db)
@@ -38,14 +42,15 @@ func main() {
 	adviceService := service.NewAdviceService(adviceRepo, moodRepo, userRepo, cfg, logger)
 	moodService := service.NewMoodService(moodRepo, userRepo, adviceRepo, adviceService, logger)
 
-	userHandler := handlers.NewUserHandler(userService, cfg, logger)
-	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauth, jwt)
-	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger)
-	adviceHandler := handlers.NewAdviceHandler(adviceService, logger)
+	userHandler := handlers.NewUserHandler(userService, cfg, logger, responser)
+	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauth, jwt, responser)
+	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger, responser)
+	adviceHandler := handlers.NewAdviceHandler(adviceService, logger, responser)
 
 	e := echo.New()
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
+	e.Use(prometheusController.Middleware())
 
 	e.POST("/api/auth/login", authHandler.Login)
 	e.POST("/api/auth/register", authHandler.Register)
@@ -66,6 +71,7 @@ func main() {
 	moodGroup.PUT("/update", moodHandler.PutUpdateMood)
 
 	e.GET("/api/advice", adviceHandler.GetAdvice, middlewares.NewJWTMiddleware(cfg, jwt))
+	e.GET("/api/metrics", echo.WrapHandler(promhttp.Handler()))
 
 	e.Logger.Fatal(e.Start("0.0.0.0:8000"))
 }

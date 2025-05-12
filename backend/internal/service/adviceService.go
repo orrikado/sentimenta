@@ -158,9 +158,6 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advic
 		Date:   date,
 		Text:   generatedText,
 	}
-	if err != nil {
-		return models.Advice{}, err
-	}
 
 	return advice, nil
 }
