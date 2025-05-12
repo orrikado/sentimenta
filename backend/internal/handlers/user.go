@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	c "sentimenta/internal/config"
+	errs "sentimenta/internal/errors"
 	"sentimenta/internal/models"
 	"sentimenta/internal/service"
 	"sentimenta/internal/utils"
@@ -15,19 +16,20 @@ type UserHandler struct {
 	service service.UserService
 	logger  *zap.SugaredLogger
 	config  *c.Config
+	resp    *Responser
 }
 
 func (h *UserHandler) GetUser(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
 		h.logger.Errorf("Ошибка. Требуется аутентификация: %v", err)
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
+		return h.resp.newErrorResponse(c, http.StatusUnauthorized, err.Error())
 	}
 
 	user, err := h.service.GetUser(userID)
 	if err != nil {
 		h.logger.Errorf("Ошибка при получении пользователя: %v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось получить данные пользователя"})
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	userGet := models.UserGet{
@@ -44,18 +46,18 @@ func (h *UserHandler) PatchUpdateUser(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
 		h.logger.Errorf("Ошибка. Требуется аутентификация: %v", err)
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
+		return h.resp.newErrorResponse(c, http.StatusUnauthorized, err.Error())
 	}
 
 	var reqUser models.UserUpdateReq
 	if err := c.Bind(&reqUser); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	user, err := h.service.UpdateUser(userID, reqUser)
 	if err != nil {
 		h.logger.Errorf("Ошибка при обновлении пользователя: %v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось обновить данные пользователя"})
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, user)
@@ -65,26 +67,26 @@ func (h *UserHandler) PutUpdatePasswordUser(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
 		h.logger.Errorf("Ошибка. Требуется аутентификация: %v", err)
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
+		return h.resp.newErrorResponse(c, http.StatusUnauthorized, err.Error())
 	}
 
 	var reqUser models.UserChangePass
 	if err := c.Bind(&reqUser); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	if len([]rune(reqUser.Password)) < h.config.PASSWORD_LENGTH_MIN {
 		h.logger.Infof("Регистрация отклонена: длина пароля меньше нужного")
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "длина пароля меньше нужного"})
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, errs.ErrPasswordLength.Error())
 	}
 
 	if err := h.service.ChangePassword(userID, reqUser.Password, reqUser.NewPassword); err != nil {
 		h.logger.Errorf("Ошибка при смене пароля: %v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Не удалось сменить пароль"})
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 	return nil
 }
 
-func NewUserHandler(s service.UserService, config *c.Config, logger *zap.SugaredLogger) *UserHandler {
-	return &UserHandler{service: s, logger: logger, config: config}
+func NewUserHandler(s service.UserService, config *c.Config, logger *zap.SugaredLogger, resp *Responser) *UserHandler {
+	return &UserHandler{service: s, logger: logger, config: config, resp: resp}
 }

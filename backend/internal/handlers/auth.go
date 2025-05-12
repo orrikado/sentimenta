@@ -24,6 +24,7 @@ type AuthHandler struct {
 	logger  *zap.SugaredLogger
 	oauth   *auth.OAuth
 	JWT     *security.JWT
+	resp    *Responser
 }
 
 type OAuthCallbackRequest struct {
@@ -35,30 +36,25 @@ type OAuthCallbackRequest struct {
 func (h *AuthHandler) Register(c echo.Context) error {
 	var newUser models.UserRegister
 	if err := c.Bind(&newUser); err != nil {
-		h.logger.Errorf("Ошибка при Bind UserRegister: %v", err)
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	if len([]rune(newUser.Password)) < h.config.PASSWORD_LENGTH_MIN {
-		h.logger.Infof("Регистрация отклонена: длина пароля меньше нужного")
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "длина пароля меньше нужного"})
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, errs.ErrPasswordLength.Error())
 	}
 
 	result, err := h.service.CreateUser(newUser.Username, newUser.Email, &newUser.Password, newUser.Timezone)
 	if err != nil {
 		if errors.Is(err, errs.ErrUserAlreadyExists) {
-			h.logger.Infof("Регистрация отклонена: пользователь с почтой %s уже существует", newUser.Email)
-			return c.JSON(http.StatusConflict, map[string]string{"error": "пользователь с такой почтой уже существует"})
+			return h.resp.newErrorResponse(c, http.StatusConflict, err.Error())
 		}
-		h.logger.Errorf("Неизвестная ошибка при создании пользователя: %v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось создать пользователя"})
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	uidStr := fmt.Sprintf("%v", result.Uid)
 	jwtToken, err := h.JWT.GenerateJWT(uidStr)
 	if err != nil {
-		h.logger.Errorf("Ошибка при генерации JWT-Токена: %v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось сгенерировать токен"})
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	jwt_cookie := http.Cookie{
@@ -76,21 +72,18 @@ func (h *AuthHandler) Register(c echo.Context) error {
 func (h *AuthHandler) Login(c echo.Context) error {
 	var reqUser models.UserLogin
 	if err := c.Bind(&reqUser); err != nil {
-		h.logger.Errorf("Ошибка при Bind UserLogin: %v", err)
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	user, err := h.service.Authenticate(reqUser.Email, reqUser.Password)
 	if err != nil {
-		h.logger.Errorf("Ошибка аутентификации: %v", err)
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "данные не верны"})
+		return h.resp.newErrorResponse(c, http.StatusUnauthorized, err.Error())
 	}
 
 	uidStr := fmt.Sprintf("%v", user.Uid)
 	jwtToken, err := h.JWT.GenerateJWT(uidStr)
 	if err != nil {
-		h.logger.Errorf("Ошибка при генерации JWT-Токена: %v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось сгенерировать токен"})
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	jwt_cookie := http.Cookie{
@@ -117,13 +110,13 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 		oauth2.SetAuthURLParam("code_verifier", req.CodeVerifier),
 	)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Token exchange failed: %v", err))
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Token exchange failed: %v", err))
 	}
 
 	client := h.oauth.GoogleConfig.Client(ctx, token)
 	resp, err := client.Get("https://openidconnect.googleapis.com/v1/userinfo")
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get user info: %v", err))
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Failed to get user info: %v", err))
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -133,17 +126,17 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 
 	var userInfo map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to decode user info")
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	email, ok := userInfo["email"].(string)
 	if !ok {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid email format")
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Invalid email format")
 	}
 
 	name, ok := userInfo["name"].(string)
 	if !ok {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid name format")
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Invalid name format")
 	}
 
 	user, err := h.service.CreateUser(name, email, nil, req.Timezone)
@@ -153,15 +146,14 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 			h.logger.Infof("Не удалось создать пользователя: %v", err)
 		} else {
 			h.logger.Errorf("Не удалось создать пользователя: %v", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create user")
+			return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Failed to create user")
 		}
 	}
 
 	uidStr := fmt.Sprintf("%v", user.Uid)
 	jwtToken, err := h.JWT.GenerateJWT(uidStr)
 	if err != nil {
-		h.logger.Errorf("Ошибка при генерации JWT-Токена: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "не удалось сгенерировать токен")
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	jwt_cookie := http.Cookie{
@@ -179,7 +171,7 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	var req OAuthCallbackRequest
 	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payload")
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	ctx := context.Background()
@@ -188,13 +180,13 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 		oauth2.SetAuthURLParam("code_verifier", req.CodeVerifier),
 	)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Token exchange failed: %v", err))
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Token exchange failed: %v", err))
 	}
 
 	client := h.oauth.GithubConfig.Client(ctx, token)
 	resp, err := client.Get("https://api.github.com/user")
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get user info: %v", err))
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Failed to get user info: %v", err))
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -204,17 +196,17 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 
 	var userInfo map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to decode user info")
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	email, ok := userInfo["email"].(string)
 	if !ok {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid email format")
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Invalid email format")
 	}
 
 	name, ok := userInfo["name"].(string)
 	if !ok {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Invalid name format")
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Invalid name format")
 	}
 
 	user, err := h.service.CreateUser(name, email, nil, req.Timezone)
@@ -223,16 +215,14 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 		if err == errs.ErrUserAlreadyExists {
 			h.logger.Infof("Не удалось создать пользователя: %v", err)
 		} else {
-			h.logger.Errorf("Не удалось создать пользователя: %v", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create user")
+			return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		}
 	}
 
 	uidStr := fmt.Sprintf("%v", user.Uid)
 	jwtToken, err := h.JWT.GenerateJWT(uidStr)
 	if err != nil {
-		h.logger.Errorf("Ошибка при генерации JWT-Токена: %v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "не удалось сгенерировать токен")
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	jwt_cookie := http.Cookie{
@@ -247,6 +237,6 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	return c.JSON(http.StatusOK, userInfo)
 }
 
-func NewAuthHandler(s service.UserService, cfg *c.Config, logger *zap.SugaredLogger, oauthConfig *auth.OAuth, JWT *security.JWT) *AuthHandler {
-	return &AuthHandler{service: s, config: cfg, logger: logger, oauth: oauthConfig, JWT: JWT}
+func NewAuthHandler(s service.UserService, cfg *c.Config, logger *zap.SugaredLogger, oauthConfig *auth.OAuth, JWT *security.JWT, resp *Responser) *AuthHandler {
+	return &AuthHandler{service: s, config: cfg, logger: logger, oauth: oauthConfig, JWT: JWT, resp: resp}
 }

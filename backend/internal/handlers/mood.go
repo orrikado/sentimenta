@@ -15,25 +15,23 @@ type MoodHandler struct {
 	service service.MoodService
 	config  *c.Config
 	logger  *zap.SugaredLogger
+	resp    *Responser
 }
 
 func (h *MoodHandler) PostAddMood(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
-		h.logger.Errorf("Ошибка. Требуется аутентификация: %v", err)
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
+		return h.resp.newErrorResponse(c, http.StatusUnauthorized, err.Error())
 	}
 
 	var reqMood models.MoodAdd
 	if err := c.Bind(&reqMood); err != nil {
-		h.logger.Errorf("Ошибка при привязке данных MoodAdd: %v", err)
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	mood, err := h.service.CreateMood(userID, reqMood.Score, reqMood.Emotions, reqMood.Description, reqMood.Date)
 	if err != nil {
-		h.logger.Errorf("Ошибка при создании mood (%v) у пользователя с id: %v: %v", mood, userID, err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось создать mood"})
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, mood)
@@ -42,29 +40,26 @@ func (h *MoodHandler) PostAddMood(c echo.Context) error {
 func (h *MoodHandler) GetMoods(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
-		h.logger.Errorf("Ошибка. Требуется аутентификация: %v", err)
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
+		return h.resp.newErrorResponse(c, http.StatusUnauthorized, err.Error())
 	}
 
 	moods, err := h.service.GetMoods(userID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось получить moods"})
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, moods)
-
 }
 
 func (h *MoodHandler) PutUpdateMood(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
-		h.logger.Errorf("Ошибка. Требуется аутентификация: %v", err)
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
+		return h.resp.newErrorResponse(c, http.StatusUnauthorized, err.Error())
 	}
 
 	var reqMood models.MoodUpdate
 	if err := c.Bind(&reqMood); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "неверная форма данных"})
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	mood := models.Mood{
@@ -75,12 +70,12 @@ func (h *MoodHandler) PutUpdateMood(c echo.Context) error {
 	}
 
 	if err := h.service.UpdateMood(userID, &mood); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось обновить mood"})
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, mood)
 }
 
-func NewMoodHandler(s service.MoodService, cfg *c.Config, logger *zap.SugaredLogger) *MoodHandler {
-	return &MoodHandler{service: s, config: cfg, logger: logger}
+func NewMoodHandler(s service.MoodService, cfg *c.Config, logger *zap.SugaredLogger, resp *Responser) *MoodHandler {
+	return &MoodHandler{service: s, config: cfg, logger: logger, resp: resp}
 }

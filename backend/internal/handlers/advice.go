@@ -13,13 +13,14 @@ import (
 type AdviceHandler struct {
 	service service.AdviceService
 	logger  *zap.SugaredLogger
+	resp    *Responser
 }
 
 func (h *AdviceHandler) GetAdvice(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
 		h.logger.Errorf("Ошибка. Требуется аутентификация: %v", err)
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "требуется аутентификация"})
+		return h.resp.newErrorResponse(c, http.StatusUnauthorized, err.Error())
 	}
 
 	dateStr := c.QueryParam("date")
@@ -28,23 +29,23 @@ func (h *AdviceHandler) GetAdvice(c echo.Context) error {
 		date, err := time.Parse(layout, dateStr)
 		if err != nil {
 			h.logger.Errorf("Ошибка при попытке получить Advice по date: %v", err)
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось получить Advice"})
+			return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		}
 		advice, err := h.service.GetAdvice(userID, date)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось получить Advice"})
+			return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(http.StatusOK, advice)
 	}
 	advices, err := h.service.GetAdvices(userID)
 	if err != nil {
 		h.logger.Errorf("Ошибка при попытке получить Advices: %v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "не удалось получить Advices"})
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, advices)
 
 }
 
-func NewAdviceHandler(service service.AdviceService, logger *zap.SugaredLogger) *AdviceHandler {
-	return &AdviceHandler{service: service, logger: logger}
+func NewAdviceHandler(service service.AdviceService, logger *zap.SugaredLogger, resp *Responser) *AdviceHandler {
+	return &AdviceHandler{service: service, logger: logger, resp: resp}
 }
