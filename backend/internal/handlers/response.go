@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"sentimenta/internal/prometheus"
+	"sentimenta/internal/metrics"
 
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -13,7 +13,7 @@ type errorResponse struct {
 }
 
 type Responser struct {
-	prometheus *prometheus.Prometheus
+	prometheus *metrics.Prometheus
 	logger     *zap.SugaredLogger
 }
 
@@ -22,6 +22,6 @@ func (r *Responser) newErrorResponse(c echo.Context, statusCode int, message str
 	return c.JSON(statusCode, errorResponse{ErrorMessage: message})
 }
 
-func NewResponser(prometheus *prometheus.Prometheus, logger *zap.SugaredLogger) *Responser {
+func NewResponser(prometheus *metrics.Prometheus, logger *zap.SugaredLogger) *Responser {
 	return &Responser{prometheus: prometheus, logger: logger}
 }

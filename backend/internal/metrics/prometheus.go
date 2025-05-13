@@ -1,4 +1,4 @@
-package prometheus
+package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
@@ -14,6 +14,14 @@ type Prometheus struct {
 }
 
 func NewPrometheus() *Prometheus {
+	// Names:
+	// http_requests_total
+	// http_request_duration_seconds
+	// http_errors_total
+
+	// db_query_duration_seconds
+	// db_errors_total
+
 	p := &Prometheus{
 		HttpRequestsTotal: prometheus.NewCounterVec(
 			prometheus.CounterOpts{

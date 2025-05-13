@@ -6,8 +6,8 @@ import (
 	"sentimenta/internal/config"
 	"sentimenta/internal/db"
 	"sentimenta/internal/handlers"
+	"sentimenta/internal/metrics"
 	middlewares "sentimenta/internal/middleware"
-	prometh "sentimenta/internal/prometheus"
 	"sentimenta/internal/repository"
 	"sentimenta/internal/security"
 	"sentimenta/internal/service"
@@ -28,10 +28,10 @@ func main() {
 	logger := preLogger.Sugar()
 
 	cfg := config.NewConfig()
-	db := db.InitDB(cfg, logger)
+	prometheusController := metrics.NewPrometheus()
+	db := db.InitDB(cfg, logger, prometheusController)
 	jwt := security.NewJWT(cfg)
 	oauth := auth.NewOAuth(cfg)
-	prometheusController := prometh.NewPrometheus()
 	responser := handlers.NewResponser(prometheusController, logger)
 
 	userRepo := repository.NewUserRepository(db)
@@ -71,7 +71,7 @@ func main() {
 	moodGroup.PUT("/update", moodHandler.PutUpdateMood)
 
 	e.GET("/api/advice", adviceHandler.GetAdvice, middlewares.NewJWTMiddleware(cfg, jwt))
-	e.GET("/api/metrics", echo.WrapHandler(promhttp.Handler()))
+	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 
 	e.Logger.Fatal(e.Start("0.0.0.0:8000"))
 }

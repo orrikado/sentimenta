@@ -41,6 +41,8 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      - internal
 
   grafana:
     image: grafana/grafana
@@ -52,7 +54,9 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - ./data/grafana:/var/lib/grafana
-
+    networks:
+      - internal
+      
 networks:
   internal:
     external: false
