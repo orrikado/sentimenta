@@ -39,6 +39,7 @@ services:
     image: prom/prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./data/prometheus:/prometheus
     ports:
       - "9090:9090"
     networks:
@@ -54,6 +55,10 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - ./data/grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
     networks:
       - internal
       
