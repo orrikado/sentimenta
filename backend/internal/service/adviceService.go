@@ -122,7 +122,11 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advic
 	if err != nil {
 		return models.Advice{}, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			s.logger.Errorf("Failed to close response body: %v", err)
+		}
+	}()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
