@@ -31,6 +31,7 @@
 			try {
 				await refreshUser();
 			} catch (err) {
+				console.error(err);
 				goto('/login');
 			}
 		}
@@ -211,7 +212,7 @@
 							class="px-4 py-2 text-sm uppercase hover:underline"
 							onclick={() => {
 								editMode = false;
-								if (user !== undefined) {
+								if ($user !== undefined) {
 									tempUser = { username: $user.username, email: $user.email };
 								}
 							}}

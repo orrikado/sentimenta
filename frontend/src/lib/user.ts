@@ -63,11 +63,7 @@ export function refreshUserId() {
 
 export async function refreshUser() {
 	if (!userId) return;
-	try {
-		const response = await fetch(`/api/user/get`);
-		if (!response.ok) throw new Error('Failed to fetch user');
-		user.set(await response.json());
-	} catch (err) {
-		throw err;
-	}
+	const response = await fetch(`/api/user/get`);
+	if (!response.ok) throw new Error('Failed to fetch user');
+	user.set(await response.json());
 }

@@ -9,18 +9,14 @@ export type AdviceEntry = {
 };
 
 export async function updateAdvice() {
-	try {
-		const res = await fetch('/api/advice');
-		if (res.ok) {
-			const data = await res.json();
-			console.log(data);
-			advice.set(data);
-		} else {
-			console.error('Failed to fetch advice');
-			refreshUserId();
-			if (!userId) throw new Error('not logged in');
-		}
-	} catch (e) {
-		throw e;
+	const res = await fetch('/api/advice');
+	if (res.ok) {
+		const data = await res.json();
+		console.log(data);
+		advice.set(data);
+	} else {
+		console.error('Failed to fetch advice');
+		refreshUserId();
+		if (!userId) throw new Error('not logged in');
 	}
 }

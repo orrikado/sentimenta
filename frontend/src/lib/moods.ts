@@ -11,20 +11,16 @@ export type MoodEntry = {
 };
 
 export async function updateMoods() {
-	try {
-		const res = await fetch('/api/moods/get');
-		if (res.ok) {
-			const data = await res.json();
-			const parsed = data.map((m: { date: string | number | Date }) => ({
-				...m,
-				date: new Date(m.date)
-			}));
-			moods.set(parsed);
-		} else {
-			refreshUserId();
-			if (!userId) throw new Error('not logged in');
-		}
-	} catch (e) {
-		throw e;
+	const res = await fetch('/api/moods/get');
+	if (res.ok) {
+		const data = await res.json();
+		const parsed = data.map((m: { date: string | number | Date }) => ({
+			...m,
+			date: new Date(m.date)
+		}));
+		moods.set(parsed);
+	} else {
+		refreshUserId();
+		if (!userId) throw new Error('not logged in');
 	}
 }
