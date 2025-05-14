@@ -203,6 +203,31 @@
 			return;
 		}
 
+		// mood gradient
+		svg
+			.append('defs')
+			.append('linearGradient')
+			.attr('id', 'moodGradient')
+			.attr('x1', '0%')
+			.attr('y1', '100%')
+			.attr('x2', '0%')
+			.attr('y2', '0%')
+			.selectAll('stop')
+			.data([
+				{
+					offset: '0%',
+					color: getComputedStyle(document.documentElement).getPropertyValue('--color-mood-1')
+				},
+				{
+					offset: '100%',
+					color: getComputedStyle(document.documentElement).getPropertyValue('--color-mood-5')
+				}
+			])
+			.enter()
+			.append('stop')
+			.attr('offset', (d) => d.offset)
+			.attr('stop-color', (d) => d.color);
+
 		// Scales
 		const xScale = d3
 			.scaleTime()
@@ -224,7 +249,7 @@
 		g.append('path')
 			.datum(filteredMoods)
 			.attr('fill', 'none')
-			.attr('stroke', getLineColor())
+			.attr('stroke', 'url(#moodGradient)')
 			.attr('stroke-width', 2)
 			.attr('stroke-opacity', 0.8)
 			.attr('d', line)
@@ -278,7 +303,9 @@
 			.tickFormat((dateObj) => {
 				const date = dateObj as Date;
 				return d3.timeFormat('%e')(date);
-			});
+			})
+			.tickSizeInner(-innerHeight)
+			.tickSizeOuter(0);
 
 		const yAxis = d3.axisLeft(yScale).ticks(5);
 
@@ -300,6 +327,19 @@
 			.transition()
 			.duration(200)
 			.style('opacity', 1);
+
+		// Add area under the line
+		const area = d3
+			.area<MoodEntry>()
+			.x((d) => xScale(d.date))
+			.y0(innerHeight)
+			.y1((d) => yScale(d.score));
+
+		g.append('path')
+			.datum(filteredMoods)
+			.attr('fill', 'url(#moodGradient)')
+			.attr('fill-opacity', 0.16)
+			.attr('d', area);
 	});
 
 	// Functions
@@ -666,7 +706,10 @@
 	/* Base axis styles */
 	:global(.axis text) {
 		font-size: 10px;
-		fill: #000; /* Dark text for light mode */
+		fill: #222;
+		font-family: inherit;
+		-webkit-user-select: none;
+		user-select: none;
 	}
 
 	/* Dark mode axis text */
@@ -715,5 +758,10 @@
 	}
 	.animate-fade-in-out {
 		animation: fade-in-out 3s ease-in-out;
+	}
+
+	:global(.axis .tick line) {
+		stroke-opacity: 0.1;
+		stroke-dasharray: 2 2;
 	}
 </style>
