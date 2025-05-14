@@ -321,8 +321,7 @@
 						<!-- AI Toggle -->
 						<div class="flex items-center justify-between">
 							<span class="text-stone-500 uppercase dark:text-stone-400">
-								<!-- {m.use_ai()} -->
-								use ai
+								{m.use_ai()}
 							</span>
 							<input
 								type="checkbox"
@@ -344,6 +343,7 @@
 										}
 									} catch (err) {
 										useAi = oldValue;
+										console.error(err);
 										error = m.ai_update_failed();
 									}
 								}}

@@ -75,5 +75,6 @@
 	"login_with_github": "login with github",
 	"account": "account",
 	"settings": "settings",
-	"ai_update_failed": "ai update failed"
+	"ai_update_failed": "ai update failed",
+	"use_ai": "use ai"
 }

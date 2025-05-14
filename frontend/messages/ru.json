@@ -72,5 +72,9 @@
 	"friday": "пятница",
 	"saturday": "суббота",
 	"sunday": "воскресенье",
-	"login_with_github": "войти через github"
+	"login_with_github": "войти через github",
+	"account": "аккаунт",
+	"settings": "настройки",
+	"ai_update_failed": "обновление ИИ не удалось",
+	"use_ai": "использовать ИИ"
 }
