@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 
 	import GoogleLoginButton from '$lib/components/GoogleLoginButton.svelte';
+	import GithubLoginButton from '$lib/components/GithubLoginButton.svelte';
 
 	let submitInProcess = $state(false);
 
@@ -151,5 +152,6 @@
 			{/if}
 		</form>
 		<GoogleLoginButton />
+		<GithubLoginButton />
 	</main>
 </div>

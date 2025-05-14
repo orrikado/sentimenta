@@ -71,5 +71,6 @@
 	"thursday": "четверг",
 	"friday": "пятница",
 	"saturday": "суббота",
-	"sunday": "воскресенье"
+	"sunday": "воскресенье",
+	"login_with_github": "войти через github"
 }

@@ -26,7 +26,7 @@
 					class:bg-white={mood === n}
 					class:text-black={mood === n}
 					class:text-current={mood !== n}
-					on:click={() => (mood = n)}
+					onclick={() => (mood = n)}
 				>
 					{n}
 				</button>
