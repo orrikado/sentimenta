@@ -25,6 +25,8 @@
 	let passwords = $state({ current: '', new: '', confirm: '' });
 	let showPassword = $derived(tempUser.email != $user?.email);
 
+	let useAi = $state($user?.use_ai ?? true);
+
 	onMount(async () => {
 		if (!$userId) return goto('/');
 		if (!$user) {
@@ -104,287 +106,347 @@
 </svelte:head>
 
 {#if $user?.email}
-	<div class="flex min-h-screen items-center justify-center bg-stone-100 px-4 dark:bg-stone-950">
-		<main class="w-full max-w-md space-y-6">
-			<!-- First Day of Week Setting -->
-			<div>
-				<label for="first-day-select" class="text-stone-500 uppercase dark:text-stone-400">
-					{m.first_day_of_week()}
-				</label>
-				<select
-					id="first-day-select"
-					bind:value={selectedFirstDay}
-					class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
-				>
-					<option value={0}>{m.sunday()}</option>
-					<option value={1}>{m.monday()}</option>
-					<option value={2}>{m.tuesday()}</option>
-					<option value={3}>{m.wednesday()}</option>
-					<option value={4}>{m.thursday()}</option>
-					<option value={5}>{m.friday()}</option>
-					<option value={6}>{m.saturday()}</option>
-				</select>
-			</div>
-			<!-- Profile Card -->
-			<div class="border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900">
-				<h1 class="mb-4 text-center text-2xl font-bold">{m.profile()}</h1>
-
-				{#if error}
+	<div class="flex min-h-screen flex-col bg-stone-100 px-4 md:flex-row dark:bg-stone-950">
+		<main class="mx-auto w-full max-w-2xl space-y-6 py-8">
+			<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+				<!-- Left Column -->
+				<div class=" flex flex-col space-y-6">
+					<!-- Profile Card -->
 					<div
-						class="mb-4 bg-red-100 p-3 text-red-700 dark:bg-red-900 dark:text-red-100"
-						role="alert"
-						aria-live="polite"
-						aria-atomic="true"
+						class="flex-grow border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900"
 					>
-						{error}
-					</div>
-				{/if}
+						<h1 class="mb-4 text-center text-2xl font-bold">{m.profile()}</h1>
+						<!-- Status -->
+						{#if error}
+							<div class="mb-4 bg-red-100 p-3 text-red-700 dark:bg-red-900 dark:text-red-100">
+								{error}
+							</div>
+						{/if}
+						{#if success}
+							<div
+								class="mb-4 bg-green-100 p-3 text-green-700 dark:bg-green-900 dark:text-green-100"
+							>
+								{success}
+							</div>
+						{/if}
+						<!-- Profile fields -->
+						<div class="space-y-4">
+							<!-- Username/email fields -->
+							<div>
+								<label for="username" class="text-stone-500 uppercase dark:text-stone-400"
+									>{m.username()}</label
+								>
+								{#if editMode}
+									<input
+										bind:value={tempUser.username}
+										id="username"
+										class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
+									/>
+								{:else}
+									<p class="text-lg">{$user.username}</p>
+								{/if}
+							</div>
 
-				{#if success}
-					<div
-						class="mb-4 bg-green-100 p-3 text-green-700 dark:bg-green-900 dark:text-green-100"
-						role="status"
-						aria-live="polite"
-						aria-atomic="true"
+							<div>
+								<label for="email" class="text-stone-500 uppercase dark:text-stone-400">Email</label
+								>
+								{#if editMode}
+									<input
+										id="email"
+										bind:value={tempUser.email}
+										class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
+									/>
+								{:else}
+									<p class="text-lg">{$user.email}</p>
+								{/if}
+							</div>
+
+							{#if showPassword}
+								<div>
+									<label
+										for="current-password"
+										class="text-stone-500 uppercase dark:text-stone-400"
+									>
+										{m.password()}
+									</label>
+									<input
+										type="password"
+										id="current-password"
+										aria-required="true"
+										bind:value={verifyPassword}
+										class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
+									/>
+								</div>
+							{/if}
+
+							<div>
+								<span class="text-stone-500 uppercase dark:text-stone-400">{m.created_at()}</span>
+								<p class="text-lg">{formatDate($user.created_at)}</p>
+							</div>
+
+							<div>
+								<span class="text-stone-500 uppercase dark:text-stone-400">{m.last_updated()}</span>
+								<p class="text-lg">{formatDate($user.updated_at)}</p>
+							</div>
+						</div>
+						<!-- Edit buttons -->
+					</div>
+
+					<!-- Password Card -->
+					<form
+						onsubmit={(event) => {
+							event.preventDefault();
+							changePassword();
+						}}
+						class="border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900"
 					>
-						{success}
-					</div>
-				{/if}
+						<h2 class="mb-4 text-xl font-bold">
+							{m.change_password()}
+						</h2>
 
-				<div class="space-y-4">
-					<div>
-						<label for="username" class="text-stone-500 uppercase dark:text-stone-400"
-							>{m.username()}</label
-						>
-						{#if editMode}
-							<input
-								bind:value={tempUser.username}
-								id="username"
-								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
-							/>
+						{#if passwordEditMode}
+							<div class="space-y-4">
+								<div>
+									<label
+										for="current-password"
+										class="text-stone-500 uppercase dark:text-stone-400"
+									>
+										{m.current_password()}
+									</label>
+									<input
+										type="password"
+										id="current-password"
+										name="password"
+										required
+										minlength="8"
+										bind:value={passwords.current}
+										class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
+										aria-required="true"
+									/>
+								</div>
+
+								<div>
+									<label for="new-password" class="text-stone-500 uppercase dark:text-stone-400">
+										{m.new_password()}
+									</label>
+									<input
+										id="new-password"
+										aria-required="true"
+										type="password"
+										name="password"
+										required
+										minlength="8"
+										bind:value={passwords.new}
+										class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
+									/>
+								</div>
+
+								<div>
+									<label
+										for="confirm-password"
+										class="text-stone-500 uppercase dark:text-stone-400"
+									>
+										{m.confirm_password()}
+									</label>
+									<input
+										id="confirm-password"
+										aria-required="true"
+										type="password"
+										name="password"
+										required
+										minlength="8"
+										bind:value={passwords.confirm}
+										class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
+									/>
+								</div>
+
+								<div class="flex justify-end gap-2">
+									<button
+										class="px-4 py-2 text-sm uppercase hover:underline"
+										onclick={() => {
+											passwordEditMode = false;
+											error = null;
+											success = null;
+										}}
+									>
+										{m.cancel()}
+									</button>
+									<button
+										type="submit"
+										class="bg-black px-4 py-2 text-sm text-white uppercase hover:bg-stone-800 dark:bg-white dark:text-black dark:hover:bg-stone-200"
+									>
+										{m.save_password()}
+									</button>
+								</div>
+							</div>
 						{:else}
-							<p class="text-lg">{$user.username}</p>
-						{/if}
-					</div>
-
-					<div>
-						<label for="email" class="text-stone-500 uppercase dark:text-stone-400">Email</label>
-						{#if editMode}
-							<input
-								id="email"
-								bind:value={tempUser.email}
-								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
-							/>
-						{:else}
-							<p class="text-lg">{$user.email}</p>
-						{/if}
-					</div>
-
-					{#if showPassword}
-						<div>
-							<label for="current-password" class="text-stone-500 uppercase dark:text-stone-400">
-								{m.password()}
-							</label>
-							<input
-								type="password"
-								id="current-password"
-								aria-required="true"
-								bind:value={verifyPassword}
-								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
-							/>
-						</div>
-					{/if}
-
-					<div>
-						<span class="text-stone-500 uppercase dark:text-stone-400">{m.created_at()}</span>
-						<p class="text-lg">{formatDate($user.created_at)}</p>
-					</div>
-
-					<div>
-						<span class="text-stone-500 uppercase dark:text-stone-400">{m.last_updated()}</span>
-						<p class="text-lg">{formatDate($user.updated_at)}</p>
-					</div>
-				</div>
-
-				<div class="mt-6 flex justify-end gap-2">
-					{#if editMode}
-						<button
-							class="px-4 py-2 text-sm uppercase hover:underline"
-							onclick={() => {
-								editMode = false;
-								if ($user !== undefined) {
-									tempUser = { username: $user.username, email: $user.email };
-								}
-							}}
-						>
-							{m.cancel()}
-						</button>
-						<button
-							class="bg-black px-4 py-2 text-sm text-white uppercase hover:bg-stone-800 dark:bg-white dark:text-black dark:hover:bg-stone-200"
-							onclick={async () => {
-								let body: {
-									username: string | undefined;
-									email: string | undefined;
-									password: string | undefined;
-								} = {
-									username: undefined,
-									email: undefined,
-									password: undefined
-								};
-
-								if (tempUser.username !== $user.username) {
-									body.username = tempUser.username;
-								}
-								if (tempUser.email !== $user.email) {
-									if (verifyPassword.length == 0) {
-										error = 'Password is required';
-										return;
-									}
-									body.email = tempUser.email;
-									body.password = verifyPassword;
-								}
-
-								let response = await fetch(`/api/user/update`, {
-									method: 'PATCH',
-									headers: {
-										'Content-Type': 'application/json'
-									},
-									body: JSON.stringify(body)
-								});
-
-								if (!response.ok) {
-									error = response.statusText;
-									return;
-								} else {
-									success = 'Profile updated successfully';
-									error = '';
-								}
-							}}
-						>
-							{m.save()}
-						</button>
-					{:else}
-						<button
-							class="border border-stone-700 px-4 py-2 text-sm uppercase hover:bg-black hover:text-white dark:border-stone-300 dark:hover:bg-white dark:hover:text-black"
-							onclick={async () => {
-								editMode = true;
-
-								if ($user) {
-									tempUser = { username: $user.username, email: $user.email };
-								}
-								// Focus the first input after the DOM updates
-								await tick();
-								document.getElementById('username')?.focus();
-							}}
-						>
-							{m.edit_profile()}
-						</button>
-					{/if}
-				</div>
-			</div>
-
-			<!-- Password Update Card -->
-			<form
-				onsubmit={(event) => {
-					event.preventDefault();
-					changePassword();
-				}}
-				class="border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900"
-			>
-				<h2 class="mb-4 text-xl font-bold">
-					{m.change_password()}
-				</h2>
-
-				{#if passwordEditMode}
-					<div class="space-y-4">
-						<div>
-							<label for="current-password" class="text-stone-500 uppercase dark:text-stone-400">
-								{m.current_password()}
-							</label>
-							<input
-								type="password"
-								id="current-password"
-								name="password"
-								required
-								minlength="8"
-								bind:value={passwords.current}
-								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
-								aria-required="true"
-							/>
-						</div>
-
-						<div>
-							<label for="new-password" class="text-stone-500 uppercase dark:text-stone-400">
-								{m.new_password()}
-							</label>
-							<input
-								id="new-password"
-								aria-required="true"
-								type="password"
-								name="password"
-								required
-								minlength="8"
-								bind:value={passwords.new}
-								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
-							/>
-						</div>
-
-						<div>
-							<label for="confirm-password" class="text-stone-500 uppercase dark:text-stone-400">
-								{m.confirm_password()}
-							</label>
-							<input
-								id="confirm-password"
-								aria-required="true"
-								type="password"
-								name="password"
-								required
-								minlength="8"
-								bind:value={passwords.confirm}
-								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
-							/>
-						</div>
-
-						<div class="flex justify-end gap-2">
 							<button
-								class="px-4 py-2 text-sm uppercase hover:underline"
+								class="w-full border border-stone-700 px-4 py-2 text-sm uppercase hover:bg-black hover:text-white dark:border-stone-300 dark:hover:bg-white dark:hover:text-black"
+								onclick={() => (passwordEditMode = true)}
+							>
+								{m.change_password()}
+							</button>
+						{/if}
+					</form>
+				</div>
+
+				<!-- Right Column -->
+				<div class=" flex flex-col space-y-6">
+					<!-- Settings Card -->
+					<div
+						class=" flex-grow border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900"
+					>
+						<h2 class="mb-4 text-xl font-bold">{m.settings()}</h2>
+
+						<!-- First Day of Week Setting -->
+						<div class="mb-6">
+							<label for="first-day-select" class="text-stone-500 uppercase dark:text-stone-400">
+								{m.first_day_of_week()}
+							</label>
+							<select
+								id="first-day-select"
+								bind:value={selectedFirstDay}
+								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
+							>
+								<option value={0}>{m.sunday()}</option>
+								<option value={1}>{m.monday()}</option>
+								<option value={2}>{m.tuesday()}</option>
+								<option value={3}>{m.wednesday()}</option>
+								<option value={4}>{m.thursday()}</option>
+								<option value={5}>{m.friday()}</option>
+								<option value={6}>{m.saturday()}</option>
+							</select>
+						</div>
+
+						<!-- AI Toggle -->
+						<div class="flex items-center justify-between">
+							<span class="text-stone-500 uppercase dark:text-stone-400">
+								<!-- {m.use_ai()} -->
+								use ai
+							</span>
+							<input
+								type="checkbox"
+								checked={useAi}
+								onchange={async (e) => {
+									const newValue = e.currentTarget.checked;
+									const oldValue = useAi;
+									useAi = newValue;
+
+									try {
+										const response = await fetch('/api/user/update', {
+											method: 'PATCH',
+											headers: { 'Content-Type': 'application/json' },
+											body: JSON.stringify({ use_ai: newValue })
+										});
+
+										if (!response.ok) {
+											throw new Error('Server error');
+										}
+									} catch (err) {
+										useAi = oldValue;
+										error = m.ai_update_failed();
+									}
+								}}
+								class="h-5 w-9 rounded-full border-stone-300 bg-stone-200 transition-colors duration-200 focus:ring-stone-500 dark:bg-stone-700"
+							/>
+						</div>
+					</div>
+
+					<!-- Account Actions -->
+					<div
+						class="gap-2 border border-stone-300 bg-white p-6 **:w-full dark:border-stone-700 dark:bg-stone-900"
+					>
+						<h2 class="mb-4 text-xl font-bold">{m.account()}</h2>
+						<!-- Edit Profile -->
+						<div class="mb-2 flex justify-end gap-2">
+							{#if editMode}
+								<button
+									class="px-4 py-2 text-sm uppercase hover:underline"
+									onclick={() => {
+										editMode = false;
+										if ($user !== undefined) {
+											tempUser = { username: $user.username, email: $user.email };
+										}
+									}}
+								>
+									{m.cancel()}
+								</button>
+								<button
+									class="bg-black px-4 py-2 text-sm text-white uppercase hover:bg-stone-800 dark:bg-white dark:text-black dark:hover:bg-stone-200"
+									onclick={async () => {
+										let body: {
+											username: string | undefined;
+											email: string | undefined;
+											password: string | undefined;
+										} = {
+											username: undefined,
+											email: undefined,
+											password: undefined
+										};
+
+										if (tempUser.username !== $user.username) {
+											body.username = tempUser.username;
+										}
+										if (tempUser.email !== $user.email) {
+											if (verifyPassword.length == 0) {
+												error = 'Password is required';
+												return;
+											}
+											body.email = tempUser.email;
+											body.password = verifyPassword;
+										}
+
+										let response = await fetch(`/api/user/update`, {
+											method: 'PATCH',
+											headers: {
+												'Content-Type': 'application/json'
+											},
+											body: JSON.stringify(body)
+										});
+
+										if (!response.ok) {
+											error = response.statusText;
+											return;
+										} else {
+											success = 'Profile updated successfully';
+											error = '';
+										}
+									}}
+								>
+									{m.save()}
+								</button>
+							{:else}
+								<button
+									class="border border-stone-700 px-4 py-2 text-sm uppercase hover:bg-black hover:text-white dark:border-stone-300 dark:hover:bg-white dark:hover:text-black"
+									onclick={async () => {
+										editMode = true;
+
+										if ($user) {
+											tempUser = { username: $user.username, email: $user.email };
+										}
+										// Focus the first input after the DOM updates
+										await tick();
+										document.getElementById('username')?.focus();
+									}}
+								>
+									{m.edit_profile()}
+								</button>
+							{/if}
+						</div>
+						<!-- logout -->
+						<div class="flex justify-end">
+							<button
+								class="w-full border border-stone-700 px-4 py-2 text-sm uppercase hover:bg-black hover:text-white dark:border-stone-300 dark:hover:bg-white dark:hover:text-black"
 								onclick={() => {
-									passwordEditMode = false;
-									error = null;
-									success = null;
+									logout();
+									goto('/login');
 								}}
 							>
-								{m.cancel()}
-							</button>
-							<button
-								type="submit"
-								class="bg-black px-4 py-2 text-sm text-white uppercase hover:bg-stone-800 dark:bg-white dark:text-black dark:hover:bg-stone-200"
-							>
-								{m.save_password()}
+								{m.logout()}
 							</button>
 						</div>
 					</div>
-				{:else}
-					<button
-						class="w-full border border-stone-700 px-4 py-2 text-sm uppercase hover:bg-black hover:text-white dark:border-stone-300 dark:hover:bg-white dark:hover:text-black"
-						onclick={() => (passwordEditMode = true)}
-					>
-						{m.change_password()}
-					</button>
-				{/if}
-			</form>
-
-			<!-- Logout Button -->
-			<div class="text-right">
-				<button
-					class="border border-stone-700 px-4 py-2 text-sm uppercase hover:bg-black hover:text-white dark:border-stone-300 dark:hover:bg-white dark:hover:text-black"
-					onclick={() => {
-						logout();
-						goto('/login');
-					}}
-				>
-					{m.logout()}
-				</button>
+				</div>
 			</div>
 		</main>
 	</div>

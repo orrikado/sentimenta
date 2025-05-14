@@ -4,6 +4,7 @@ import { user, userId } from './stores/user';
 export type User = {
 	username: string;
 	email: string;
+	use_ai: boolean;
 	created_at: Date;
 	updated_at: Date;
 };

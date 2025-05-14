@@ -72,5 +72,8 @@
 	"friday": "friday",
 	"saturday": "saturday",
 	"sunday": "sunday",
-	"login_with_github": "login with github"
+	"login_with_github": "login with github",
+	"account": "account",
+	"settings": "settings",
+	"ai_update_failed": "ai update failed"
 }
