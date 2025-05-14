@@ -166,12 +166,6 @@
 		window.removeEventListener('resize', updateDimensions);
 	});
 
-	function getLineColor() {
-		return document.documentElement.classList.contains('dark')
-			? '#9ca3af' // stone-400
-			: '#4b5563'; // stone-600
-	}
-
 	function getDotColor(score: number) {
 		return getComputedStyle(document.documentElement)
 			.getPropertyValue(`--color-mood-${score}`)

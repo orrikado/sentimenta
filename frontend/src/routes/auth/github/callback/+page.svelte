@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { refreshUserId } from '$lib/user';
+	import { refreshUser, refreshUserId } from '$lib/user';
 	import { onMount } from 'svelte';
 
 	onMount(async () => {
@@ -38,15 +38,15 @@
 				sessionStorage.removeItem('github_state');
 
 				refreshUserId();
-				// goto('/track');
+				refreshUser();
+				goto('/track');
 			} else {
 				console.error('GitHub auth failed');
-				console.log(response);
-				// window.location.href = '/login';
+				window.location.href = '/login';
 			}
 		} catch (error) {
 			console.error('Error during GitHub auth:', error);
-			// window.location.href = '/login';
+			window.location.href = '/login';
 		}
 	});
 </script>

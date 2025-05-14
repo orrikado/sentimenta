@@ -15,7 +15,7 @@
 
 		const clientId = PUBLIC_GITHUB_CLIENT_ID;
 		const redirectUri = encodeURIComponent(window.location.origin + '/auth/github/callback');
-		const scope = encodeURIComponent('read:user user:email'); 
+		const scope = encodeURIComponent('read:user user:email');
 
 		window.location.href =
 			`https://github.com/login/oauth/authorize?` +
