@@ -28,7 +28,7 @@ func newGithubOAuthConfig(config *config.Config) *oauth2.Config {
 		ClientID:     config.GITHUB_CLIENT_ID,
 		ClientSecret: config.GITHUB_CLIENT_SECRET,
 		RedirectURL:  config.GITHUB_CLIENT_CALLBACK,
-		Scopes:       []string{"email", "profile"},
+		Scopes:       []string{"read:user user:email"},
 		Endpoint:     github.Endpoint,
 	}
 }

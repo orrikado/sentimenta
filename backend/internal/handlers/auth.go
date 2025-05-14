@@ -9,7 +9,7 @@ import (
 	"sentimenta/internal/auth"
 	c "sentimenta/internal/config"
 	errs "sentimenta/internal/errors"
-	"sentimenta/internal/models"
+	m "sentimenta/internal/models"
 	"sentimenta/internal/security"
 	"sentimenta/internal/service"
 
@@ -34,7 +34,7 @@ type OAuthCallbackRequest struct {
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
-	var newUser models.UserRegister
+	var newUser m.UserRegister
 	if err := c.Bind(&newUser); err != nil {
 		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -70,7 +70,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
-	var reqUser models.UserLogin
+	var reqUser m.UserLogin
 	if err := c.Bind(&reqUser); err != nil {
 		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
@@ -184,29 +184,43 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	}
 
 	client := h.oauth.GithubConfig.Client(ctx, token)
-	resp, err := client.Get("https://api.github.com/user")
+	emailResp, err := client.Get("https://api.github.com/user/emails")
+	if err != nil {
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Failed to get user emails: %v", err))
+	}
+	defer func() {
+		if err := emailResp.Body.Close(); err != nil {
+			h.logger.Errorf("Failed to close response body: %v", err)
+		}
+	}()
+	userResp, err := client.Get("https://api.github.com/user")
 	if err != nil {
 		return h.resp.newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Failed to get user info: %v", err))
 	}
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
+		if err := userResp.Body.Close(); err != nil {
 			h.logger.Errorf("Failed to close response body: %v", err)
 		}
 	}()
 
-	var userInfo map[string]interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+	var emailInfo m.EmailList
+	if err := json.NewDecoder(emailResp.Body).Decode(&emailInfo); err != nil {
 		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
-
-	email, ok := userInfo["email"].(string)
-	if !ok {
-		return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Invalid email format")
+	var userInfo m.GithubUserInfo
+	if err := json.NewDecoder(userResp.Body).Decode(&userInfo); err != nil {
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
+	fmt.Println(emailInfo)
+	fmt.Println(userInfo)
 
-	name, ok := userInfo["name"].(string)
-	if !ok {
-		return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Invalid name format")
+	name := userInfo.Name
+	var email string
+	for _, e := range emailInfo {
+		if e.Primary {
+			email = e.Email
+			break
+		}
 	}
 
 	user, err := h.service.CreateUser(name, email, nil, req.Timezone)
@@ -234,7 +248,7 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	}
 
 	c.SetCookie(&jwt_cookie)
-	return c.JSON(http.StatusOK, userInfo)
+	return c.JSON(http.StatusOK, emailInfo)
 }
 
 func NewAuthHandler(s service.UserService, cfg *c.Config, logger *zap.SugaredLogger, oauthConfig *auth.OAuth, JWT *security.JWT, resp *Responser) *AuthHandler {
