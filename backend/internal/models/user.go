@@ -21,6 +21,7 @@ type UserGet struct {
 	Uid       int       `json:"uid"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
+	UseAI     bool      `json:"use_ai"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
