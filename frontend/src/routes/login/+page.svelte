@@ -151,7 +151,9 @@
 				<p class="text-sm text-red-500 dark:text-red-400">{formError}</p>
 			{/if}
 		</form>
-		<GoogleLoginButton />
-		<GithubLoginButton />
+		<div class="flex flex-col gap-1">
+			<GoogleLoginButton />
+			<GithubLoginButton />
+		</div>
 	</main>
 </div>
