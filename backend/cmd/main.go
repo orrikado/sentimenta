@@ -11,6 +11,7 @@ import (
 	"sentimenta/internal/repository"
 	"sentimenta/internal/security"
 	"sentimenta/internal/service"
+	"sentimenta/internal/ws"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -33,6 +34,7 @@ func main() {
 	jwt := security.NewJWT(cfg)
 	oauth := auth.NewOAuth(cfg)
 	responser := handlers.NewResponser(prometheusController, logger)
+	wsConnManager := ws.NewConnectionManager()
 
 	userRepo := repository.NewUserRepository(db)
 	moodRepo := repository.NewMoodRepository(db)
@@ -40,8 +42,9 @@ func main() {
 
 	userService := service.NewUserService(userRepo)
 	adviceService := service.NewAdviceService(adviceRepo, moodRepo, userRepo, cfg, logger)
-	moodService := service.NewMoodService(moodRepo, userRepo, adviceRepo, adviceService, logger)
+	moodService := service.NewMoodService(moodRepo, userRepo, adviceRepo, adviceService, logger, wsConnManager)
 
+	wsHandler := handlers.NewWSHandler(logger)
 	userHandler := handlers.NewUserHandler(userService, cfg, logger, responser)
 	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauth, jwt, responser)
 	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger, responser)
@@ -70,6 +73,7 @@ func main() {
 	moodGroup.GET("/get", moodHandler.GetMoods)
 	moodGroup.PUT("/update", moodHandler.PutUpdateMood)
 
+	e.GET("/api/ws", wsHandler.HandleWS, middlewares.NewJWTMiddleware(cfg, jwt))
 	e.GET("/api/advice", adviceHandler.GetAdvice, middlewares.NewJWTMiddleware(cfg, jwt))
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 
