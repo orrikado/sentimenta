@@ -12,6 +12,10 @@ type errorResponse struct {
 	ErrorMessage string `json:"error"`
 }
 
+type okResponse struct {
+	Message string `json:"message"`
+}
+
 type Responser struct {
 	prometheus *metrics.Prometheus
 	logger     *zap.SugaredLogger

@@ -33,6 +33,17 @@ type OAuthCallbackRequest struct {
 	Timezone     string `json:"timezone"`
 }
 
+// @Summary		Register
+// @Description	Create account
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Param			input	body		models.UserRegister	true	"credentials"
+// @Success		200		{object}	models.User
+// @Failure		400		{object}	errorResponse
+// @Failure		404		{object}	errorResponse
+// @Failure		500		{object}	errorResponse
+// @Router			/api/auth/register [post]
 func (h *AuthHandler) Register(c echo.Context) error {
 	var newUser m.UserRegister
 	if err := c.Bind(&newUser); err != nil {
@@ -69,6 +80,17 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	return c.JSON(http.StatusCreated, result)
 }
 
+// @Summary		Login
+// @Description	SignIn with credentials
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Param			input	body		m.UserLogin	true	"credentials"
+// @Success		200		{object}	m.User
+// @Failure		401		{object}	errorResponse
+// @Failure		400		{object}	errorResponse
+// @Failure		500		{object}	errorResponse
+// @Router			/api/auth/login [post]
 func (h *AuthHandler) Login(c echo.Context) error {
 	var reqUser m.UserLogin
 	if err := c.Bind(&reqUser); err != nil {
@@ -98,6 +120,16 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
+// @Summary		Google
+// @Description	SignIn with Google OAuth
+// @Tags			OAuth
+// @Accept			json
+// @Produce		json
+// @Param			input	body		OAuthCallbackRequest	true	"OAuth Codes & Timezone"
+// @Success		200		{object}	m.User
+// @Failure		400		{object}	errorResponse
+// @Failure		500		{object}	errorResponse
+// @Router			/api/auth/google/callback [post]
 func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 	var req OAuthCallbackRequest
 	if err := c.Bind(&req); err != nil {
@@ -168,6 +200,16 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 	return c.JSON(http.StatusOK, userInfo)
 }
 
+// @Summary		Github
+// @Description	SignIn with Github OAuth
+// @Tags			OAuth
+// @Accept			json
+// @Produce		json
+// @Param			input	body		OAuthCallbackRequest	true	"OAuth Codes & Timezone"
+// @Success		200		{object}	m.EmailList
+// @Failure		400		{object}	errorResponse
+// @Failure		500		{object}	errorResponse
+// @Router			/api/auth/github/callback [post]
 func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	var req OAuthCallbackRequest
 	if err := c.Bind(&req); err != nil {

@@ -13,11 +13,25 @@ import (
 	"sentimenta/internal/service"
 	"sentimenta/internal/ws"
 
+	_ "sentimenta/docs"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	swagger "github.com/swaggo/echo-swagger"
 	"go.uber.org/zap"
 )
+
+//	@title			Sentimenta API
+//	@version		1.0
+//	@description	API for mood tracker which uses AI
+
+//	@host		localhost:8000
+//	@BasePath	/
+
+//	@securityDefinitions.basic	BasicAuth
+//	@in							header
+//	@name						Authorization
 
 func main() {
 	preLogger, _ := zap.NewDevelopment()
@@ -76,6 +90,7 @@ func main() {
 	e.GET("/api/ws", wsHandler.HandleWS, middlewares.NewJWTMiddleware(cfg, jwt))
 	e.GET("/api/advice", adviceHandler.GetAdvice, middlewares.NewJWTMiddleware(cfg, jwt))
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+	e.GET("/swagger/*any", swagger.WrapHandler)
 
 	e.Logger.Fatal(e.Start("0.0.0.0:8000"))
 }

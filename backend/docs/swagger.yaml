@@ -1,0 +1,502 @@
+basePath: /
+definitions:
+  handlers.OAuthCallbackRequest:
+    properties:
+      code:
+        type: string
+      codeVerifier:
+        type: string
+      timezone:
+        type: string
+    type: object
+  handlers.errorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  models.Advice:
+    properties:
+      date:
+        type: string
+      text:
+        type: string
+      uid:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  models.Email:
+    properties:
+      email:
+        type: string
+      primary:
+        type: boolean
+      verified:
+        type: boolean
+      visibility:
+        type: string
+    type: object
+  models.Mood:
+    properties:
+      created_at:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      emotions:
+        type: string
+      score:
+        type: integer
+      uid:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.MoodAdd:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      emotions:
+        type: string
+      score:
+        type: integer
+    type: object
+  models.MoodUpdate:
+    properties:
+      description:
+        type: string
+      emotions:
+        type: string
+      score:
+        type: integer
+      uid:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      is_active:
+        type: boolean
+      moods:
+        items:
+          $ref: '#/definitions/models.Mood'
+        type: array
+      password_hash:
+        type: string
+      timezone:
+        type: string
+      uid:
+        type: integer
+      updated_at:
+        type: string
+      use_ai:
+        type: boolean
+      username:
+        type: string
+    type: object
+  models.UserChangePass:
+    properties:
+      new_password:
+        type: string
+      password:
+        type: string
+    type: object
+  models.UserLogin:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  models.UserRegister:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      timezone:
+        type: string
+      username:
+        type: string
+    type: object
+  models.UserUpdateReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      timezone:
+        type: boolean
+      use_ai:
+        type: boolean
+      username:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: API for mood tracker which uses AI
+  title: Sentimenta API
+  version: "1.0"
+paths:
+  /api/advice:
+    get:
+      consumes:
+      - application/json
+      description: Get advice by user id in jwt-token. Returns array if date not specified,
+        single advice if date is specified.
+      parameters:
+      - description: advice date in format YYYY-MM-DD
+        in: query
+        name: date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Array of advices when date is not specified
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/models.Advice'
+              type: array
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: Get advice
+      tags:
+      - User
+  /api/auth/github/callback:
+    post:
+      consumes:
+      - application/json
+      description: SignIn with Github OAuth
+      parameters:
+      - description: OAuth Codes & Timezone
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.OAuthCallbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Email'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: Github
+      tags:
+      - OAuth
+  /api/auth/google/callback:
+    post:
+      consumes:
+      - application/json
+      description: SignIn with Google OAuth
+      parameters:
+      - description: OAuth Codes & Timezone
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.OAuthCallbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: Google
+      tags:
+      - OAuth
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: SignIn with credentials
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: Login
+      tags:
+      - Auth
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create account
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRegister'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: Register
+      tags:
+      - Auth
+  /api/moods/add:
+    post:
+      consumes:
+      - application/json
+      description: Create new mood
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.MoodAdd'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Mood'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: Create
+      tags:
+      - Moods
+  /api/moods/get:
+    get:
+      consumes:
+      - application/json
+      description: Get all moods by user id in jwt-token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Mood'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: Get all
+      tags:
+      - Moods
+  /api/moods/update:
+    put:
+      consumes:
+      - application/json
+      description: Get all moods by user id in jwt-token
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        schema:
+          $ref: '#/definitions/models.MoodUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Mood'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: Get all
+      tags:
+      - Moods
+  /api/user/get:
+    get:
+      consumes:
+      - application/json
+      description: Get user information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: User profile
+      tags:
+      - User
+  /api/user/update:
+    patch:
+      consumes:
+      - application/json
+      description: Update user
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        schema:
+          $ref: '#/definitions/models.UserUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: Update user
+      tags:
+      - User
+  /api/user/update/password:
+    patch:
+      consumes:
+      - application/json
+      description: Update user
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserChangePass'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.errorResponse'
+      summary: Update user
+      tags:
+      - User
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

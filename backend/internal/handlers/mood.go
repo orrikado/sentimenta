@@ -18,6 +18,19 @@ type MoodHandler struct {
 	resp    *Responser
 }
 
+// @Summary		Create
+// @Description	Create new mood
+// @Tags			Moods
+// @Accept			json
+// @Produce		json
+//
+// @Param			input	body		models.MoodAdd	true	"credentials"
+//
+// @Success		200		{object}	models.Mood
+// @Failure		401		{object}	errorResponse
+// @Failure		400		{object}	errorResponse
+// @Failure		500		{object}	errorResponse
+// @Router			/api/moods/add [post]
 func (h *MoodHandler) PostAddMood(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
@@ -37,6 +50,17 @@ func (h *MoodHandler) PostAddMood(c echo.Context) error {
 	return c.JSON(http.StatusOK, mood)
 }
 
+// @Summary		Get all
+// @Description	Get all moods by user id in jwt-token
+// @Tags			Moods
+// @Accept			json
+// @Produce			json
+//
+// @Success		200	{array}		models.Mood
+// @Failure		401	{object}	errorResponse
+// @Failure		400	{object}	errorResponse
+// @Failure		500	{object}	errorResponse
+// @Router			/api/moods/get [get]
 func (h *MoodHandler) GetMoods(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {
@@ -51,6 +75,19 @@ func (h *MoodHandler) GetMoods(c echo.Context) error {
 	return c.JSON(http.StatusOK, moods)
 }
 
+// @Summary		Get all
+// @Description	Get all moods by user id in jwt-token
+// @Tags			Moods
+// @Accept			json
+// @Produce		json
+//
+// @Param			input	body		models.MoodUpdate	false	"credentials"
+//
+// @Success		200		{object}	models.Mood
+// @Failure		401		{object}	errorResponse
+// @Failure		400		{object}	errorResponse
+// @Failure		500		{object}	errorResponse
+// @Router			/api/moods/update [put]
 func (h *MoodHandler) PutUpdateMood(c echo.Context) error {
 	userID, err := utils.GetUserID(c)
 	if err != nil {

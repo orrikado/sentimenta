@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"sentimenta/internal/models"
 	"sentimenta/internal/service"
 	"sentimenta/internal/utils"
 	"time"
@@ -16,7 +17,19 @@ type AdviceHandler struct {
 	resp    *Responser
 }
 
+// @Summary		Get advice
+// @Description	Get advice by user id in jwt-token. Returns array if date not specified, single advice if date is specified.
+// @Tags			Advice
+// @Accept			json
+// @Produce			json
+// @Param			date	query		string			false	"advice date in format YYYY-MM-DD"
+// @Success		200		{object}	models.Advice	"Single advice when date is specified"
+// @Success		200		{array}		models.Advice	"Array of advices when date is not specified"
+// @Failure		401		{object}	errorResponse
+// @Failure		500		{object}	errorResponse
+// @Router			/api/advice [get]
 func (h *AdviceHandler) GetAdvice(c echo.Context) error {
+	var _ = models.Advice{}
 	userID, err := utils.GetUserID(c)
 	if err != nil {
 		h.logger.Errorf("Ошибка. Требуется аутентификация: %v", err)
