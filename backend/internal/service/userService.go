@@ -67,6 +67,9 @@ func (s *userService) UpdateUser(userID string, u m.UserUpdateReq) (m.User, erro
 	if u.Email != nil {
 		targetUser.Email = *u.Email
 	}
+	if u.UseAI != nil {
+		targetUser.UseAI = *u.UseAI
+	}
 
 	if err := s.repo.UpdateUser(targetUser.Uid, targetUser); err != nil {
 		return m.User{}, err
