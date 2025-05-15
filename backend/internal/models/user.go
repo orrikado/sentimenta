@@ -30,7 +30,7 @@ type UserUpdateReq struct {
 	Username *string `json:"username,omitempty"`
 	Email    *string `json:"email,omitempty"`
 	Password *string `json:"password,omitempty"`
-	Timezone *bool   `json:"timezone"`
+	Timezone *string `json:"timezone"`
 	UseAI    *bool   `json:"use_ai"`
 }
 
