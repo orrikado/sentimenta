@@ -51,27 +51,32 @@ func (s *userService) GetUser(id string) (m.User, error) {
 	return s.repo.GetUser(id)
 }
 
-func (s *userService) UpdateUser(userID string, u m.UserUpdateReq) (m.User, error) {
+func (s *userService) UpdateUser(userID string, r m.UserUpdateReq) (m.User, error) {
 	targetUser, err := s.repo.GetUser(userID)
 	if err != nil {
 		return m.User{}, err
 	}
 
-	if u.Password != nil {
-		passwordHash := hash.HashPassword(*u.Password)
-		targetUser.PasswordHash = &passwordHash
+	updates := map[string]any{}
+
+	if r.Username != nil {
+		updates["username"] = *r.Username
 	}
-	if u.Username != nil {
-		targetUser.Username = *u.Username
+	if r.Email != nil {
+		updates["email"] = *r.Email
 	}
-	if u.Email != nil {
-		targetUser.Email = *u.Email
+	if r.UseAI != nil {
+		updates["use_ai"] = *r.UseAI
 	}
-	if u.UseAI != nil {
-		targetUser.UseAI = *u.UseAI
+	if r.Timezone != nil {
+		updates["timezone"] = *r.Timezone
 	}
 
-	if err := s.repo.UpdateUser(targetUser.Uid, targetUser); err != nil {
+	if len(updates) == 0 {
+		return m.User{}, nil
+	}
+
+	if err := s.repo.UpdateUser(targetUser.Uid, updates); err != nil {
 		return m.User{}, err
 	}
 	return targetUser, nil
