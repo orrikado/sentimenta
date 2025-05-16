@@ -98,14 +98,26 @@
 
 		tooltip.select('.date').text(dateStr);
 		tooltip.select('.score').text(d.score);
-		tooltip.select('.emotions').text(d.emotions);
+
+		const emotionsContainer = tooltip.select('.emotions').html('');
+		const emotionList =
+			d.emotions
+				?.split(',')
+				.map((e) => e.trim())
+				.filter(Boolean) || [];
+
+		emotionsContainer
+			.selectAll('span')
+			.data(emotionList)
+			.enter()
+			.append('span')
+			.attr(
+				'class',
+				'inline-flex items-center mx-px border border-black/10 bg-stone-50 px-1 py-px text-xs dark:border-white/10 dark:bg-stone-800'
+			)
+			.text((e) => e);
+
 		tooltip.select('.description').text(d.description);
-		const adviceText = adviceMap.get(getDateKey(d.date))?.text || '';
-		tooltip.select('.advice').text(adviceText);
-		const adviceSpan = tooltip.select('.advice').node();
-		if (adviceSpan && adviceSpan instanceof HTMLElement && adviceSpan.parentElement) {
-			d3.select(adviceSpan.parentElement).classed('hidden', !adviceText);
-		}
 
 		// Set position instantly
 		tooltip
@@ -122,6 +134,8 @@
 
 	function hideTooltip() {
 		const tooltip = d3.select('#tooltip');
+
+		tooltip.select('.emotions').html('');
 
 		// Fade out
 		tooltip.style('opacity', 0);
@@ -250,7 +264,56 @@
 			.style('opacity', 0)
 			.transition()
 			.duration(200)
-			.style('opacity', 1);
+			.style('opacity', 1)
+			.attr('pointer-events', 'none');
+
+		// Axes
+		const xAxis = d3
+			.axisBottom(xScale)
+			.tickValues(filteredMoods.map((d) => d.date))
+			.tickFormat((dateObj) => {
+				const date = dateObj as Date;
+				return d3.timeFormat('%e')(date);
+			})
+			.tickSizeInner(-innerHeight)
+			.tickSizeOuter(0);
+
+		const yAxis = d3.axisLeft(yScale).ticks(5);
+
+		// Draw x-axis with transition
+		g.append('g')
+			.attr('transform', `translate(0,${innerHeight})`)
+			.attr('class', 'axis')
+			.call(xAxis)
+			.style('opacity', 0)
+			.transition()
+			.duration(200)
+			.style('opacity', 1)
+			.attr('pointer-events', 'none');
+
+		// Draw y-axis with transition
+		g.append('g')
+			.attr('class', 'axis')
+			.call(yAxis)
+			.style('opacity', 0)
+			.transition()
+			.duration(200)
+			.style('opacity', 1)
+			.attr('pointer-events', 'none');
+
+		// Add area under the line
+		const area = d3
+			.area<MoodEntry>()
+			.x((d) => xScale(d.date))
+			.y0(innerHeight)
+			.y1((d) => yScale(d.score));
+
+		g.append('path')
+			.datum(filteredMoods)
+			.attr('fill', 'url(#moodGradient)')
+			.attr('fill-opacity', 0.16)
+			.attr('d', area)
+			.attr('pointer-events', 'none');
 
 		// Draw circles with transitions
 		const circles = g
@@ -289,51 +352,6 @@
 			.duration(200)
 			.attr('cx', (d) => xScale(d.date))
 			.attr('cy', (d) => yScale(d.score));
-
-		// Axes
-		const xAxis = d3
-			.axisBottom(xScale)
-			.tickValues(filteredMoods.map((d) => d.date))
-			.tickFormat((dateObj) => {
-				const date = dateObj as Date;
-				return d3.timeFormat('%e')(date);
-			})
-			.tickSizeInner(-innerHeight)
-			.tickSizeOuter(0);
-
-		const yAxis = d3.axisLeft(yScale).ticks(5);
-
-		// Draw x-axis with transition
-		g.append('g')
-			.attr('transform', `translate(0,${innerHeight})`)
-			.attr('class', 'axis')
-			.call(xAxis)
-			.style('opacity', 0)
-			.transition()
-			.duration(200)
-			.style('opacity', 1);
-
-		// Draw y-axis with transition
-		g.append('g')
-			.attr('class', 'axis')
-			.call(yAxis)
-			.style('opacity', 0)
-			.transition()
-			.duration(200)
-			.style('opacity', 1);
-
-		// Add area under the line
-		const area = d3
-			.area<MoodEntry>()
-			.x((d) => xScale(d.date))
-			.y0(innerHeight)
-			.y1((d) => yScale(d.score));
-
-		g.append('path')
-			.datum(filteredMoods)
-			.attr('fill', 'url(#moodGradient)')
-			.attr('fill-opacity', 0.16)
-			.attr('d', area);
 	});
 
 	// Functions
@@ -420,20 +438,29 @@
 	</div>
 	<div
 		id="tooltip"
-		class="absolute z-10 hidden border bg-white p-2 text-sm shadow-md dark:bg-stone-900"
+		class="absolute z-10 hidden max-w-md border bg-white p-2 text-sm shadow-md dark:bg-stone-900"
 	>
-		<div><span class="font-medium">{m.tooltip_date_label()}</span> <span class="date"></span></div>
+		<div><span class="date mb-2 text-lg font-bold dark:text-stone-300"></span></div>
 		<div>
-			<span class="font-medium">{m.tooltip_score_label()}</span> <span class="score"></span>/5
+			<span class="font-medium">{m.tooltip_score_label()}</span>
+			<span class="score text-xl"></span><span>/5</span>
 		</div>
-		<div>
-			<span class="font-medium">{m.tooltip_emotions_label()}</span> <span class="emotions"></span>
+		<!-- Emotions -->
+		<div class="flex flex-col gap-1">
+			<div class="emotions flex flex-wrap gap-1">
+				<!-- Chips will be inserted here -->
+			</div>
 		</div>
-		<div>
-			<span class="font-medium">{m.tooltip_diary_label()}</span> <span class="description"></span>
-		</div>
-		<div>
-			<span class="font-medium">{m.advice()}</span> <span class="advice"></span>
+		<!-- Divider -->
+		<div class="my-2 border-t border-black/10 dark:border-white/10"></div>
+		<!-- Diary -->
+		<div class="flex flex-col gap-1">
+			<span class="text-xs font-medium text-gray-600 dark:text-gray-300"
+				>{m.tooltip_diary_label()}</span
+			>
+			<span
+				class="description max-h-24 overflow-y-auto border border-black/10 bg-stone-50 px-2 py-1 text-sm dark:border-white/10 dark:bg-stone-800"
+			></span>
 		</div>
 	</div>
 	<div class="flex items-center justify-between p-4">
