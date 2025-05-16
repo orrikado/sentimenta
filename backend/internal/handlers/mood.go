@@ -75,8 +75,8 @@ func (h *MoodHandler) GetMoods(c echo.Context) error {
 	return c.JSON(http.StatusOK, moods)
 }
 
-// @Summary		Get all
-// @Description	Get all moods by user id in jwt-token
+// @Summary		Update mood
+// @Description	Update something mood fields
 // @Tags			Moods
 // @Accept			json
 // @Produce		json

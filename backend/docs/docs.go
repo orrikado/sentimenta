@@ -358,7 +358,7 @@ const docTemplate = `{
         },
         "/api/moods/update": {
             "put": {
-                "description": "Get all moods by user id in jwt-token",
+                "description": "Update something mood fields",
                 "consumes": [
                     "application/json"
                 ],
@@ -368,7 +368,7 @@ const docTemplate = `{
                 "tags": [
                     "Moods"
                 ],
-                "summary": "Get all",
+                "summary": "Update mood",
                 "parameters": [
                     {
                         "description": "credentials",
@@ -495,7 +495,7 @@ const docTemplate = `{
         },
         "/api/user/update/password": {
             "patch": {
-                "description": "Update user",
+                "description": "Update user password",
                 "consumes": [
                     "application/json"
                 ],
@@ -505,7 +505,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Update user",
+                "summary": "Update password",
                 "parameters": [
                     {
                         "description": "credentials",

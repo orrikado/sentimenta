@@ -388,7 +388,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Get all moods by user id in jwt-token
+      description: Update something mood fields
       parameters:
       - description: credentials
         in: body
@@ -414,7 +414,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handlers.errorResponse'
-      summary: Get all
+      summary: Update mood
       tags:
       - Moods
   /api/user/get:
@@ -477,7 +477,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update user
+      description: Update user password
       parameters:
       - description: credentials
         in: body
@@ -504,7 +504,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handlers.errorResponse'
-      summary: Update user
+      summary: Update password
       tags:
       - User
 securityDefinitions:

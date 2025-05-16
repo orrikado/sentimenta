@@ -86,8 +86,8 @@ func (h *UserHandler) PatchUpdateUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-// @Summary		Update user
-// @Description	Update user
+// @Summary		Update password
+// @Description	Update user password
 // @Tags			User
 // @Accept			json
 // @Produce		json
