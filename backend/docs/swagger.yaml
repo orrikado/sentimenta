@@ -109,6 +109,21 @@ definitions:
       password:
         type: string
     type: object
+  models.UserGet:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      uid:
+        type: integer
+      updated_at:
+        type: string
+      use_ai:
+        type: boolean
+      username:
+        type: string
+    type: object
   models.UserLogin:
     properties:
       email:
@@ -131,10 +146,8 @@ definitions:
     properties:
       email:
         type: string
-      password:
-        type: string
       timezone:
-        type: boolean
+        type: string
       use_ai:
         type: boolean
       username:
@@ -165,9 +178,7 @@ paths:
           description: Array of advices when date is not specified
           schema:
             items:
-              items:
-                $ref: '#/definitions/models.Advice'
-              type: array
+              $ref: '#/definitions/models.Advice'
             type: array
         "401":
           description: Unauthorized
@@ -179,7 +190,7 @@ paths:
             $ref: '#/definitions/handlers.errorResponse'
       summary: Get advice
       tags:
-      - User
+      - Advice
   /api/auth/github/callback:
     post:
       consumes:
@@ -417,7 +428,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.UserGet'
         "401":
           description: Unauthorized
           schema:

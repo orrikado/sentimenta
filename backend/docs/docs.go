@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Advice"
                 ],
                 "summary": "Get advice",
                 "parameters": [
@@ -42,10 +42,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/models.Advice"
-                                }
+                                "$ref": "#/definitions/models.Advice"
                             }
                         }
                     },
@@ -427,7 +424,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.UserGet"
                         }
                     },
                     "401": {
@@ -718,6 +715,29 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UserGet": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "use_ai": {
+                    "type": "boolean"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "models.UserLogin": {
             "type": "object",
             "properties": {
@@ -752,11 +772,8 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "password": {
-                    "type": "string"
-                },
                 "timezone": {
-                    "type": "boolean"
+                    "type": "string"
                 },
                 "use_ai": {
                     "type": "boolean"

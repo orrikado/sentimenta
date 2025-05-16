@@ -25,7 +25,7 @@ type UserHandler struct {
 // @Accept			json
 // @Produce		json
 //
-// @Success		200	{object}	models.User
+// @Success		200	{object}	models.UserGet
 // @Failure		401	{object}	errorResponse
 // @Failure		500	{object}	errorResponse
 // @Router			/api/user/get [get]
