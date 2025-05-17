@@ -755,7 +755,7 @@
 
 			<!-- Emotion Buttons -->
 			<div class="mt-2 flex flex-wrap gap-1">
-				{#each emotionSubset as emotion}
+				{#each emotionSubset as emotion (emotion)}
 					{#if !isSelected(emotion)}
 						<button
 							type="button"
