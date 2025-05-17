@@ -34,12 +34,87 @@
 
 	let days: Date[] = $derived(getMonthDays(currentYear, currentMonth, firstDayOfWeek));
 	let showModal = $state(false);
+	$effect(() => {
+		if (showModal) {
+			refreshEmotions();
+		}
+	});
 	let selectedDate: Date = $state(new Date());
 	let submitInProcess = $state(false);
 	let loading = $state(true);
 
 	let mood = $state<number>(0);
 	let emotions = $state('');
+	const fullEmotionPool = [
+		m.emotion_joy(),
+		m.emotion_sadness(),
+		m.emotion_anger(),
+		m.emotion_anxiety(),
+		m.emotion_stress(),
+		m.emotion_gratitude(),
+		m.emotion_hope(),
+		m.emotion_fatigue(),
+		m.emotion_excitement(),
+		m.emotion_calm(),
+		m.emotion_loneliness(),
+		m.emotion_confusion(),
+		m.emotion_pride(),
+		m.emotion_disappointment(),
+		m.emotion_motivation(),
+		m.emotion_nostalgia(),
+		m.emotion_boredom(),
+		m.emotion_relief(),
+		m.emotion_frustration(),
+		m.emotion_optimism(),
+		m.emotion_guilt(),
+		m.emotion_surprise(),
+		m.emotion_love(),
+		m.emotion_ambition(),
+		m.emotion_curiosity(),
+		m.emotion_apathy(),
+		m.emotion_empathy(),
+		m.emotion_envy(),
+		m.emotion_contentment()
+	];
+
+	let emotionSubset = $state<string[]>([]);
+
+	function refreshEmotions() {
+		// Get emotions NOT already selected
+		const selected = getEmotionsArray();
+		const available = fullEmotionPool.filter(
+			(e) => !selected.some((sel) => sel.toLowerCase() === e.toLowerCase())
+		);
+
+		// Shuffle and pick 8 random ones
+		const shuffled = [...available].sort(() => 0.5 - Math.random());
+		emotionSubset = shuffled.slice(0, 7);
+	}
+
+	// Get current emotions as an array (trimmed, original case)
+	function getEmotionsArray(): string[] {
+		return emotions
+			.split(',')
+			.map((e) => e.trim())
+			.filter((e) => e !== '');
+	}
+
+	// Check if an emotion exists (case-insensitive)
+	function isSelected(emotion: string): boolean {
+		const lowerEmotions = getEmotionsArray().map((e) => e.toLowerCase());
+		return lowerEmotions.includes(emotion.toLowerCase());
+	}
+
+	// Add emotion to the input field if not already present
+	function addEmotion(emotion: string): void {
+		console.log('addEmotion', emotion);
+		const current = getEmotionsArray();
+		const lowerCurrent = current.map((e) => e.toLowerCase());
+		if (!lowerCurrent.includes(emotion.toLowerCase())) {
+			emotions = [...current, emotion].join(',');
+		}
+	}
+
 	let diary = $state('');
 	let formError = $state<string | null>(null);
 	let formSuccess = $state<boolean>(false);
@@ -172,6 +247,7 @@
 		if ($advice.length === 0) {
 			await updateAdvice();
 		}
+		refreshEmotions();
 		loading = false; // Stop loading after data is fetched
 	});
 
@@ -667,14 +743,50 @@
 		</div>
 
 		<!-- Emotions -->
-		<label for="emotions" class="sr-only">{m.emotions_label()}</label>
-		<input
-			type="text"
-			id="emotions"
-			placeholder={m.start_emotions_placeholder()}
-			bind:value={emotions}
-			class="w-full border border-current bg-transparent px-3 py-2 placeholder-current"
-		/>
+		<div>
+			<label for="emotions" class="sr-only">{m.emotions_label()}</label>
+			<input
+				type="text"
+				id="emotions"
+				placeholder={m.start_emotions_placeholder()}
+				bind:value={emotions}
+				class="w-full border border-current bg-transparent px-3 py-2 placeholder-current"
+			/>
+
+			<!-- Emotion Buttons -->
+			<div class="mt-2 flex flex-wrap gap-1">
+				{#each emotionSubset as emotion}
+					{#if !isSelected(emotion)}
+						<button
+							type="button"
+							onclick={() => addEmotion(emotion)}
+							class=" cursor-pointer border bg-stone-100 px-2 py-1 hover:brightness-90 dark:bg-stone-800 dark:text-white"
+						>
+							+ {emotion}
+						</button>
+					{/if}
+				{/each}
+
+				<button
+					type="button"
+					onclick={refreshEmotions}
+					class="border p-1 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+					aria-label="Refresh emotions"
+				>
+					<svg
+						class="h-6 w-6"
+						viewBox="0 0 489.533 489.533"
+						fill="currentColor"
+						stroke="currentColor"
+						stroke-width="2.5"
+					>
+						<path
+							d="M268.175,488.161c98.2-11,176.9-89.5,188.1-187.7c14.7-128.4-85.1-237.7-210.2-239.1v-57.6c0-3.2-4-4.9-6.7-2.9l-118.6,87.1c-2,1.5-2,4.4,0,5.9l118.6,87.1c2.7,2,6.7,0.2,6.7-2.9v-57.5c87.9,1.4,158.3,76.2,152.3,165.6c-5.1,76.9-67.8,139.3-144.7,144.2c-81.5,5.2-150.8-53-163.2-130c-2.3-14.3-14.8-24.7-29.2-24.7c-17.9,0-31.9,15.9-29.1,33.6C49.575,418.961,150.875,501.261,268.175,488.161z"
+						/>
+					</svg>
+				</button>
+			</div>
+		</div>
 
 		<!-- Diary -->
 		<label for="diary" class="sr-only">{m.diary_label()}</label>
