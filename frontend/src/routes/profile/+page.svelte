@@ -25,7 +25,7 @@
 	let passwords = $state({ current: '', new: '', confirm: '' });
 	let showPassword = $derived(tempUser.email != $user?.email);
 
-	let useAi = $state($user?.use_ai ?? true);
+	let useAi = $derived($user?.use_ai ?? true);
 
 	onMount(async () => {
 		if (!$userId) return goto('/');

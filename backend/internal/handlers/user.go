@@ -46,6 +46,7 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 		Uid:       user.Uid,
 		Username:  user.Username,
 		Email:     user.Email,
+		UseAI:     user.UseAI,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
