@@ -31,7 +31,11 @@ func (h *WSHandler) HandleWS(c echo.Context) error {
 		h.logger.Error("failed to upgrade to websocket: ", err)
 		return err
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			h.logger.Errorf("Failed to close ws connection: %v\n", err)
+		}
+	}()
 
 	h.logger.Infof("User %s connected via WebSocket", userID)
 	for {
