@@ -8,6 +8,7 @@ import (
 	"sentimenta/internal/service"
 	"sentimenta/internal/utils"
 
+	"github.com/jinzhu/copier"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -42,14 +43,12 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 
-	userGet := m.UserGet{
-		Uid:       user.Uid,
-		Username:  user.Username,
-		Email:     user.Email,
-		UseAI:     user.UseAI,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+	var userGet m.UserGet
+	if err := copier.Copy(&userGet, user); err != nil {
+		h.logger.Errorf("Ошибка при копировании данных пользователя: %v", err)
+		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
+
 	return c.JSON(http.StatusOK, userGet)
 }
 
