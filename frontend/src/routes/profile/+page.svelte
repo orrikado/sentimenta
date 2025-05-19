@@ -4,17 +4,7 @@
 	import { user, userId } from '$lib/stores/user';
 	import { logout, refreshUser } from '$lib/user';
 	import { m } from '$lib/paraglide/messages';
-	import { browser } from '$app/environment';
-
-	// Add new state variable for first day of week
-	let selectedFirstDay = $state(
-		browser ? parseInt(localStorage.getItem('firstDayOfWeek') || '1') : 1
-	);
-
-	// Save to localStorage when changed
-	$effect(() => {
-		localStorage.setItem('firstDayOfWeek', selectedFirstDay.toString());
-	});
+	import Settings from '$lib/components/Settings.svelte';
 
 	let editMode = $state(false);
 	let passwordEditMode = $state(false);
@@ -24,8 +14,6 @@
 	let verifyPassword = $state('');
 	let passwords = $state({ current: '', new: '', confirm: '' });
 	let showPassword = $derived(tempUser.email != $user?.email);
-
-	let useAi = $derived($user?.use_ai ?? true);
 
 	onMount(async () => {
 		if (!$userId) return goto('/');
@@ -297,59 +285,7 @@
 						class=" flex-grow border border-stone-300 bg-white p-6 dark:border-stone-700 dark:bg-stone-900"
 					>
 						<h2 class="mb-4 text-xl font-bold">{m.settings()}</h2>
-
-						<!-- First Day of Week Setting -->
-						<div class="mb-6">
-							<label for="first-day-select" class="text-stone-500 uppercase dark:text-stone-400">
-								{m.first_day_of_week()}
-							</label>
-							<select
-								id="first-day-select"
-								bind:value={selectedFirstDay}
-								class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
-							>
-								<option value={0}>{m.sunday()}</option>
-								<option value={1}>{m.monday()}</option>
-								<option value={2}>{m.tuesday()}</option>
-								<option value={3}>{m.wednesday()}</option>
-								<option value={4}>{m.thursday()}</option>
-								<option value={5}>{m.friday()}</option>
-								<option value={6}>{m.saturday()}</option>
-							</select>
-						</div>
-
-						<!-- AI Toggle -->
-						<div class="flex items-center justify-between">
-							<span class="text-stone-500 uppercase dark:text-stone-400">
-								{m.use_ai()}
-							</span>
-							<input
-								type="checkbox"
-								checked={useAi}
-								onchange={async (e) => {
-									const newValue = e.currentTarget.checked;
-									const oldValue = useAi;
-									useAi = newValue;
-
-									try {
-										const response = await fetch('/api/user/update', {
-											method: 'PATCH',
-											headers: { 'Content-Type': 'application/json' },
-											body: JSON.stringify({ use_ai: newValue })
-										});
-
-										if (!response.ok) {
-											throw new Error('Server error');
-										}
-									} catch (err) {
-										useAi = oldValue;
-										console.error(err);
-										error = m.ai_update_failed();
-									}
-								}}
-								class="h-5 w-9 rounded-full border-stone-300 bg-stone-200 transition-colors duration-200 focus:ring-stone-500 dark:bg-stone-700"
-							/>
-						</div>
+						<Settings />
 					</div>
 
 					<!-- Account Actions -->
