@@ -16,34 +16,35 @@
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.9",
-		"@eslint/js": "^9.26.0",
+		"@eslint/js": "^9.27.0",
 		"@sveltejs/adapter-static": "^3.0.8",
-		"@sveltejs/kit": "^2.20.8",
-		"@sveltejs/vite-plugin-svelte": "^5.0.0",
-		"@tailwindcss/forms": "^0.5.9",
-		"@tailwindcss/vite": "^4.1.5",
+		"@sveltejs/kit": "^2.21.1",
+		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@tailwindcss/forms": "^0.5.10",
+		"@tailwindcss/vite": "^4.1.7",
 		"@types/d3": "^7.4.3",
-		"eslint": "^9.26.0",
+		"eslint": "^9.27.0",
 		"eslint-config-prettier": "^10.1.5",
-		"eslint-plugin-svelte": "^3.0.0",
+		"eslint-plugin-svelte": "^3.8.1",
 		"globals": "^16.1.0",
-		"prettier": "^3.4.2",
-		"prettier-plugin-svelte": "^3.3.3",
+		"prettier": "^3.5.3",
+		"prettier-plugin-svelte": "^3.4.0",
 		"prettier-plugin-tailwindcss": "^0.6.11",
-		"svelte": "^5.28.2",
-		"svelte-check": "^4.1.7",
-		"tailwindcss": "^4.1.5",
-		"typescript": "^5.0.0",
-		"typescript-eslint": "^8.32.0",
-		"vite": "^6.2.5"
+		"svelte": "^5.31.0",
+		"svelte-check": "^4.2.1",
+		"tailwindcss": "^4.1.7",
+		"typescript": "^5.8.3",
+		"typescript-eslint": "^8.32.1",
+		"vite": "^6.3.5"
 	},
 	"dependencies": {
-		"@inlang/paraglide-js": "^2.0.0",
+		"@inlang/paraglide-js": "^2.0.12",
 		"d3": "^7.9.0",
 		"jwt-decode": "^4.0.0"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
+			"@tailwindcss/oxide",
 			"esbuild"
 		]
 	}
