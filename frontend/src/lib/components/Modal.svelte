@@ -36,22 +36,22 @@
 		if (e.key === 'Escape') showModal = false;
 	}
 
-	function repositionSideContent() {
-		if (!modalContent || !sideContentEl) return;
-
-		const rect = modalContent.getBoundingClientRect();
-		const top = rect.bottom + 16; // 16px gap below modal
-
-		sideContentEl.style.position = 'absolute';
-		sideContentEl.style.top = `${top + 6}px`;
-		if (window.innerWidth > 640) {
-			sideContentEl.style.left = '50%';
-			sideContentEl.style.transform = 'translateX(-50%)';
-		} else {
-			sideContentEl.style.left = '5%';
-			sideContentEl.style.transform = 'translateX(-2.5%)';
-		}
-	}
+	// function repositionSideContent() {
+	// 	if (!modalContent || !sideContentEl) return;
+	//
+	// 	const rect = modalContent.getBoundingClientRect();
+	// 	const top = rect.bottom + 16; // 16px gap below modal
+	//
+	// 	sideContentEl.style.position = 'absolute';
+	// 	sideContentEl.style.top = `${top + 6}px`;
+	// 	if (window.innerWidth > 640) {
+	// 		sideContentEl.style.left = '50%';
+	// 		sideContentEl.style.transform = 'translateX(-50%)';
+	// 	} else {
+	// 		sideContentEl.style.left = '5%';
+	// 		sideContentEl.style.transform = 'translateX(-2.5%)';
+	// 	}
+	// }
 
 	$effect(() => {
 		if (showModal && modalContent) {
@@ -71,8 +71,8 @@
 				}
 			}, 0);
 
-			// Position side content
-			repositionSideContent();
+			// // Position side content
+			// repositionSideContent();
 		}
 	});
 
@@ -99,43 +99,51 @@
 		<dialog
 			open
 			{...rest}
-			class="mx-auto w-full max-w-md border border-white/10 bg-white p-4 font-mono text-sm text-black dark:bg-stone-900 dark:text-white"
+			class="mx-auto w-full border border-white/10 bg-white p-4 font-mono text-sm text-black dark:bg-stone-900 dark:text-white"
+			class:max-w-md={!sideContentEl?.innerText}
+			class:max-w-3xl={sideContentEl?.innerText}
 			onclick={(event) => event.stopPropagation()}
 			onkeydown={trapFocus}
 		>
-			<div bind:this={modalContent}>
-				<div id="modal-title" class="flex items-center justify-between">
-					{@render header?.()}
-					<button
-						aria-label={m.close_modal()}
-						onclick={() => (showModal = false)}
-						class="hover:text-accent text-xl"
-						tabindex="0"
-					>
-						×
-					</button>
+			<div id="modal-title" class="flex items-center justify-between">
+				{@render header?.()}
+				<button
+					aria-label={m.close_modal()}
+					onclick={() => (showModal = false)}
+					class="hover:text-accent text-xl"
+					tabindex="0"
+				>
+					×
+				</button>
+			</div>
+
+			<hr class="my-2 border-white/10" />
+
+			<div class="flex flex-row">
+				<div bind:this={modalContent} class="flex-1">
+					{@render children?.()}
 				</div>
-				<hr class="my-2 border-white/10" />
-				{@render children?.()}
-				<hr class="my-2 border-white/10" />
-				<div class="mt-4 text-right">
-					<button
-						onclick={() => (showModal = false)}
-						class="border border-white px-3 py-1 hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
-						tabindex="0"
-					>
-						{m.close()}
-					</button>
+
+				<!-- Vertical Divider -->
+				{#if sideContentEl?.innerText}
+					<div class="mix-h-full mx-4 border-l border-white/10" aria-hidden="true"></div>
+				{/if}
+
+				<div bind:this={sideContentEl} class:hidden={!sideContentEl?.innerText} class="flex-1">
+					{@render sideContent()}
 				</div>
 			</div>
-		</dialog>
+			<hr class="my-2 border-white/10" />
 
-		<div
-			bind:this={sideContentEl}
-			class="z-50 border border-white/20 bg-stone-200 pt-3 pb-4 text-black dark:bg-stone-800 dark:text-white"
-			class:hidden={!sideContentEl?.innerText}
-		>
-			{@render sideContent()}
-		</div>
+			<div class="mt-4 text-right">
+				<button
+					onclick={() => (showModal = false)}
+					class="border border-white px-3 py-1 hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
+					tabindex="0"
+				>
+					{m.close()}
+				</button>
+			</div>
+		</dialog>
 	</div>
 {/if}
