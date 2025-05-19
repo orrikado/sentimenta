@@ -540,14 +540,12 @@
 		</div>
 	</div>
 	<div class="flex items-center justify-between p-4">
-		<button
-			class="  text-gray-900 hover:text-yellow-600 dark:text-gray-300 dark:hover:text-yellow-300"
-			onclick={goToPreviousMonth}>{m.previous()}</button
+		<button class="  hover:text-accent text-gray-900 dark:text-gray-300" onclick={goToPreviousMonth}
+			>{m.previous()}</button
 		>
 		<h1 class="my-4 text-center text-2xl font-bold">{currentYear}/{currentMonth + 1}</h1>
-		<button
-			class="  text-gray-900 hover:text-yellow-600 dark:text-gray-300 dark:hover:text-yellow-300"
-			onclick={goToNextMonth}>{m.next()}</button
+		<button class="  hover:text-accent text-gray-900 dark:text-gray-300" onclick={goToNextMonth}
+			>{m.next()}</button
 		>
 	</div>
 

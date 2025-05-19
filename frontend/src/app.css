@@ -30,6 +30,7 @@
 	--color-mood-3: var(--color-mood-3);
 	--color-mood-4: var(--color-mood-4);
 	--color-mood-5: var(--color-mood-5);
+	--color-accent: oklch(0.81 0.1525 73.74);
 }
 
 body {

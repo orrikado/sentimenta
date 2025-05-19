@@ -10,14 +10,12 @@
 >
 	<a href="/" class="flex items-center space-x-2">
 		<img src="/favicon.svg" width="96" height="96" alt="Logo" class="h-8 w-auto" />
-		<span class="text-xl font-bold text-yellow-700 dark:text-yellow-300">Sentimenta</span>
+		<span class="text-accent text-xl font-bold">Sentimenta</span>
 	</a>
 	{#if dev}
 		<div>
-			<button onclick={() => setLocale('en')} class="text-gray-300 hover:text-yellow-300">en</button
-			>
-			<button onclick={() => setLocale('ru')} class="text-gray-300 hover:text-yellow-300">ru</button
-			>
+			<button onclick={() => setLocale('en')} class="hover:text-accent text-gray-300">en</button>
+			<button onclick={() => setLocale('ru')} class="hover:text-accent text-gray-300">ru</button>
 		</div>
 	{/if}
 	<ul class="flex space-x-4">

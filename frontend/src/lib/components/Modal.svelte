@@ -109,7 +109,7 @@
 					<button
 						aria-label={m.close_modal()}
 						onclick={() => (showModal = false)}
-						class="text-xl hover:text-yellow-500"
+						class="hover:text-accent text-xl"
 						tabindex="0"
 					>
 						×
