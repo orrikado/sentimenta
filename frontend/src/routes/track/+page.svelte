@@ -12,6 +12,7 @@
 	import { updateMoods, type MoodEntry } from '$lib/moods';
 	import { advice } from '$lib/stores/advice';
 	import { updateAdvice } from '$lib/advice';
+	import RegistrationModal from '$lib/components/RegistrationModal.svelte';
 
 	// State variables
 	let today = new Date();
@@ -230,6 +231,8 @@
 		}
 	}
 
+	let showRegistationModal = $state(false);
+
 	// Lifecycle
 	onMount(async () => {
 		if (!browser) return;
@@ -238,6 +241,11 @@
 			goto('/login');
 			return;
 		}
+		if (localStorage.getItem('justRegistered') === 'true') {
+			localStorage.removeItem('justRegistered');
+			showRegistationModal = true;
+		}
+
 		updateDimensions();
 		window.addEventListener('resize', updateDimensions);
 
@@ -500,6 +508,11 @@
 <svelte:head>
 	<title>Sentimenta | Track moods</title>
 </svelte:head>
+
+<RegistrationModal
+	bind:showModal={showRegistationModal}
+	onClose={() => (firstDayOfWeek = parseInt(localStorage.getItem('firstDayOfWeek') || '1'))}
+/>
 
 <main class="mx-auto my-4 md:max-w-3/5 xl:max-w-1/2">
 	<div
