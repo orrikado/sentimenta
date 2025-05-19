@@ -1,3 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="512" height="512"><svg width="512" height="512" viewBox="0 0 512 512" version="1.1" id="SvgjsSvg1043" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"><defs id="SvgjsDefs1042"></defs><g id="SvgjsG1041" style="display:inline;opacity:1"><circle style="fill:none;stroke:#000000;stroke-width:36.8978;stroke-dasharray:none;stroke-opacity:1" id="SvgjsCircle1040" cy="255.99998" cx="255.99998" r="237.55109"></circle><path style="fill:none;stroke:#000000;stroke-width:26.3556;stroke-dasharray:none;stroke-opacity:1" d="m 35.347857,292.69486 c 0,0 46.746206,0.18586 60.836248,-10.13937 30.932885,-22.66772 38.903485,-108.14444 81.597855,-108.15334 81.45978,-0.017 53.89045,191.9132 135.19166,196.99359 44.56121,2.78456 60.45448,-88.36291 101.39377,-99.94527 24.60145,-6.96015 70.00997,-8.20808 70.00997,-8.20808" id="SvgjsPath1039"></path><text xml:space="preserve" style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:189.997px;font-family:'Satoshi Variable';-inkscape-font-specification:'Satoshi Variable Medium';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:17.7134;stroke-dasharray:none;stroke-opacity:1" x="321.86884" y="219.71104" id="SvgjsText1038" svgjs:data="{&quot;leading&quot;:&quot;1.3&quot;}"><tspan id="SvgjsTspan1037" x="321.86884" y="219.71104" style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-family:'Satoshi Variable';-inkscape-font-specification:'Satoshi Variable Medium';stroke-width:17.7134">s</tspan></text></g></svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
-@media (prefers-color-scheme: dark) { :root { filter: invert(100%); } }
-</style></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_Слой_1" data-name="Слой 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <style>
+      .cls-1 {
+        stroke-width: 18px;
+      }
+
+      .cls-1, .cls-2 {
+        stroke: #000;
+        stroke-miterlimit: 10;
+      }
+
+      .cls-3, .cls-4 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        stroke-width: 7px;
+      }
+
+      .cls-4 {
+        fill: #fbb03b;
+      }
+    </style>
+  </defs>
+  <g>
+    <circle class="cls-4" cx="128" cy="128" r="119"/>
+    <path class="cls-3" d="m128,18c29.38,0,57.01,11.44,77.78,32.22,20.78,20.78,32.22,48.4,32.22,77.78s-11.44,57.01-32.22,77.78c-20.78,20.78-48.4,32.22-77.78,32.22s-57.01-11.44-77.78-32.22c-20.78-20.78-32.22-48.4-32.22-77.78s11.44-57.01,32.22-77.78c20.78-20.78,48.4-32.22,77.78-32.22m0-18C57.31,0,0,57.31,0,128s57.31,128,128,128,128-57.31,128-128S198.69,0,128,0h0Z"/>
+  </g>
+  <path class="cls-1" d="m14,143c27.72-13.65,49.98-15.63,65-15,49.46,2.06,53.8,22.51,97,24,29,1,69.59-17.59,68-17h0s-21.68,43.21-42,66c-30.77,34.51-88.43,49.88-137,13-31.67-24.04-48.78-58.22-51-71Z"/>
+  <circle class="cls-2" cx="71.5" cy="69.5" r="10"/>
+  <circle class="cls-2" cx="186.5" cy="69.5" r="10"/>
+</svg>
