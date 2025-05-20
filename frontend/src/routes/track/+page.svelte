@@ -193,7 +193,16 @@
 			)
 			.text((e) => e);
 
-		tooltip.select('.description').text(d.description);
+		// Show/hide diary section and separator based on description content
+		if (d.description && d.description.trim() !== '') {
+			tooltip.select('.description').text(d.description).style('display', 'block');
+			tooltip.select('.my-2').style('display', 'block'); // Separator
+			tooltip.select('.description-box').style('display', 'block'); // Diary section
+		} else {
+			tooltip.select('.description').style('display', 'none');
+			tooltip.select('.my-2').style('display', 'none');
+			tooltip.select('.description-box').style('display', 'none');
+		}
 
 		// Set position instantly
 		tooltip
@@ -543,7 +552,7 @@
 		<!-- Divider -->
 		<div class="my-2 border-t border-black/10 dark:border-white/10"></div>
 		<!-- Diary -->
-		<div class="flex flex-col gap-1">
+		<div class="description-box flex flex-col gap-1">
 			<span class="text-xs font-medium text-gray-600 dark:text-gray-300"
 				>{m.tooltip_diary_label()}</span
 			>
