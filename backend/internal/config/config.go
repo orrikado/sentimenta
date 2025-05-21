@@ -29,7 +29,9 @@ type Config struct {
 	SYSTEM_PROMPT string
 	AI_API_KEY    string
 
-	PASSWORD_LENGTH_MIN int
+	PASSWORD_LENGTH_MIN    int
+	MOOD_DESC_LENGTH_MAX   int
+	MOOD_EMOTES_LENGTH_MAX int
 }
 
 func NewConfig() *Config {
@@ -41,6 +43,14 @@ func NewConfig() *Config {
 	passwordLenMin, err := strconv.Atoi(os.Getenv("PASSWORD_LENGTH_MIN"))
 	if err != nil {
 		fmt.Printf("не удалось преобразовать переменную PASSWORD_LENGTH_MIN в целое число: %v\n", err)
+	}
+	moodDescLenMax, err := strconv.Atoi(os.Getenv("MOOD_DESC_LENGTH_MAX"))
+	if err != nil {
+		fmt.Printf("не удалось преобразовать переменную MOOD_DESC_LENGTH_MAX в целое число: %v\n", err)
+	}
+	moodEmotesLenMax, err := strconv.Atoi(os.Getenv("MOOD_EMOTES_LENGTH_MAX"))
+	if err != nil {
+		fmt.Printf("не удалось преобразовать переменную MOOD_EMOTES_LENGTH_MAX в целое число: %v\n", err)
 	}
 
 	systemPrompt := `
@@ -98,7 +108,9 @@ func NewConfig() *Config {
 		SYSTEM_PROMPT: systemPrompt,
 		AI_API_KEY:    os.Getenv("AI_API_KEY"),
 
-		PASSWORD_LENGTH_MIN: passwordLenMin,
+		PASSWORD_LENGTH_MIN:    passwordLenMin,
+		MOOD_DESC_LENGTH_MAX:   moodDescLenMax,
+		MOOD_EMOTES_LENGTH_MAX: moodEmotesLenMax,
 	}
 }
 

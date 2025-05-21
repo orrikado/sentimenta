@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	c "sentimenta/internal/config"
+	errs "sentimenta/internal/errors"
 	"sentimenta/internal/models"
 	"sentimenta/internal/service"
 	"sentimenta/internal/utils"
@@ -40,6 +41,14 @@ func (h *MoodHandler) PostAddMood(c echo.Context) error {
 	var reqMood models.MoodAdd
 	if err := c.Bind(&reqMood); err != nil {
 		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	if len([]rune(reqMood.Description)) > h.config.MOOD_DESC_LENGTH_MAX {
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, errs.ErrMoodDescLength.Error())
+	}
+
+	if len([]rune(reqMood.Emotions)) > h.config.MOOD_EMOTES_LENGTH_MAX {
+		return h.resp.newErrorResponse(c, http.StatusBadRequest, errs.ErrMoodEmotesLength.Error())
 	}
 
 	mood, err := h.service.CreateMood(userID, reqMood.Score, reqMood.Emotions, reqMood.Description, reqMood.Date)

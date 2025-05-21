@@ -11,3 +11,5 @@ var ErrUnsupportedSignatureMethod = errors.New("неподдерживаемый
 var ErrTokenExpired = errors.New("токен истек")
 var ErrNoExpClaim = errors.New("не найдено поле exp в токене")
 var ErrPasswordLength = errors.New("длина пароля меньше нужного")
+var ErrMoodDescLength = errors.New("длина описания больше допустимого")
+var ErrMoodEmotesLength = errors.New("длина эмоций больше допустимого")
