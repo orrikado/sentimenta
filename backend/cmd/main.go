@@ -58,7 +58,7 @@ func main() {
 	adviceService := service.NewAdviceService(adviceRepo, moodRepo, userRepo, cfg, logger)
 	moodService := service.NewMoodService(moodRepo, userRepo, adviceRepo, adviceService, logger, wsConnManager)
 
-	wsHandler := handlers.NewWSHandler(logger)
+	wsHandler := handlers.NewWSHandler(logger, wsConnManager)
 	userHandler := handlers.NewUserHandler(userService, cfg, logger, responser)
 	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauth, jwt, responser)
 	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger, responser)

@@ -1,6 +1,8 @@
 package ws
 
 import (
+	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -34,8 +36,11 @@ func (m *ConnectionManager) Send(userID, message string) error {
 	defer m.mu.RUnlock()
 
 	conn, ok := m.connections[userID]
+	fmt.Println(m.connections)
+	fmt.Printf("message: %v\n", message)
+	fmt.Printf("userID: %v\n", userID)
 	if !ok {
-		return nil
+		return errors.New("не удалось найти подключение")
 	}
 
 	return conn.WriteMessage(websocket.TextMessage, []byte(message))

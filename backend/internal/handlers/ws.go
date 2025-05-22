@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"sentimenta/internal/utils"
+	"sentimenta/internal/ws"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
@@ -10,7 +11,8 @@ import (
 )
 
 type WSHandler struct {
-	logger *zap.SugaredLogger
+	logger  *zap.SugaredLogger
+	connMgr *ws.ConnectionManager
 	// config *config.Config
 }
 
@@ -36,6 +38,8 @@ func (h *WSHandler) HandleWS(c echo.Context) error {
 			h.logger.Errorf("Failed to close ws connection: %v\n", err)
 		}
 	}()
+	h.connMgr.Add(userID, conn)
+	defer h.connMgr.Remove(userID)
 
 	h.logger.Infof("User %s connected via WebSocket", userID)
 	for {
@@ -53,6 +57,6 @@ func (h *WSHandler) HandleWS(c echo.Context) error {
 	return nil
 }
 
-func NewWSHandler(logger *zap.SugaredLogger) *WSHandler {
-	return &WSHandler{logger: logger}
+func NewWSHandler(logger *zap.SugaredLogger, connMgr *ws.ConnectionManager) *WSHandler {
+	return &WSHandler{logger: logger, connMgr: connMgr}
 }
