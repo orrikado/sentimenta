@@ -87,7 +87,7 @@ func main() {
 	moodGroup.GET("/get", moodHandler.GetMoods)
 	moodGroup.PUT("/update", moodHandler.PutUpdateMood)
 
-	e.GET("/api/ws", wsHandler.HandleWS, middlewares.NewJWTMiddleware(cfg, jwt))
+	e.GET("/ws", wsHandler.HandleWS, middlewares.NewJWTMiddleware(cfg, jwt))
 	e.GET("/api/advice", adviceHandler.GetAdvice, middlewares.NewJWTMiddleware(cfg, jwt))
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 	e.GET("/swagger/*any", swagger.WrapHandler)
