@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { refreshUserId } from '$lib/user';
+	import { refreshUser, refreshUserId } from '$lib/user';
 	import { onMount } from 'svelte';
 
 	onMount(async () => {
@@ -45,7 +45,10 @@
 
 				// Redirect user to dashboard
 				refreshUserId();
-				localStorage.setItem('justRegistered', 'true');
+				refreshUser();
+				if ((await response.json()).justRegistered) {
+					localStorage.setItem('justRegistered', 'true');
+				}
 				goto('/track');
 			} else {
 				console.error('Google auth failed');

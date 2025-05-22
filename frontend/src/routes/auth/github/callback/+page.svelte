@@ -39,7 +39,9 @@
 
 				refreshUserId();
 				refreshUser();
-				localStorage.setItem('justRegistered', 'true');
+				if ((await response.json()).justRegistered) {
+					localStorage.setItem('justRegistered', 'true');
+				}
 				goto('/track');
 			} else {
 				console.error('GitHub auth failed');
