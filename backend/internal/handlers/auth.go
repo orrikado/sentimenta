@@ -271,7 +271,7 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	if err != nil {
 		if err == errs.ErrUserAlreadyExists {
 			h.logger.Infof("Не удалось создать пользователя: %v", err)
-			var truePtr bool = true
+			truePtr := true
 			emailInfo.JustRegistered = &truePtr
 		} else {
 			return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
