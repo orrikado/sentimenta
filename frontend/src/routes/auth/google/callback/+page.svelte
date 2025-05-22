@@ -45,6 +45,7 @@
 
 				// Redirect user to dashboard
 				refreshUserId();
+				localStorage.setItem('justRegistered', 'true');
 				goto('/track');
 			} else {
 				console.error('Google auth failed');

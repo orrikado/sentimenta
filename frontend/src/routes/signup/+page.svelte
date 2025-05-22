@@ -87,7 +87,8 @@
 
 			submitInProcess = false;
 			refreshUserId();
-			goto('/profile');
+			localStorage.setItem('justRegistered', 'true');
+			goto('/track');
 		} catch {
 			submitInProcess = false;
 			formError = m.error_occured();
