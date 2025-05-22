@@ -7,7 +7,10 @@ type Email struct {
 	Visibility string `json:"visibility"`
 }
 
-type EmailList []Email
+type EmailList struct {
+	Emails         []Email `json:"emails"`
+	JustRegistered *bool   `json:"just_registered"`
+}
 
 type GoogleUserInfo struct {
 }

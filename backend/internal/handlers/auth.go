@@ -176,6 +176,7 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 	if err != nil {
 		if err == errs.ErrUserAlreadyExists {
 			h.logger.Infof("Не удалось создать пользователя: %v", err)
+			userInfo["just_registered"] = true
 		} else {
 			h.logger.Errorf("Не удалось создать пользователя: %v", err)
 			return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Failed to create user")
@@ -246,7 +247,7 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	}()
 
 	var emailInfo m.EmailList
-	if err := json.NewDecoder(emailResp.Body).Decode(&emailInfo); err != nil {
+	if err := json.NewDecoder(emailResp.Body).Decode(&emailInfo.Emails); err != nil {
 		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
 	var userInfo m.GithubUserInfo
@@ -258,7 +259,7 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 
 	name := userInfo.Name
 	var email string
-	for _, e := range emailInfo {
+	for _, e := range emailInfo.Emails {
 		if e.Primary {
 			email = e.Email
 			break
@@ -270,6 +271,8 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	if err != nil {
 		if err == errs.ErrUserAlreadyExists {
 			h.logger.Infof("Не удалось создать пользователя: %v", err)
+			var truePtr bool = true
+			emailInfo.JustRegistered = &truePtr
 		} else {
 			return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		}
