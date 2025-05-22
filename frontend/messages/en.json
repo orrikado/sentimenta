@@ -1,8 +1,8 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"hello_world": "Hello, {name} from en!",
-	"ai_judge": "the ai doesn't judge",
-	"frontpage_ai_notice": "it just notices when your mood drops every time you text your ex",
+	"ai_judge": "your journey to self-awareness starts here",
+	"frontpage_ai_notice": "reflect on your day and discover patterns in your emotions",
 	"ill_try": "fine. i'll try it.",
 	"start_your_day": "how was your day?",
 	"start_emotions_placeholder": "emotions (comma-separated)",
@@ -107,5 +107,6 @@
 	"emotion_envy": "envy",
 	"emotion_contentment": "contentment",
 	"complete_your_setup": "complete your setup",
-	"finish": "finish"
+	"finish": "finish",
+	"button_save": "save"
 }

@@ -1,8 +1,8 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"hello_world": "Привет, {name} из рф!",
-	"ai_judge": "ии не судит",
-	"frontpage_ai_notice": "он просто замечает как падает ваше настроение каждый раз когда вы пишете своей бывшей",
+	"ai_judge": "путь к самопознанию начинается здесь",
+	"frontpage_ai_notice": "размышляйте о своём дне и открывайте закономерности в ваших эмоциях",
 	"ill_try": "ладно. я попробую.",
 	"start_your_day": "как прошел день?",
 	"start_emotions_placeholder": "эмоции (через запятую)",
@@ -107,5 +107,6 @@
 	"emotion_envy": "зависть",
 	"emotion_contentment": "удовлетворение",
 	"complete_your_setup": "завершите настройку",
-	"finish": "подтвердить"
+	"finish": "подтвердить",
+	"button_save": "сохранить"
 }

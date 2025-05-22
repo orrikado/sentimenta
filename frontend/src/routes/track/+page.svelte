@@ -717,6 +717,8 @@
 
 					formError = null;
 					formSuccess = true;
+					showModal = false;
+					updateDimensions();
 				}
 			} else {
 				let result = await fetch('/api/moods/add', {
@@ -853,7 +855,7 @@
 					></path>
 				</svg>
 			{/if}
-			<span>{m.start_process()}</span>
+			<span>{m.button_save()}</span>
 		</button>
 
 		<div aria-live="polite" aria-atomic="true">
