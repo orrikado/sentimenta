@@ -36,23 +36,6 @@
 		if (e.key === 'Escape') showModal = false;
 	}
 
-	// function repositionSideContent() {
-	// 	if (!modalContent || !sideContentEl) return;
-	//
-	// 	const rect = modalContent.getBoundingClientRect();
-	// 	const top = rect.bottom + 16; // 16px gap below modal
-	//
-	// 	sideContentEl.style.position = 'absolute';
-	// 	sideContentEl.style.top = `${top + 6}px`;
-	// 	if (window.innerWidth > 640) {
-	// 		sideContentEl.style.left = '50%';
-	// 		sideContentEl.style.transform = 'translateX(-50%)';
-	// 	} else {
-	// 		sideContentEl.style.left = '5%';
-	// 		sideContentEl.style.transform = 'translateX(-2.5%)';
-	// 	}
-	// }
-
 	$effect(() => {
 		if (showModal && modalContent) {
 			const focusables = Array.from(
@@ -70,19 +53,7 @@
 					modalContent?.focus();
 				}
 			}, 0);
-
-			// // Position side content
-			// repositionSideContent();
 		}
-	});
-
-	// Update position on resize
-	$effect(() => {
-		if (!showModal) return;
-
-		const handleResize = () => repositionSideContent();
-		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
 	});
 </script>
 

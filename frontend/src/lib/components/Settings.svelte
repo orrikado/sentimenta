@@ -2,8 +2,6 @@
 	import { browser } from '$app/environment';
 	import { m } from '$lib/paraglide/messages';
 	import { user } from '$lib/stores/user';
-	import { goto } from '$app/navigation';
-	import { logout } from '$lib/user';
 
 	// Local state for first day of week
 	let selectedFirstDay = $state(
