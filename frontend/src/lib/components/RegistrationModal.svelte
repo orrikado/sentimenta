@@ -1,5 +1,6 @@
 <!-- src/lib/components/RegistrationModal.svelte -->
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages';
 	import Settings from './Settings.svelte';
 
 	// Make showModal bindable
@@ -9,7 +10,7 @@
 {#if showModal}
 	<div class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
 		<div class="w-full max-w-md bg-white p-6 dark:bg-stone-900">
-			<h2 class="mb-4 text-xl font-bold">Complete Your Setup</h2>
+			<h2 class="mb-4 text-xl font-bold">{m.complete_your_setup()}</h2>
 
 			<!-- Settings in Modal -->
 			<Settings />
@@ -22,7 +23,7 @@
 						onClose?.();
 					}}
 				>
-					Finish
+					{m.finish()}
 				</button>
 			</div>
 		</div>
