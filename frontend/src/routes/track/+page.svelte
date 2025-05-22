@@ -292,9 +292,9 @@
 			.getPropertyValue(`--color-mood-${score}`)
 			.trim();
 	}
-
 	// draw the chart
 	$effect(() => {
+		console.log(moodMap);
 		const svg = d3.select('svg');
 
 		// Clear previous chart content
@@ -707,12 +707,16 @@
 					console.error('Error:', errorData);
 					formError = (await result.text()) || m.error_occured();
 				} else {
-					$moods.map((m) => {
+					$moods = $moods.map((m) => {
 						if (m.uid == moodMap.get(getDateKey(selectedDate))?.uid) {
-							m.score = mood;
-							m.description = diary;
-							m.emotions = parseEmotions(emotions);
+							return {
+								...m,
+								score: mood,
+								description: diary,
+								emotions: parseEmotions(emotions)
+							};
 						}
+						return m;
 					});
 
 					formError = null;
