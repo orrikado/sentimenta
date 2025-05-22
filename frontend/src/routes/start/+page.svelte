@@ -22,11 +22,16 @@
 		<div class="flex justify-center gap-4">
 			{#each [1, 2, 3, 4, 5] as n (n)}
 				<button
-					class="border border-current px-3 py-2"
-					class:bg-white={mood === n}
+					type="button"
+					role="radio"
+					aria-checked={mood === n}
+					class="cursor-pointer border border-current px-3 py-2"
+					class:dark:bg-white={mood === n}
+					class:bg-stone-400={mood === n}
 					class:text-black={mood === n}
 					class:text-current={mood !== n}
 					onclick={() => (mood = n)}
+					aria-label={m.aria_select_mood({ mood: n })}
 				>
 					{n}
 				</button>

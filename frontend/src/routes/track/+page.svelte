@@ -769,7 +769,8 @@
 					role="radio"
 					aria-checked={mood === n}
 					class="cursor-pointer border border-current px-3 py-2"
-					class:bg-white={mood === n}
+					class:dark:bg-white={mood === n}
+					class:bg-stone-400={mood === n}
 					class:text-black={mood === n}
 					class:text-current={mood !== n}
 					onclick={() => (mood = n)}
