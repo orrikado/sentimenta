@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
 
-	let { showModal = $bindable(), header, children, sideContent, ...rest } = $props();
+	let { showModal = $bindable(), header, children, sideContent, animate_width, ...rest } = $props();
 
 	// State with proper null handling
 	let modalContent = $state<HTMLElement | null>(null);
@@ -71,8 +71,9 @@
 			open
 			{...rest}
 			class="mx-auto w-full border border-white/10 bg-white p-4 font-mono text-sm text-black dark:bg-stone-900 dark:text-white"
-			class:max-w-md={!sideContentEl?.innerText}
-			class:max-w-3xl={sideContentEl?.innerText}
+			style:max-width={sideContentEl?.innerText ? '48rem' : '28rem'}
+			class:transition-[max-width]={animate_width}
+			class:duration-300={animate_width}
 			onclick={(event) => event.stopPropagation()}
 			onkeydown={trapFocus}
 		>

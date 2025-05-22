@@ -18,6 +18,7 @@
 	let today = new Date();
 	let currentMonth = $state(today.getMonth());
 	let currentYear = $state(today.getFullYear());
+	let animate_width = $state(false);
 
 	// State for first day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
 	let firstDayOfWeek = $state(1);
@@ -35,11 +36,6 @@
 
 	let days: Date[] = $derived(getMonthDays(currentYear, currentMonth, firstDayOfWeek));
 	let showModal = $state(false);
-	$effect(() => {
-		if (showModal) {
-			refreshEmotions();
-		}
-	});
 	let selectedDate: Date = $state(new Date());
 	let submitInProcess = $state(false);
 	let loading = $state(true);
@@ -108,7 +104,6 @@
 
 	// Add emotion to the input field if not already present
 	function addEmotion(emotion: string): void {
-		console.log('addEmotion', emotion);
 		const current = getEmotionsArray();
 		const lowerCurrent = current.map((e) => e.toLowerCase());
 		if (!lowerCurrent.includes(emotion.toLowerCase())) {
@@ -242,6 +237,8 @@
 
 	let showRegistationModal = $state(false);
 
+	let socket: WebSocket;
+
 	// Lifecycle
 	onMount(async () => {
 		if (!browser) return;
@@ -254,6 +251,23 @@
 			localStorage.removeItem('justRegistered');
 			showRegistationModal = true;
 		}
+		socket = new WebSocket('ws://localhost:5173/ws');
+
+		socket.addEventListener('message', (event) => {
+			console.log('Received:', event.data);
+			let newAdvice = JSON.parse(event.data);
+			newAdvice.date = new Date(newAdvice.date).getTime() - 1 * 24 * 60 * 60 * 1000;
+			newAdvice.generated_by_websocket = true;
+			advice.set([...$advice, newAdvice]);
+
+			// Force modal to re-render if open
+			if (showModal && getDateKey(selectedDate) === getDateKey(newAdvice.date)) {
+				animate_width = true;
+				showModal = false;
+				setTimeout(() => (showModal = true), 0);
+				setTimeout(() => (animate_width = false), 350);
+			}
+		});
 
 		updateDimensions();
 		window.addEventListener('resize', updateDimensions);
@@ -644,7 +658,7 @@
 	{/if}
 </main>
 
-<Modal bind:showModal>
+<Modal bind:showModal {animate_width}>
 	{#snippet header()}
 		<h2 id="modal-title" class="text-center font-bold">
 			{m.log_for()}
@@ -703,7 +717,6 @@
 
 					formError = null;
 					formSuccess = true;
-					showModal = false;
 				}
 			} else {
 				let result = await fetch('/api/moods/add', {
@@ -735,7 +748,6 @@
 
 					formError = null;
 					formSuccess = true;
-					showModal = false;
 				}
 			}
 			submitInProcess = false;
