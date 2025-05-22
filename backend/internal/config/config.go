@@ -32,6 +32,9 @@ type Config struct {
 	PASSWORD_LENGTH_MIN    int
 	MOOD_DESC_LENGTH_MAX   int
 	MOOD_EMOTES_LENGTH_MAX int
+
+	JWT_HTTP_ONLY bool
+	JWT_SECURE    bool
 }
 
 func NewConfig() *Config {
@@ -111,6 +114,9 @@ func NewConfig() *Config {
 		PASSWORD_LENGTH_MIN:    passwordLenMin,
 		MOOD_DESC_LENGTH_MAX:   moodDescLenMax,
 		MOOD_EMOTES_LENGTH_MAX: moodEmotesLenMax,
+
+		JWT_HTTP_ONLY: false,
+		JWT_SECURE:    false,
 	}
 }
 

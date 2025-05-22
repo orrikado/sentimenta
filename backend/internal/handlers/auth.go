@@ -71,8 +71,8 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	jwt_cookie := http.Cookie{
 		Name:     h.config.JWT_COOKIE_NAME,
 		Value:    jwtToken,
-		HttpOnly: false,
-		Secure:   false,
+		HttpOnly: h.config.JWT_HTTP_ONLY,
+		Secure:   h.config.JWT_SECURE,
 		Path:     "/",
 	}
 
@@ -111,8 +111,8 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	jwt_cookie := http.Cookie{
 		Name:     h.config.JWT_COOKIE_NAME,
 		Value:    jwtToken,
-		HttpOnly: false,
-		Secure:   false,
+		HttpOnly: h.config.JWT_HTTP_ONLY,
+		Secure:   h.config.JWT_SECURE,
 		Path:     "/",
 	}
 
@@ -192,8 +192,8 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 	jwt_cookie := http.Cookie{
 		Name:     h.config.JWT_COOKIE_NAME,
 		Value:    jwtToken,
-		HttpOnly: false,
-		Secure:   false,
+		HttpOnly: h.config.JWT_HTTP_ONLY,
+		Secure:   h.config.JWT_SECURE,
 		Path:     "/",
 	}
 
@@ -287,8 +287,8 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	jwt_cookie := http.Cookie{
 		Name:     h.config.JWT_COOKIE_NAME,
 		Value:    jwtToken,
-		HttpOnly: false,
-		Secure:   false,
+		HttpOnly: h.config.JWT_HTTP_ONLY,
+		Secure:   h.config.JWT_SECURE,
 		Path:     "/",
 	}
 
