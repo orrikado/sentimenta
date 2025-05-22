@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import GithubLoginButton from '$lib/components/GithubLoginButton.svelte';
 	import GoogleLoginButton from '$lib/components/GoogleLoginButton.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { userId } from '$lib/stores/user';
@@ -168,6 +169,9 @@
 				<p class="text-sm text-red-500 dark:text-red-400">{formError}</p>
 			{/if}
 		</form>
-		<GoogleLoginButton />
+		<div class="flex flex-col gap-1">
+			<GoogleLoginButton />
+			<GithubLoginButton />
+		</div>
 	</main>
 </div>
