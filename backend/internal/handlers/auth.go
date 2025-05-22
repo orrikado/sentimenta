@@ -176,7 +176,7 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 	if err != nil {
 		if err == errs.ErrUserAlreadyExists {
 			h.logger.Infof("Не удалось создать пользователя: %v", err)
-			userInfo["just_registered"] = true
+			userInfo["just_registered"] = false
 		} else {
 			h.logger.Errorf("Не удалось создать пользователя: %v", err)
 			return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Failed to create user")
