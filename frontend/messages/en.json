@@ -145,5 +145,6 @@
 	"privacy_policy_notice": "By using this service, you agree to our Privacy Policy.",
 	"registration_disabled": "registration is currently disabled.",
 	"advice_generating": "advice is being generated...",
-	"server_status_error": "server is not available"
+	"server_status_error": "server is not available",
+	"ai_disabled": "AI is currently disabled."
 }

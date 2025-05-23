@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { env } from '$env/dynamic/public';
 	import { m } from '$lib/paraglide/messages';
 	import { user } from '$lib/stores/user';
 
@@ -71,9 +72,16 @@
 		type="checkbox"
 		checked={useAi}
 		onchange={handleAiToggle}
-		class="h-5 w-9 rounded-full border-stone-300 bg-stone-200 transition-colors duration-200 focus:ring-stone-500 dark:bg-stone-700"
+		disabled={env.PUBLIC_AI_ENABLED !== 'true'}
+		class="h-5 w-9 rounded-full border-stone-300 bg-stone-200 transition-colors duration-200 focus:ring-stone-500 disabled:brightness-50 dark:bg-stone-700"
 	/>
 </div>
+
+{#if env.PUBLIC_AI_ENABLED !== 'true'}
+	<span class="text-sm text-red-500 dark:text-red-400">
+		{m.ai_disabled()}
+	</span>
+{/if}
 
 <!-- Error Display -->
 {#if error}
