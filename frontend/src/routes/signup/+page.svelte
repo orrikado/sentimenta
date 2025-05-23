@@ -25,8 +25,7 @@
 		if (hasSpace(username)) return false;
 		if (hasSpace(email)) return false;
 		if (!email_regex.test(email)) return false;
-		if (password.length < 8) return false;
-		if (username.length < 3) return false;
+		if (password.length < parseInt(env.PUBLIC_PASSWORD_LENGTH_MIN || '8')) return false;
 
 		return true;
 	});
@@ -156,7 +155,7 @@
 					name="password"
 					required
 					bind:value={password}
-					minlength="8"
+					minlength={parseInt(env.PUBLIC_PASSWORD_LENGTH_MIN || '8')}
 					class="w-full border border-current bg-transparent px-3 py-2 placeholder-current"
 					placeholder="••••••••"
 					disabled={registrationDisabled || submitInProcess}

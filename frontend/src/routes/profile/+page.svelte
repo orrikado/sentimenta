@@ -7,6 +7,7 @@
 	import Settings from '$lib/components/Settings.svelte';
 	import { refreshServerStatus } from '$lib/status';
 	import { server_status } from '$lib/stores/server_status';
+	import { env } from '$env/dynamic/public';
 
 	let editMode = $state(false);
 	let passwordEditMode = $state(false);
@@ -212,7 +213,7 @@
 										id="current-password"
 										name="password"
 										required
-										minlength="8"
+										minlength={parseInt(env.PUBLIC_PASSWORD_LENGTH_MIN || '8')}
 										bind:value={passwords.current}
 										class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 										aria-required="true"
@@ -229,7 +230,7 @@
 										type="password"
 										name="password"
 										required
-										minlength="8"
+										minlength={parseInt(env.PUBLIC_PASSWORD_LENGTH_MIN || '8')}
 										bind:value={passwords.new}
 										class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 									/>
@@ -248,7 +249,7 @@
 										type="password"
 										name="password"
 										required
-										minlength="8"
+										minlength={parseInt(env.PUBLIC_PASSWORD_LENGTH_MIN || '8')}
 										bind:value={passwords.confirm}
 										class="w-full border-b border-stone-300 bg-transparent p-1 focus:outline-none dark:border-stone-600"
 									/>

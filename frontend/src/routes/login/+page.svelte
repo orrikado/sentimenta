@@ -7,6 +7,7 @@
 
 	import GoogleLoginButton from '$lib/components/GoogleLoginButton.svelte';
 	import GithubLoginButton from '$lib/components/GithubLoginButton.svelte';
+	import { env } from '$env/dynamic/public';
 
 	let submitInProcess = $state(false);
 
@@ -21,7 +22,7 @@
 		if (!email_regex.test(email)) return false;
 		if (email.length > 255) return false;
 		if (password.length > 255) return false;
-		if (password.length < 8) return false;
+		if (password.length < parseInt(env.PUBLIC_PASSWORD_LENGTH_MIN || '8')) return false;
 
 		return true;
 	});
@@ -126,7 +127,7 @@
 					name="password"
 					required
 					bind:value={password}
-					minlength="8"
+					minlength={parseInt(env.PUBLIC_PASSWORD_LENGTH_MIN || '8')}
 					class="w-full border border-current bg-transparent px-3 py-2 placeholder-current"
 					placeholder="••••••••"
 				/>
