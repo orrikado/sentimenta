@@ -77,6 +77,10 @@ func (h *UserHandler) PatchUpdateUser(c echo.Context) error {
 		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
+	if !h.config.AI_ENABLED {
+		reqUser.UseAI = nil
+	}
+
 	user, err := h.service.UpdateUser(userID, reqUser)
 	if err != nil {
 		h.logger.Errorf("Ошибка при обновлении пользователя: %v", err)

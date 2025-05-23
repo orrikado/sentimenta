@@ -28,6 +28,7 @@ type Config struct {
 
 	SYSTEM_PROMPT string
 	AI_API_KEY    string
+	AI_ENABLED    bool
 
 	PASSWORD_LENGTH_MIN    int
 	MOOD_DESC_LENGTH_MAX   int
@@ -131,6 +132,7 @@ A brief and helpful piece of advice in Russian, based mainly on "last_mood".
 
 		SYSTEM_PROMPT: systemPrompt,
 		AI_API_KEY:    os.Getenv("AI_API_KEY"),
+		AI_ENABLED:    os.Getenv("AI_ENABLED") == "true",
 
 		PASSWORD_LENGTH_MIN:    passwordLenMin,
 		MOOD_DESC_LENGTH_MAX:   moodDescLenMax,
