@@ -155,5 +155,9 @@
 			<GoogleLoginButton />
 			<GithubLoginButton />
 		</div>
+		<span class="text-sm text-gray-500 dark:text-gray-400">
+			{m.privacy_policy_notice()}
+			<a href="/privacy" class="text-center underline">{m.privacyPolicy_title()}</a>
+		</span>
 	</main>
 </div>
