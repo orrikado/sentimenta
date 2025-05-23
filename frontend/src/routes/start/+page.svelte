@@ -1,11 +1,30 @@
 <script lang="ts">
 	import { m } from '$lib/paraglide/messages';
+	import { onMount } from 'svelte';
 
-	let mood: number | null = null; // 1–5
-	let emotions = '';
-	let diary = '';
+	let mood = $state(null);
+	let emotions = $state('');
+	let diary = $state('');
 
-	$: canSubmit = mood !== null && emotions.trim() && diary.trim();
+	let canSubmit = $derived(!!(mood !== null && emotions.trim() && diary.trim()));
+
+	onMount(() => {
+		const saved = localStorage.getItem('formData');
+		if (saved) {
+			try {
+				const parsed = JSON.parse(saved);
+				mood = parsed.mood ?? null;
+				emotions = parsed.emotions || '';
+				diary = parsed.diary || '';
+			} catch (e) {
+				console.error('Failed to parse saved data', e);
+			}
+		}
+	});
+
+	$effect(() => {
+		localStorage.setItem('formData', JSON.stringify({ mood, emotions, diary }));
+	});
 </script>
 
 <svelte:head>

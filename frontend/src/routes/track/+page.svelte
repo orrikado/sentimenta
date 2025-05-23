@@ -150,9 +150,17 @@
 				diary = entry?.description || '';
 				emotions = entry?.emotions || '';
 			} else {
-				mood = 0;
-				diary = '';
-				emotions = '';
+				const saved = localStorage.getItem('formData');
+				if (saved) {
+					try {
+						const parsed = JSON.parse(saved);
+						mood = parsed.mood ?? 0;
+						emotions = parsed.emotions || '';
+						diary = parsed.diary || '';
+					} catch (e) {
+						console.error('Failed to parse saved data', e);
+					}
+				}
 			}
 		}
 	});
@@ -679,6 +687,8 @@
 		class="flex w-full max-w-md flex-col gap-6"
 		onsubmit={async () => {
 			if (!canSubmit() || submitInProcess) return;
+
+			localStorage.removeItem('formData');
 
 			submitInProcess = true; // Show spinner right away
 
