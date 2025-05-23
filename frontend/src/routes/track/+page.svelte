@@ -268,6 +268,11 @@
 		const svgContainer = document.getElementById('mood-chart')?.parentElement;
 		if (svgContainer) {
 			const containerWidth = svgContainer.clientWidth;
+			if (containerWidth < 640) {
+				dimensions.margin = { top: 20 / 3, right: 30 / 3, bottom: 40 / 3, left: 50 / 3 };
+			} else {
+				dimensions.margin = { top: 20, right: 30, bottom: 40, left: 50 };
+			}
 			dimensions.width = Math.min(containerWidth * 0.9, 800); // Max width 800
 			dimensions.height = Math.min(containerWidth * 0.4, 250); // 1/3 of width
 		}
@@ -561,7 +566,7 @@
 
 <main class="mx-auto my-4 md:max-w-3/5 xl:max-w-1/2">
 	<div
-		class=" flex justify-center border border-stone-300 bg-stone-100 dark:border-white/10 dark:bg-stone-900"
+		class="flex justify-center border border-stone-300 bg-stone-100 dark:border-white/10 dark:bg-stone-900"
 	>
 		<svg
 			id="mood-chart"
@@ -597,7 +602,7 @@
 			></span>
 		</div>
 	</div>
-	<div class="flex items-center justify-between p-4">
+	<div class="flex items-center justify-between px-4 sm:py-4">
 		<button class="  hover:text-accent text-gray-900 dark:text-gray-300" onclick={goToPreviousMonth}
 			>{m.previous()}</button
 		>
