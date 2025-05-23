@@ -1,12 +1,31 @@
+# Базовый образ для сборки
 FROM node:24-slim AS builder
 
 WORKDIR /app
-COPY . /app
+COPY package*.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm fetch
 
-RUN npm install -g pnpm
+# Установка зависимостей с кэшированием
+RUN pnpm install --frozen-lockfile
 
-RUN pnpm install && pnpm build
+# Копирование исходников и сборка
+COPY . .
+RUN pnpm build
 
-FROM alpine:3.21 AS exporter
-WORKDIR /export
-COPY --from=builder /app/build ./dist
+# Финальный образ с минимальным Node.js окружением
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Копирование необходимых файлов из builder
+COPY --from=builder /app/build /app/
+COPY --from=builder /app/package.json /app/ 
+COPY --from=builder /app/pnpm-lock.yaml /app
+
+# Установка production-зависимостей
+RUN npm install -g pnpm && \
+    pnpm install --prod --frozen-lockfile
+
+# Экспорт порта и запуск приложения
+EXPOSE 3000
+CMD ["node", "/app"]
