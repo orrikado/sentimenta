@@ -161,6 +161,10 @@
 					} catch (e) {
 						console.error('Failed to parse saved data', e);
 					}
+				} else {
+					mood = 0;
+					emotions = '';
+					diary = '';
 				}
 			}
 		}
