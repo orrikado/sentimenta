@@ -6,6 +6,7 @@
 	import { userId } from '$lib/stores/user';
 	import { refreshUserId } from '$lib/user';
 	import { onMount } from 'svelte';
+	import { env } from '$env/dynamic/public';
 
 	let formError: string | null = $state(null);
 	const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,6 +16,8 @@
 	let username = $state('');
 
 	let submitInProcess = $state(false);
+
+	let registrationDisabled = env.PUBLIC_REGISTRATION_ENABLED !== 'true';
 
 	const canSubmit = $derived(() => {
 		if (!email || !password || !username) return false;
@@ -40,6 +43,13 @@
 
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
+
+		// 🔒 Prevent submission if registration is disabled
+		if (registrationDisabled) {
+			formError = m.registration_disabled();
+			return;
+		}
+
 		formError = null;
 		submitInProcess = true;
 
@@ -59,7 +69,6 @@
 		}
 		if (!email_regex.test(email.toString())) {
 			formError = m.invalid_email_error();
-
 			submitInProcess = false;
 			return;
 		}
@@ -119,6 +128,7 @@
 					bind:value={username}
 					class="w-full border border-current bg-transparent px-3 py-2 placeholder-current"
 					placeholder="ex: cursed_dude42"
+					disabled={registrationDisabled || submitInProcess}
 				/>
 			</div>
 
@@ -133,6 +143,7 @@
 					bind:value={email}
 					class="w-full border border-current bg-transparent px-3 py-2 placeholder-current"
 					placeholder="email@proton.me"
+					disabled={registrationDisabled || submitInProcess}
 				/>
 			</div>
 
@@ -148,6 +159,7 @@
 					minlength="8"
 					class="w-full border border-current bg-transparent px-3 py-2 placeholder-current"
 					placeholder="••••••••"
+					disabled={registrationDisabled || submitInProcess}
 				/>
 			</div>
 
@@ -155,13 +167,12 @@
 			<button
 				type="submit"
 				class="relative flex items-center justify-center border border-current px-6 py-2 text-center transition-colors duration-300"
-				class:bg-white={canSubmit()}
-				class:text-black={canSubmit()}
-				class:cursor-pointer={canSubmit()}
-				class:opacity-50={!canSubmit()}
-				class:pointer-events-none={!canSubmit() || submitInProcess}
-				aria-disabled={!canSubmit() || submitInProcess}
-				disabled={submitInProcess}
+				class:bg-white={canSubmit() && !registrationDisabled}
+				class:text-black={canSubmit() && !registrationDisabled}
+				class:opacity-50={registrationDisabled || !canSubmit() || submitInProcess}
+				class:pointer-events-none={registrationDisabled || !canSubmit() || submitInProcess}
+				aria-disabled={registrationDisabled || !canSubmit() || submitInProcess}
+				disabled={registrationDisabled || !canSubmit() || submitInProcess}
 			>
 				{m.signup()}
 			</button>
@@ -180,4 +191,11 @@
 			<a href="/privacy" class="text-center underline">{m.privacyPolicy_title()}</a>
 		</span>
 	</main>
+
+	<!-- 🔒 Overlay when registration is disabled -->
+	{#if registrationDisabled}
+		<div class="bg-opacity-60 fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+			<p class="text-center text-xl text-white">{m.registration_disabled()}</p>
+		</div>
+	{/if}
 </div>
