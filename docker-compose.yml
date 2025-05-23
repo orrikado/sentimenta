@@ -71,6 +71,8 @@ services:
       - 3001:3000
     networks:
       - internal
+    env_file:
+      - .env
 
   nginx:
     image: nginx:latest
