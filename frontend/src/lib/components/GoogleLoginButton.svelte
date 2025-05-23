@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PUBLIC_GOOGLE_CLIENT_ID } from '$env/static/public';
+	import { env } from '$env/dynamic/public';
 	import { generateCodeVerifier, generateCodeChallenge, generateRandomString } from '$lib/auth';
 	import { m } from '$lib/paraglide/messages';
 
@@ -21,7 +21,7 @@
 
 			window.location.href =
 				`https://accounts.google.com/o/oauth2/v2/auth?` +
-				`client_id=${PUBLIC_GOOGLE_CLIENT_ID}` +
+				`client_id=${env.PUBLIC_GOOGLE_CLIENT_ID}` +
 				`&redirect_uri=${redirectUri}` +
 				`&scope=${scope}` +
 				`&response_type=code` +

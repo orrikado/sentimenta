@@ -11,6 +11,20 @@
 	onMount(async () => {
 		await refreshServerStatus();
 		refreshed = true;
+		if (navigator.languages.length > 0) {
+			switch (navigator.language) {
+				case 'ru-RU':
+				case 'ru-UA':
+				case 'ru-KZ':
+				case 'ru-BY':
+				case 'ru':
+					setLocale('ru');
+					break;
+				case 'en':
+					setLocale('en');
+					break;
+			}
+		}
 	});
 </script>
 

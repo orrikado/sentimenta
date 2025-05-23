@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PUBLIC_GITHUB_CLIENT_ID } from '$env/static/public';
+	import { env } from '$env/dynamic/public';
 	import { generateCodeVerifier, generateCodeChallenge, generateRandomString } from '$lib/auth';
 	import { m } from '$lib/paraglide/messages';
 
@@ -13,7 +13,7 @@
 		const state = generateRandomString();
 		sessionStorage.setItem('github_state', state);
 
-		const clientId = PUBLIC_GITHUB_CLIENT_ID;
+		const clientId = env.PUBLIC_GITHUB_CLIENT_ID;
 		const redirectUri = encodeURIComponent(window.location.origin + '/auth/github/callback');
 		const scope = encodeURIComponent('read:user user:email');
 
