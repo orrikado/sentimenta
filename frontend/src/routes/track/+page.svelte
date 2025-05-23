@@ -265,7 +265,7 @@
 	onMount(async () => {
 		if (!browser) return;
 		if (typeof window === 'undefined') return;
-		refreshServerStatus();
+		await refreshServerStatus();
 		if (!$userId && $server_status) {
 			goto('/login');
 			return;

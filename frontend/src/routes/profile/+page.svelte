@@ -18,7 +18,7 @@
 	let showPassword = $derived(tempUser.email != $user?.email);
 
 	onMount(async () => {
-		refreshServerStatus();
+		await refreshServerStatus();
 		if (!$userId && $server_status) {
 			goto('/login');
 			return;

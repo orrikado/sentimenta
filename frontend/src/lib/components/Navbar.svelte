@@ -8,8 +8,8 @@
 	import { server_status } from '$lib/stores/server_status';
 
 	let refreshed = $state(false);
-	onMount(() => {
-		refreshServerStatus();
+	onMount(async () => {
+		await refreshServerStatus();
 		refreshed = true;
 	});
 </script>
