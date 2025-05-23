@@ -119,11 +119,11 @@ A brief and helpful piece of advice in Russian, based mainly on "last_mood".
 		JWT_COOKIE_NAME: os.Getenv("JWT_COOKIE_NAME"),
 		JWT_SECRET:      os.Getenv("JWT_SECRET"),
 
-		GOOGLE_CLIENT_ID:       os.Getenv("GOOGLE_CLIENT_ID"),
+		GOOGLE_CLIENT_ID:       os.Getenv("PUBLIC_GOOGLE_CLIENT_ID"),
 		GOOGLE_CLIENT_SECRET:   os.Getenv("GOOGLE_CLIENT_SECRET"),
 		GOOGLE_CLIENT_CALLBACK: os.Getenv("GOOGLE_CLIENT_CALLBACK"),
 
-		GITHUB_CLIENT_ID:       os.Getenv("GITHUB_CLIENT_ID"),
+		GITHUB_CLIENT_ID:       os.Getenv("PUBLIC_GITHUB_CLIENT_ID"),
 		GITHUB_CLIENT_SECRET:   os.Getenv("GITHUB_CLIENT_SECRET"),
 		GITHUB_CLIENT_CALLBACK: os.Getenv("GITHUB_CLIENT_CALLBACK"),
 
