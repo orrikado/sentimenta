@@ -261,8 +261,6 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 	if err := json.NewDecoder(userResp.Body).Decode(&userInfo); err != nil {
 		return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
-	fmt.Println(emailInfo)
-	fmt.Println(userInfo)
 
 	name := userInfo.Name
 	var email string

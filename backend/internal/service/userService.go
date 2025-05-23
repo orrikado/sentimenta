@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	errs "sentimenta/internal/errors"
 	"sentimenta/internal/hash"
 	m "sentimenta/internal/models"
@@ -94,7 +93,6 @@ func (s *userService) Authenticate(email, password string) (m.User, error) {
 	if !hash.VerifyPassword(password, *user.PasswordHash) {
 		return m.User{}, errs.ErrWrongPassword
 	}
-	fmt.Printf("Authenticate m.User: %v", user)
 
 	return *user, nil
 }

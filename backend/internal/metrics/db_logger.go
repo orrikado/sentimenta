@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -16,7 +15,6 @@ type GormLogger struct {
 
 func (l *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
 	sql, _ := fc()
-	fmt.Printf("sql: %v\n", sql)
 	queryType := strings.ToUpper(strings.Fields(sql)[0])
 	duration := time.Since(begin).Seconds()
 

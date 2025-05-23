@@ -145,8 +145,6 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advic
 	}
 
 	// Можно логировать полный ответ
-	fmt.Println("OpenRouter response:", string(bodyBytes))
-
 	// Разбор результата
 	var result struct {
 		Choices []struct {
