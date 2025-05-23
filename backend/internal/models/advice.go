@@ -13,5 +13,6 @@ type Advice struct {
 
 type AdviceRequest struct {
 	PreviousAdvice string    `json:"previous_advice"`
+	LastMood       MoodAdd   `json:"last_mood"`
 	Moods          []MoodAdd `json:"moods"`
 }

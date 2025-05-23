@@ -75,8 +75,19 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advic
 		})
 	}
 
+	var lastMood models.MoodAdd
+	if len(moods) > 0 {
+		lastMood = moods[0]
+		for _, m := range moods[1:] {
+			if m.Date.After(lastMood.Date) {
+				lastMood = m
+			}
+		}
+	}
+
 	payload := models.AdviceRequest{
 		PreviousAdvice: lastAdvice.Text,
+		LastMood:       lastMood,
 		Moods:          moods,
 	}
 
