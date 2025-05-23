@@ -251,7 +251,7 @@
 			localStorage.removeItem('justRegistered');
 			showRegistationModal = true;
 		}
-		socket = new WebSocket('ws://localhost:5173/ws');
+		socket = new WebSocket('ws://' + window.location.host + '/ws');
 
 		socket.addEventListener('message', (event) => {
 			console.log('Received:', event.data);
