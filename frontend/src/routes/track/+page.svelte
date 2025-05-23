@@ -75,7 +75,14 @@
 		m.emotion_contentment()
 	];
 
-	let emotionSubset = $state<string[]>([]);
+	let emotionSubset = $state<string[]>([
+		m.emotion_joy(),
+		m.emotion_sadness(),
+		m.emotion_fatigue(),
+		m.emotion_boredom(),
+		m.emotion_calm(),
+		m.emotion_motivation()
+	]);
 
 	function refreshEmotions() {
 		// Get emotions NOT already selected
@@ -275,7 +282,6 @@
 		if ($advice.length === 0) {
 			await updateAdvice();
 		}
-		refreshEmotions();
 		loading = false; // Stop loading after data is fetched
 	});
 
