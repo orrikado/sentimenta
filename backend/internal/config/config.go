@@ -46,15 +46,15 @@ func NewConfig() *Config {
 		fmt.Printf("не удалось загрузить .env: %v\n", err)
 	}
 
-	passwordLenMin, err := strconv.Atoi(os.Getenv("PASSWORD_LENGTH_MIN"))
+	passwordLenMin, err := strconv.Atoi(os.Getenv("PUBLIC_PASSWORD_LENGTH_MIN"))
 	if err != nil {
 		fmt.Printf("не удалось преобразовать переменную PASSWORD_LENGTH_MIN в целое число: %v\n", err)
 	}
-	moodDescLenMax, err := strconv.Atoi(os.Getenv("MOOD_DESC_LENGTH_MAX"))
+	moodDescLenMax, err := strconv.Atoi(os.Getenv("PUBLIC_MOOD_DESC_LENGTH_MAX"))
 	if err != nil {
 		fmt.Printf("не удалось преобразовать переменную MOOD_DESC_LENGTH_MAX в целое число: %v\n", err)
 	}
-	moodEmotesLenMax, err := strconv.Atoi(os.Getenv("MOOD_EMOTES_LENGTH_MAX"))
+	moodEmotesLenMax, err := strconv.Atoi(os.Getenv("PUBLIC_MOOD_EMOTES_LENGTH_MAX"))
 	if err != nil {
 		fmt.Printf("не удалось преобразовать переменную MOOD_EMOTES_LENGTH_MAX в целое число: %v\n", err)
 	}
@@ -78,7 +78,7 @@ Your task is to generate a short but helpful piece of advice that is **primarily
 
 The advice should be concise (2–3 sentences) and supportive — aimed at improving or maintaining the person's emotional well-being.
 
-**Important: Respond strictly in Russian, regardless of the language of the input.**
+**Important:Respond in the same language as last_mood.
 
 Example input structure:
 
@@ -108,8 +108,7 @@ Example input structure:
 }
 
 Your response:
-A brief and helpful piece of advice in Russian, based mainly on "last_mood".
-
+A brief and supportive piece of advice, mainly based on last_mood, in the same language as last_mood.description.
 `
 
 	return &Config{
@@ -132,7 +131,7 @@ A brief and helpful piece of advice in Russian, based mainly on "last_mood".
 
 		SYSTEM_PROMPT: systemPrompt,
 		AI_API_KEY:    os.Getenv("AI_API_KEY"),
-		AI_ENABLED:    os.Getenv("AI_ENABLED") == "true",
+		AI_ENABLED:    os.Getenv("PUBLIC_AI_ENABLED") == "true",
 
 		PASSWORD_LENGTH_MIN:    passwordLenMin,
 		MOOD_DESC_LENGTH_MAX:   moodDescLenMax,
@@ -141,7 +140,7 @@ A brief and helpful piece of advice in Russian, based mainly on "last_mood".
 		JWT_HTTP_ONLY: false,
 		JWT_SECURE:    false,
 
-		REGISTRATION_ENABLED: true,
+		REGISTRATION_ENABLED: os.Getenv("PUBLIC_REGISTRATION_ENABLED") == "true",
 	}
 }
 
