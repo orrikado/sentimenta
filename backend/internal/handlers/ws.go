@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+	"io"
 	"net/http"
 	"sentimenta/internal/utils"
 	"sentimenta/internal/ws"
@@ -45,7 +47,18 @@ func (h *WSHandler) HandleWS(c echo.Context) error {
 	for {
 		msgType, msg, err := conn.ReadMessage()
 		if err != nil {
-			h.logger.Error("WS: read error:", err)
+			if closeErr, ok := err.(*websocket.CloseError); ok {
+				switch closeErr.Code {
+				case websocket.CloseNormalClosure, websocket.CloseGoingAway:
+					h.logger.Infof("WS: normal closure by user %s: %v", userID, closeErr)
+				default:
+					h.logger.Warnf("WS: abnormal closure by user %s: %v", userID, closeErr)
+				}
+			} else if errors.Is(err, io.EOF) {
+				h.logger.Warnf("WS: EOF from user %s: %v", userID, err)
+			} else {
+				h.logger.Errorf("WS: read error from user %s: %v", userID, err)
+			}
 			break
 		}
 		reply := "Echo from server: " + string(msg)
