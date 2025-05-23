@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { getMonthDays } from '$lib/calendar-utils';
 	import { m } from '$lib/paraglide/messages';
-	import { userId } from '$lib/stores/user';
+	import { user, userId } from '$lib/stores/user';
 	import Modal from '$lib/components/Modal.svelte';
 	import * as d3 from 'd3';
 	import { browser } from '$app/environment';
@@ -13,6 +13,7 @@
 	import { advice } from '$lib/stores/advice';
 	import { updateAdvice } from '$lib/advice';
 	import RegistrationModal from '$lib/components/RegistrationModal.svelte';
+	import { refreshUser } from '$lib/user';
 
 	// State variables
 	let today = new Date();
@@ -259,23 +260,7 @@
 			localStorage.removeItem('justRegistered');
 			showRegistationModal = true;
 		}
-		socket = new WebSocket('ws://' + window.location.host + '/ws');
-
-		socket.addEventListener('message', (event) => {
-			console.log('Received:', event.data);
-			let newAdvice = JSON.parse(event.data);
-			newAdvice.date = new Date(newAdvice.date).getTime() - 1 * 24 * 60 * 60 * 1000;
-			newAdvice.generated_by_websocket = true;
-			advice.set([...$advice, newAdvice]);
-
-			// Force modal to re-render if open
-			if (showModal && getDateKey(selectedDate) === getDateKey(newAdvice.date)) {
-				animate_width = true;
-				showModal = false;
-				setTimeout(() => (showModal = true), 0);
-				setTimeout(() => (animate_width = false), 350);
-			}
-		});
+		refreshUser();
 
 		updateDimensions();
 		window.addEventListener('resize', updateDimensions);
@@ -695,6 +680,28 @@
 			let nextDay = new Date(selectedDate);
 			nextDay.setDate(nextDay.getDate() + 1); // workaround because js is stupid
 
+			if ($user?.use_ai === true) {
+				socket = new WebSocket('ws://' + window.location.host + '/ws');
+
+				socket.addEventListener('message', (event) => {
+					console.log('Received:', event.data);
+					let newAdvice = JSON.parse(event.data);
+					newAdvice.date = new Date(newAdvice.date).getTime() - 1 * 24 * 60 * 60 * 1000;
+					newAdvice.generated_by_websocket = true;
+					advice.set([...$advice, newAdvice]);
+
+					// Force modal to re-render if open
+					if (showModal && getDateKey(selectedDate) === getDateKey(newAdvice.date)) {
+						animate_width = true;
+						showModal = false;
+						setTimeout(() => (showModal = true), 0);
+						setTimeout(() => (animate_width = false), 350);
+					}
+					submitInProcess = false;
+					socket.close();
+				});
+			}
+
 			if (moodMap.has(getDateKey(selectedDate))) {
 				if (moodMap.get(getDateKey(selectedDate))?.uid == undefined) {
 					await updateMoods();
@@ -766,7 +773,9 @@
 					formSuccess = true;
 				}
 			}
-			submitInProcess = false;
+			if ($user?.use_ai !== true) {
+				submitInProcess = false;
+			}
 		}}
 	>
 		<h1 class="text-center text-2xl">{m.start_your_day()}</h1>
@@ -878,7 +887,11 @@
 				<p class="text-sm text-red-500 dark:text-red-400">{formError}</p>
 			{/if}
 			{#if formSuccess}
-				<p class="text-sm text-green-500 dark:text-green-400">{m.mood_upload_success()}</p>
+				{#if $user?.use_ai === true}
+					<p class="text-sm text-green-500 dark:text-green-400">{m.advice_generating()}</p>
+				{:else}
+					<p class="text-sm text-green-500 dark:text-green-400">{m.mood_upload_success()}</p>
+				{/if}
 			{/if}
 		</div>
 	</form>
