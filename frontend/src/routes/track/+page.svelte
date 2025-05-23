@@ -14,6 +14,8 @@
 	import { updateAdvice } from '$lib/advice';
 	import RegistrationModal from '$lib/components/RegistrationModal.svelte';
 	import { refreshUser } from '$lib/user';
+	import { server_status } from '$lib/stores/server_status';
+	import { refreshServerStatus } from '$lib/status';
 
 	// State variables
 	let today = new Date();
@@ -263,7 +265,8 @@
 	onMount(async () => {
 		if (!browser) return;
 		if (typeof window === 'undefined') return;
-		if (!$userId) {
+		refreshServerStatus();
+		if (!$userId && $server_status) {
 			goto('/login');
 			return;
 		}

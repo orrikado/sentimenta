@@ -5,6 +5,8 @@
 	import { logout, refreshUser } from '$lib/user';
 	import { m } from '$lib/paraglide/messages';
 	import Settings from '$lib/components/Settings.svelte';
+	import { refreshServerStatus } from '$lib/status';
+	import { server_status } from '$lib/stores/server_status';
 
 	let editMode = $state(false);
 	let passwordEditMode = $state(false);
@@ -16,8 +18,12 @@
 	let showPassword = $derived(tempUser.email != $user?.email);
 
 	onMount(async () => {
-		if (!$userId) return goto('/');
-		if (!$user) {
+		refreshServerStatus();
+		if (!$userId && $server_status) {
+			goto('/login');
+			return;
+		}
+		if (!$user && $server_status) {
 			try {
 				await refreshUser();
 			} catch (err) {
@@ -25,11 +31,11 @@
 				goto('/login');
 			}
 		}
-		if (!$user) {
+		if (!$user && $server_status) {
 			logout();
 			goto('/');
 		} else {
-			tempUser = { username: $user.username, email: $user.email };
+			tempUser = { username: $user?.username || '', email: $user?.email || '' };
 		}
 	});
 

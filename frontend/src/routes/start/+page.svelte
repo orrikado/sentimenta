@@ -2,7 +2,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { onMount } from 'svelte';
 
-	let mood = $state(null);
+	let mood = $state(0);
 	let emotions = $state('');
 	let diary = $state('');
 

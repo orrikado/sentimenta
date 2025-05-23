@@ -3,6 +3,15 @@
 	import { setLocale } from '$lib/paraglide/runtime';
 	import { dev } from '$app/environment';
 	import { m } from '$lib/paraglide/messages';
+	import { refreshServerStatus } from '$lib/status';
+	import { onMount } from 'svelte';
+	import { server_status } from '$lib/stores/server_status';
+
+	let refreshed = $state(false);
+	onMount(() => {
+		refreshServerStatus();
+		refreshed = true;
+	});
 </script>
 
 <nav
@@ -16,6 +25,11 @@
 		<div>
 			<button onclick={() => setLocale('en')} class="hover:text-accent text-gray-300">en</button>
 			<button onclick={() => setLocale('ru')} class="hover:text-accent text-gray-300">ru</button>
+		</div>
+	{/if}
+	{#if !$server_status && refreshed}
+		<div class="text-red-500 dark:text-red-400">
+			<b>{m.server_status_error()}</b>
 		</div>
 	{/if}
 	<ul class="flex space-x-4">
