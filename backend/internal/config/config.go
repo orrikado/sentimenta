@@ -35,6 +35,8 @@ type Config struct {
 
 	JWT_HTTP_ONLY bool
 	JWT_SECURE    bool
+
+	REGISTRATION_ENABLED bool
 }
 
 func NewConfig() *Config {
@@ -136,6 +138,8 @@ A brief and helpful piece of advice in Russian, based mainly on "last_mood".
 
 		JWT_HTTP_ONLY: false,
 		JWT_SECURE:    false,
+
+		REGISTRATION_ENABLED: true,
 	}
 }
 

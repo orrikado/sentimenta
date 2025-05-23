@@ -45,6 +45,9 @@ type OAuthCallbackRequest struct {
 // @Failure		500		{object}	errorResponse
 // @Router			/api/auth/register [post]
 func (h *AuthHandler) Register(c echo.Context) error {
+	if !h.config.REGISTRATION_ENABLED {
+		return h.resp.newErrorResponse(c, http.StatusForbidden, errs.ErrRegistrationDisabled.Error())
+	}
 	var newUser m.UserRegister
 	if err := c.Bind(&newUser); err != nil {
 		return h.resp.newErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -181,6 +184,10 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 			h.logger.Errorf("Не удалось создать пользователя: %v", err)
 			return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Failed to create user")
 		}
+	} else {
+		if !h.config.REGISTRATION_ENABLED {
+			return h.resp.newErrorResponse(c, http.StatusForbidden, errs.ErrRegistrationDisabled.Error())
+		}
 	}
 
 	uidStr := fmt.Sprintf("%v", user.Uid)
@@ -275,6 +282,10 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 			emailInfo.JustRegistered = &truePtr
 		} else {
 			return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		}
+	} else {
+		if !h.config.REGISTRATION_ENABLED {
+			return h.resp.newErrorResponse(c, http.StatusForbidden, errs.ErrRegistrationDisabled.Error())
 		}
 	}
 
