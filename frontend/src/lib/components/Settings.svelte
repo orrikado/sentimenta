@@ -3,6 +3,7 @@
 	import { env } from '$env/dynamic/public';
 	import { m } from '$lib/paraglide/messages';
 	import { user } from '$lib/stores/user';
+	import { refreshUser } from '$lib/user';
 
 	// Local state for first day of week
 	let selectedFirstDay = $state(
@@ -34,6 +35,7 @@
 			if (!response.ok) {
 				throw new Error('Server error');
 			}
+			await refreshUser();
 		} catch (err) {
 			// Revert on error
 			useAi = oldValue;
