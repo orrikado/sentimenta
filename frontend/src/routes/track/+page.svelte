@@ -16,6 +16,7 @@
 	import { refreshUser } from '$lib/user';
 	import { server_status } from '$lib/stores/server_status';
 	import { refreshServerStatus } from '$lib/status';
+	import { env } from '$env/dynamic/public';
 
 	// State variables
 	let today = new Date();
@@ -137,7 +138,24 @@
 	const canSubmit = $derived(() => {
 		const future = new Date(selectedDate) > today;
 		// Ensure the selected date is today or in the past
+		if (emotions.length > parseInt(env.PUBLIC_MOOD_EMOTES_LENGTH_MAX || '120')) {
+			return false;
+		}
+		if (diary.length > parseInt(env.PUBLIC_MOOD_DESC_LENGTH_MAX || '320')) {
+			return false;
+		}
 		return !!(mood !== 0 && emotions.trim() && !future);
+	});
+	$effect(() => {
+		if (emotions.length > parseInt(env.PUBLIC_MOOD_EMOTES_LENGTH_MAX || '120')) {
+			formError = m.emotions_too_long();
+			return false;
+		} else if (diary.length > parseInt(env.PUBLIC_MOOD_DESC_LENGTH_MAX || '320')) {
+			formError = m.diary_too_long();
+			return false;
+		} else {
+			formError = null;
+		}
 	});
 
 	let filteredMoods = $derived(

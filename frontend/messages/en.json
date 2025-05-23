@@ -146,5 +146,7 @@
 	"registration_disabled": "registration is currently disabled.",
 	"advice_generating": "advice is being generated...",
 	"server_status_error": "server is not available",
-	"ai_disabled": "AI is currently disabled."
+	"ai_disabled": "AI is currently disabled.",
+	"emotions_too_long": "emotions are too long",
+	"diary_too_long": "diary is too long"
 }
