@@ -63,6 +63,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(userService, cfg, logger, oauth, jwt, responser)
 	moodHandler := handlers.NewMoodHandler(moodService, cfg, logger, responser)
 	adviceHandler := handlers.NewAdviceHandler(adviceService, logger, responser)
+	statusHandler := handlers.NewStatusHandler()
 
 	e := echo.New()
 	e.Use(middleware.CORS())
@@ -89,6 +90,7 @@ func main() {
 
 	e.GET("/ws", wsHandler.HandleWS, middlewares.NewJWTMiddleware(cfg, jwt))
 	e.GET("/api/advice", adviceHandler.GetAdvice, middlewares.NewJWTMiddleware(cfg, jwt))
+	e.GET("/api/status", statusHandler.GetStatus)
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 	e.GET("/swagger/*any", swagger.WrapHandler)
 
