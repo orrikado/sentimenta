@@ -149,10 +149,8 @@
 	$effect(() => {
 		if (emotions.length > parseInt(env.PUBLIC_MOOD_EMOTES_LENGTH_MAX || '120')) {
 			formError = m.emotions_too_long();
-			return false;
 		} else if (diary.length > parseInt(env.PUBLIC_MOOD_DESC_LENGTH_MAX || '320')) {
 			formError = m.diary_too_long();
-			return false;
 		} else {
 			formError = null;
 		}
