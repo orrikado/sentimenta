@@ -7,6 +7,15 @@
 	let modalContent = $state<HTMLElement | null>(null);
 	let sideContentEl = $state<HTMLElement | null>(null);
 	let firstFocusableElement = $state<HTMLElement | null>(null);
+	let modalContainer = $state<HTMLElement | null>(null);
+
+	$effect(() => {
+		if (animate_width && modalContainer) {
+			setTimeout(() => {
+				modalContainer!.scrollTop = modalContainer!.scrollHeight;
+			}, 50);
+		}
+	});
 
 	function trapFocus(e: KeyboardEvent) {
 		if (!modalContent) return;
@@ -59,13 +68,14 @@
 
 {#if showModal}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+		class="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black/30"
 		onclick={() => (showModal = false)}
 		role="dialog"
 		tabindex="0"
 		aria-modal="true"
 		aria-labelledby="modal-title"
 		onkeydown={handleEscape}
+		bind:this={modalContainer}
 	>
 		<dialog
 			open
@@ -91,14 +101,14 @@
 
 			<hr class="my-2 border-white/10" />
 
-			<div class="flex flex-row">
+			<div class="flex flex-col sm:flex-row">
 				<div bind:this={modalContent} class="flex-1">
 					{@render children?.()}
 				</div>
 
 				<!-- Vertical Divider -->
 				{#if sideContentEl?.innerText}
-					<div class="mix-h-full mx-4 border-l border-white/10" aria-hidden="true"></div>
+					<div class="mix-h-full mx-4 border-l border-white/10 sm:block" aria-hidden="true"></div>
 				{/if}
 
 				<div bind:this={sideContentEl} class:hidden={!sideContentEl?.innerText} class="flex-1">

@@ -692,9 +692,9 @@
 
 	{#snippet sideContent()}
 		{#if adviceMap.has(getDateKey(selectedDate))}
-			<div class="justify-center text-center">
+			<div class="justify-center text-left">
 				<h3 class="text-lg font-bold">{m.advice()}</h3>
-				<p><i>{adviceMap.get(getDateKey(selectedDate))?.text}</i></p>
+				<p class="text-lg"><i>{adviceMap.get(getDateKey(selectedDate))?.text}</i></p>
 			</div>
 		{/if}
 	{/snippet}
