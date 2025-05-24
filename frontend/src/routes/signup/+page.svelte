@@ -19,6 +19,27 @@
 
 	let registrationDisabled = env.PUBLIC_REGISTRATION_ENABLED !== 'true';
 
+	$effect(() => {
+		if (registrationDisabled) {
+			formError = '';
+			return;
+		}
+		if (canSubmit()) {
+			formError = '';
+			return;
+		}
+		if (!email || !password || !username) {
+			formError = '';
+			return;
+		}
+
+		if (!email_regex.test(email)) {
+			formError = m.invalid_email_error();
+		} else if (password.length < parseInt(env.PUBLIC_PASSWORD_LENGTH_MIN || '8')) {
+			formError = m.password_too_short_error();
+		}
+	});
+
 	const canSubmit = $derived(() => {
 		if (!email || !password || !username) return false;
 		if (hasSpace(password)) return false;

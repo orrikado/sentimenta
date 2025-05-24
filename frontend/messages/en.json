@@ -150,5 +150,6 @@
 	"emotions_too_long": "emotions are too long",
 	"diary_too_long": "diary is too long",
 	"already_have_account": "already have an account?",
-	"dont_have_account": "don't have an account?"
+	"dont_have_account": "don't have an account?",
+	"password_too_short_error": "your password is too short"
 }

@@ -150,5 +150,6 @@
 	"emotions_too_long": "эмоции слишком длинные",
 	"diary_too_long": "заметка слишком длинная",
 	"already_have_account": "уже есть аккаунт?",
-	"dont_have_account": "нет аккаунта?"
+	"dont_have_account": "нет аккаунта?",
+	"password_too_short_error": "ваш пароль слишком короткий"
 }
