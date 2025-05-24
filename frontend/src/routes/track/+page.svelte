@@ -44,6 +44,8 @@
 	let submitInProcess = $state(false);
 	let loading = $state(true);
 
+	let is_put = $state(false);
+
 	let mood = $state<number>(0);
 	let emotions = $state('');
 	const fullEmotionPool = [
@@ -714,32 +716,11 @@
 			let nextDay = new Date(selectedDate);
 			nextDay.setDate(nextDay.getDate() + 1); // workaround because js is stupid
 
-			if ($user?.use_ai === true) {
-				socket = new WebSocket('wss://' + window.location.host + '/ws');
-
-				socket.addEventListener('message', (event) => {
-					console.log('Received:', event.data);
-					let newAdvice = JSON.parse(event.data);
-					newAdvice.date = new Date(newAdvice.date).getTime() - 1 * 24 * 60 * 60 * 1000;
-					newAdvice.generated_by_websocket = true;
-					advice.set([...$advice, newAdvice]);
-
-					// Force modal to re-render if open
-					if (showModal && getDateKey(selectedDate) === getDateKey(newAdvice.date)) {
-						animate_width = true;
-						showModal = false;
-						setTimeout(() => (showModal = true), 0);
-						setTimeout(() => (animate_width = false), 350);
-					}
-					submitInProcess = false;
-					socket.close();
-				});
-			}
-
 			if (moodMap.has(getDateKey(selectedDate))) {
 				if (moodMap.get(getDateKey(selectedDate))?.uid == undefined) {
 					await updateMoods();
 				}
+				is_put = true;
 				let result = await fetch('/api/moods/update', {
 					method: 'PUT',
 					headers: {
@@ -776,6 +757,30 @@
 					updateDimensions();
 				}
 			} else {
+
+				is_put = false;
+			if ($user?.use_ai === true) {
+				socket = new WebSocket('wss://' + window.location.host + '/ws');
+
+				socket.addEventListener('message', (event) => {
+					console.log('Received:', event.data);
+					let newAdvice = JSON.parse(event.data);
+					newAdvice.date = new Date(newAdvice.date).getTime() - 1 * 24 * 60 * 60 * 1000;
+					newAdvice.generated_by_websocket = true;
+					advice.set([...$advice, newAdvice]);
+
+					// Force modal to re-render if open
+					if (showModal && getDateKey(selectedDate) === getDateKey(newAdvice.date)) {
+						animate_width = true;
+						showModal = false;
+						setTimeout(() => (showModal = true), 0);
+						setTimeout(() => (animate_width = false), 350);
+					}
+					submitInProcess = false;
+					socket.close();
+				});
+			}
+
 				let result = await fetch('/api/moods/add', {
 					method: 'POST',
 					headers: {
@@ -807,7 +812,7 @@
 					formSuccess = true;
 				}
 			}
-			if ($user?.use_ai !== true) {
+			if ($user?.use_ai !== true || is_put) {
 				submitInProcess = false;
 			}
 		}}
@@ -921,7 +926,7 @@
 				<p class="text-sm text-red-500 dark:text-red-400">{formError}</p>
 			{/if}
 			{#if formSuccess}
-				{#if $user?.use_ai === true}
+				{#if $user?.use_ai === true && !is_put}
 					<p class="text-sm text-green-500 dark:text-green-400">{m.advice_generating()}</p>
 				{:else}
 					<p class="text-sm text-green-500 dark:text-green-400">{m.mood_upload_success()}</p>
