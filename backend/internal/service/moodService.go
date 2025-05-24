@@ -52,9 +52,6 @@ func (s *moodService) CreateMood(userID string, score int16, emotions, descripti
 		dateYesterdayStr := time.Now().AddDate(0, 0, -1).In(loc).Format("2006-01-02")
 
 		if dateStr == dateNowStr || dateStr == dateYesterdayStr {
-			if err := s.userRepo.UpdateUser(uidInt, map[string]interface{}{"is_active": true}); err != nil {
-				return m.Mood{}, err
-			}
 			go func() {
 				advice, err := s.adviceServ.GenerateAdvice(uidInt, date)
 				if err != nil {
