@@ -135,6 +135,36 @@
 		return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 	};
 
+	function isToday(date: {
+		getDate: () => number;
+		getMonth: () => number;
+		getFullYear: () => number;
+	}) {
+		const now = new Date();
+		return (
+			date.getDate() === now.getDate() &&
+			date.getMonth() === now.getMonth() &&
+			date.getFullYear() === now.getFullYear()
+		);
+	}
+
+	function isYesterday(date: {
+		getDate: () => number;
+		getMonth: () => number;
+		getFullYear: () => number;
+	}) {
+		if (!(date instanceof Date)) {
+			throw new Error('Invalid argument: you must provide a "date" instance');
+		}
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+		return (
+			date.getDate() === yesterday.getDate() &&
+			date.getMonth() === yesterday.getMonth() &&
+			date.getFullYear() === yesterday.getFullYear()
+		);
+	}
+
 	let moodMap = $derived(new Map($moods.map((m) => [getDateKey(m.date), m])));
 	let adviceMap = $derived(new Map($advice.map((a) => [getDateKey(a.date), a])));
 	const canSubmit = $derived(() => {
@@ -757,29 +787,29 @@
 					updateDimensions();
 				}
 			} else {
-
 				is_put = false;
-			if ($user?.use_ai === true) {
-				socket = new WebSocket('wss://' + window.location.host + '/ws');
+				if ($user?.use_ai === true && (isToday(selectedDate) || isYesterday(selectedDate))) {
+					const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+					socket = new WebSocket(wsProtocol + window.location.host + '/ws');
 
-				socket.addEventListener('message', (event) => {
-					console.log('Received:', event.data);
-					let newAdvice = JSON.parse(event.data);
-					newAdvice.date = new Date(newAdvice.date).getTime() - 1 * 24 * 60 * 60 * 1000;
-					newAdvice.generated_by_websocket = true;
-					advice.set([...$advice, newAdvice]);
+					socket.addEventListener('message', (event) => {
+						console.log('Received:', event.data);
+						let newAdvice = JSON.parse(event.data);
+						newAdvice.date = new Date(newAdvice.date).getTime() - 1 * 24 * 60 * 60 * 1000;
+						newAdvice.generated_by_websocket = true;
+						advice.set([...$advice, newAdvice]);
 
-					// Force modal to re-render if open
-					if (showModal && getDateKey(selectedDate) === getDateKey(newAdvice.date)) {
-						animate_width = true;
-						showModal = false;
-						setTimeout(() => (showModal = true), 0);
-						setTimeout(() => (animate_width = false), 350);
-					}
-					submitInProcess = false;
-					socket.close();
-				});
-			}
+						// Force modal to re-render if open
+						if (showModal && getDateKey(selectedDate) === getDateKey(newAdvice.date)) {
+							animate_width = true;
+							showModal = false;
+							setTimeout(() => (showModal = true), 0);
+							setTimeout(() => (animate_width = false), 350);
+						}
+						submitInProcess = false;
+						socket.close();
+					});
+				}
 
 				let result = await fetch('/api/moods/add', {
 					method: 'POST',
@@ -812,7 +842,11 @@
 					formSuccess = true;
 				}
 			}
-			if ($user?.use_ai !== true || is_put) {
+			if (
+				$user?.use_ai !== true ||
+				is_put ||
+				!(isToday(selectedDate) || isYesterday(selectedDate))
+			) {
 				submitInProcess = false;
 			}
 		}}
@@ -926,7 +960,7 @@
 				<p class="text-sm text-red-500 dark:text-red-400">{formError}</p>
 			{/if}
 			{#if formSuccess}
-				{#if $user?.use_ai === true && !is_put}
+				{#if $user?.use_ai === true && !is_put && (isToday(selectedDate) || isYesterday(selectedDate))}
 					<p class="text-sm text-green-500 dark:text-green-400">{m.advice_generating()}</p>
 				{:else}
 					<p class="text-sm text-green-500 dark:text-green-400">{m.mood_upload_success()}</p>
