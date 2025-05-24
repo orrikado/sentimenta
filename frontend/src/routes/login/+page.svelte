@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { m } from '$lib/paraglide/messages';
 	import { userId } from '$lib/stores/user';
-	import { refreshUserId } from '$lib/user';
+	import { refreshUserId, setCookie } from '$lib/user';
 	import { onMount } from 'svelte';
 
 	import GoogleLoginButton from '$lib/components/GoogleLoginButton.svelte';
@@ -81,6 +81,10 @@
 				return;
 			}
 
+			const data = await response.json();
+			if (data.token) {
+				setCookie('access_token', data.token, 30);
+			}
 			submitInProcess = false;
 			refreshUserId();
 			goto('/track');

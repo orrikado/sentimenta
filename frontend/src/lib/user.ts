@@ -14,6 +14,20 @@ function getCookie(name: string) {
 	return match ? match[2] : null;
 }
 
+export function setCookie(
+	name: string | number | boolean,
+	value: string | number | boolean,
+	daysToExpire: number
+) {
+	let expires = '';
+	if (daysToExpire) {
+		const date = new Date();
+		date.setTime(date.getTime() + daysToExpire * 24 * 60 * 60 * 1000);
+		expires = `expires=${date.toUTCString()};`;
+	}
+	document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; ${expires}path=/; secure; samesite=strict`;
+}
+
 export function logout() {
 	deleteCookie('access_token');
 	userId.set(undefined);

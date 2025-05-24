@@ -4,7 +4,7 @@
 	import GoogleLoginButton from '$lib/components/GoogleLoginButton.svelte';
 	import { m } from '$lib/paraglide/messages';
 	import { userId } from '$lib/stores/user';
-	import { refreshUserId } from '$lib/user';
+	import { refreshUserId, setCookie } from '$lib/user';
 	import { onMount } from 'svelte';
 	import { env } from '$env/dynamic/public';
 
@@ -93,6 +93,10 @@
 				return;
 			}
 
+			const data = await response.json();
+			if (data.token) {
+				setCookie('access_token', data.token, 30);
+			}
 			submitInProcess = false;
 			refreshUserId();
 			localStorage.setItem('justRegistered', 'true');

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { refreshUser, refreshUserId } from '$lib/user';
+	import { refreshUser, refreshUserId, setCookie } from '$lib/user';
 	import { onMount } from 'svelte';
 
 	onMount(async () => {
@@ -42,6 +42,11 @@
 				// Clear PKCE and state
 				sessionStorage.removeItem('google_code_verifier');
 				sessionStorage.removeItem('google_state');
+
+				const data = await response.json();
+				if (data.token) {
+					setCookie('access_token', data.token, 30);
+				}
 
 				// Redirect user to dashboard
 				refreshUserId();
