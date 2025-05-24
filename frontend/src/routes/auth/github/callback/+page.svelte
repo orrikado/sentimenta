@@ -48,7 +48,8 @@
 
 				refreshUserId();
 				refreshUser();
-				if ((await response.json()).justRegistered) {
+				if (data.just_registered) {
+					console.log('justRegistered');
 					localStorage.setItem('justRegistered', 'true');
 				}
 				goto('/track');

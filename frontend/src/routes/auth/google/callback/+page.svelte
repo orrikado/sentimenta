@@ -51,8 +51,9 @@
 				// Redirect user to dashboard
 				refreshUserId();
 				refreshUser();
-				if ((await response.json()).justRegistered) {
+				if (data.just_registered) {
 					localStorage.setItem('justRegistered', 'true');
+					console.log('justRegistered');
 				}
 				goto('/track');
 			} else {
