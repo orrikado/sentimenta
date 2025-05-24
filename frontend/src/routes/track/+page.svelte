@@ -715,7 +715,7 @@
 			nextDay.setDate(nextDay.getDate() + 1); // workaround because js is stupid
 
 			if ($user?.use_ai === true) {
-				socket = new WebSocket('ws://' + window.location.host + '/ws');
+				socket = new WebSocket('wss://' + window.location.host + '/ws');
 
 				socket.addEventListener('message', (event) => {
 					console.log('Received:', event.data);
