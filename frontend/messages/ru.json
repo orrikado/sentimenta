@@ -151,5 +151,6 @@
 	"diary_too_long": "заметка слишком длинная",
 	"already_have_account": "уже есть аккаунт?",
 	"dont_have_account": "нет аккаунта?",
-	"password_too_short_error": "ваш пароль слишком короткий"
+	"password_too_short_error": "ваш пароль слишком короткий",
+	"username_spaces_error": "Ваше имя пользователя не может содержать пробелов"
 }

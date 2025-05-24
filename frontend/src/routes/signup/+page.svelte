@@ -33,10 +33,15 @@
 			return;
 		}
 
-		if (!email_regex.test(email)) {
+		if (hasSpace(username)) {
+			formError = m.username_spaces_error();
+			return;
+		} else if (!email_regex.test(email)) {
 			formError = m.invalid_email_error();
+			return;
 		} else if (password.length < parseInt(env.PUBLIC_PASSWORD_LENGTH_MIN || '8')) {
 			formError = m.password_too_short_error();
+			return;
 		}
 	});
 
