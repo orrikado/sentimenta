@@ -89,10 +89,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Email"
-                            }
+                            "$ref": "#/definitions/models.TokenResponse"
                         }
                     },
                     "400": {
@@ -138,7 +135,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.TokenResponse"
                         }
                     },
                     "400": {
@@ -184,7 +181,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.TokenResponse"
                         }
                     },
                     "400": {
@@ -236,7 +233,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.TokenResponse"
                         }
                     },
                     "400": {
@@ -586,23 +583,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Email": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "primary": {
-                    "type": "boolean"
-                },
-                "verified": {
-                    "type": "boolean"
-                },
-                "visibility": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Mood": {
             "type": "object",
             "properties": {
@@ -666,6 +646,14 @@ const docTemplate = `{
                 }
             }
         },
+        "models.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "models.User": {
             "type": "object",
             "properties": {
@@ -674,9 +662,6 @@ const docTemplate = `{
                 },
                 "email": {
                     "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
                 },
                 "moods": {
                     "type": "array",

@@ -25,17 +25,6 @@ definitions:
       user_id:
         type: integer
     type: object
-  models.Email:
-    properties:
-      email:
-        type: string
-      primary:
-        type: boolean
-      verified:
-        type: boolean
-      visibility:
-        type: string
-    type: object
   models.Mood:
     properties:
       created_at:
@@ -77,14 +66,17 @@ definitions:
       uid:
         type: integer
     type: object
+  models.TokenResponse:
+    properties:
+      token:
+        type: string
+    type: object
   models.User:
     properties:
       created_at:
         type: string
       email:
         type: string
-      is_active:
-        type: boolean
       moods:
         items:
           $ref: '#/definitions/models.Mood'
@@ -209,9 +201,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Email'
-            type: array
+            $ref: '#/definitions/models.TokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -241,7 +231,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.TokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -271,7 +261,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.TokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -305,7 +295,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/models.TokenResponse'
         "400":
           description: Bad Request
           schema:

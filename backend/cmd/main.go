@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"sentimenta/internal/auth"
 	"sentimenta/internal/config"
 	"sentimenta/internal/db"
@@ -66,7 +67,12 @@ func main() {
 	statusHandler := handlers.NewStatusHandler()
 
 	e := echo.New()
-	e.Use(middleware.CORS())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"https://sentimenta.vavakado.xyz"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodPut, http.MethodDelete},
+		AllowHeaders:     []string{"*"},
+		AllowCredentials: true,
+	}))
 	e.Use(middleware.Logger())
 	e.Use(prometheusController.Middleware())
 

@@ -39,7 +39,7 @@ type OAuthCallbackRequest struct {
 // @Accept			json
 // @Produce		json
 // @Param			input	body		models.UserRegister	true	"credentials"
-// @Success		200		{object}	models.User
+// @Success		200		{object}	m.TokenResponse
 // @Failure		400		{object}	errorResponse
 // @Failure		404		{object}	errorResponse
 // @Failure		500		{object}	errorResponse
@@ -79,8 +79,10 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		Path:     "/",
 	}
 
+	jwtResp := m.TokenResponse{Token: jwtToken}
+
 	c.SetCookie(&jwt_cookie)
-	return c.JSON(http.StatusCreated, result)
+	return c.JSON(http.StatusOK, jwtResp)
 }
 
 // @Summary		Login
@@ -89,7 +91,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 // @Accept			json
 // @Produce		json
 // @Param			input	body		m.UserLogin	true	"credentials"
-// @Success		200		{object}	m.User
+// @Success		200		{object}	m.TokenResponse
 // @Failure		401		{object}	errorResponse
 // @Failure		400		{object}	errorResponse
 // @Failure		500		{object}	errorResponse
@@ -119,8 +121,10 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		Path:     "/",
 	}
 
+	jwtResp := m.TokenResponse{Token: jwtToken}
+
 	c.SetCookie(&jwt_cookie)
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, jwtResp)
 }
 
 // @Summary		Google
@@ -129,7 +133,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 // @Accept			json
 // @Produce		json
 // @Param			input	body		OAuthCallbackRequest	true	"OAuth Codes & Timezone"
-// @Success		200		{object}	m.User
+// @Success		200		{object}	m.TokenResponse
 // @Failure		400		{object}	errorResponse
 // @Failure		500		{object}	errorResponse
 // @Router			/api/auth/google/callback [post]
@@ -204,8 +208,10 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 		Path:     "/",
 	}
 
+	jwtResp := m.TokenResponse{Token: jwtToken}
+
 	c.SetCookie(&jwt_cookie)
-	return c.JSON(http.StatusOK, userInfo)
+	return c.JSON(http.StatusOK, jwtResp)
 }
 
 // @Summary		Github
@@ -214,7 +220,7 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 // @Accept			json
 // @Produce		json
 // @Param			input	body		OAuthCallbackRequest	true	"OAuth Codes & Timezone"
-// @Success		200		{object}	m.EmailList
+// @Success		200		{object}	m.TokenResponse
 // @Failure		400		{object}	errorResponse
 // @Failure		500		{object}	errorResponse
 // @Router			/api/auth/github/callback [post]
@@ -301,8 +307,10 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 		Path:     "/",
 	}
 
+	jwtResp := m.TokenResponse{Token: jwtToken}
+
 	c.SetCookie(&jwt_cookie)
-	return c.JSON(http.StatusOK, emailInfo)
+	return c.JSON(http.StatusOK, jwtResp)
 }
 
 func NewAuthHandler(s service.UserService, cfg *c.Config, logger *zap.SugaredLogger, oauthConfig *auth.OAuth, JWT *security.JWT, resp *Responser) *AuthHandler {

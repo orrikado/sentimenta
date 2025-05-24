@@ -48,3 +48,7 @@ type UserChangePass struct {
 	Password    string `json:"password"`
 	NewPassword string `json:"new_password"`
 }
+
+type TokenResponse struct {
+	Token string `json:"token"`
+}
