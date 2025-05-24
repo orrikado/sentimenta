@@ -160,6 +160,9 @@
 			<GoogleLoginButton />
 			<GithubLoginButton />
 		</div>
+		<a href="/signup" class="text-center text-sm text-gray-500 underline dark:text-gray-400">
+			{m.dont_have_account()}
+		</a>
 		<span class="text-sm text-gray-500 dark:text-gray-400">
 			{m.privacy_policy_notice()}
 			<a href="/privacy" class="text-center underline">{m.privacyPolicy_title()}</a>
