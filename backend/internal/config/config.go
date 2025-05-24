@@ -118,7 +118,7 @@ A brief and supportive piece of advice, mainly based on last_mood, in the same l
 		POSTGRES_PASSWORD: os.Getenv("POSTGRES_PASSWORD"),
 		POSTGRES_DB:       os.Getenv("POSTGRES_DB"),
 
-		JWT_COOKIE_NAME: os.Getenv("JWT_COOKIE_NAME"),
+		JWT_COOKIE_NAME: "access_token",
 		JWT_SECRET:      os.Getenv("JWT_SECRET"),
 
 		GOOGLE_CLIENT_ID:       os.Getenv("PUBLIC_GOOGLE_CLIENT_ID"),
