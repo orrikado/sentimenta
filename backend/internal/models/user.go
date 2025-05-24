@@ -50,5 +50,6 @@ type UserChangePass struct {
 }
 
 type TokenResponse struct {
-	Token string `json:"token"`
+	Token          string `json:"token"`
+	JustRegistered *bool  `json:"just_registered"`
 }

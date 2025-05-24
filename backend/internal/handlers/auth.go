@@ -180,10 +180,16 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 
 	user, err := h.service.CreateUser(name, email, nil, req.Timezone)
 
+	b := true
+	jwtResp := m.TokenResponse{
+		JustRegistered: &b,
+	}
+
 	if err != nil {
 		if err == errs.ErrUserAlreadyExists {
 			h.logger.Infof("Не удалось создать пользователя: %v", err)
-			userInfo["just_registered"] = false
+			a := false
+			jwtResp.JustRegistered = &a
 		} else {
 			h.logger.Errorf("Не удалось создать пользователя: %v", err)
 			return h.resp.newErrorResponse(c, http.StatusInternalServerError, "Failed to create user")
@@ -208,8 +214,7 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 		Path:     "/",
 	}
 
-	jwtResp := m.TokenResponse{Token: jwtToken}
-
+	jwtResp.Token = jwtToken
 	c.SetCookie(&jwt_cookie)
 	return c.JSON(http.StatusOK, jwtResp)
 }
@@ -277,13 +282,18 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 		}
 	}
 
+	b := true
+	jwtResp := m.TokenResponse{
+		JustRegistered: &b,
+	}
+
 	user, err := h.service.CreateUser(name, email, nil, req.Timezone)
 
 	if err != nil {
 		if err == errs.ErrUserAlreadyExists {
 			h.logger.Infof("Не удалось создать пользователя: %v", err)
-			truePtr := true
-			emailInfo.JustRegistered = &truePtr
+			a := false
+			emailInfo.JustRegistered = &a
 		} else {
 			return h.resp.newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		}
@@ -307,8 +317,7 @@ func (h *AuthHandler) GithubAuthCallback(c echo.Context) error {
 		Path:     "/",
 	}
 
-	jwtResp := m.TokenResponse{Token: jwtToken}
-
+	jwtResp.Token = jwtToken
 	c.SetCookie(&jwt_cookie)
 	return c.JSON(http.StatusOK, jwtResp)
 }
