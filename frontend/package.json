@@ -38,7 +38,7 @@
 		"vite": "^6.3.5"
 	},
 	"dependencies": {
-		"@inlang/paraglide-js": "^2.0.12",
+		"@inlang/paraglide-js": "^2.0.13",
 		"d3": "^7.9.0",
 		"jwt-decode": "^4.0.0"
 	},
