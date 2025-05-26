@@ -68,7 +68,7 @@ func main() {
 
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"https://sentimenta.vavakado.xyz"},
+		AllowOrigins:     cfg.ALLOWED_ORIGINS,
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodPut, http.MethodDelete},
 		AllowHeaders:     []string{"*"},
 		AllowCredentials: true,

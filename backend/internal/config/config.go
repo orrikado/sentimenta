@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -29,6 +30,7 @@ type Config struct {
 	SYSTEM_PROMPT string
 	AI_API_KEY    string
 	AI_ENABLED    bool
+	AI_MODEL      string
 
 	PASSWORD_LENGTH_MIN    int
 	MOOD_DESC_LENGTH_MAX   int
@@ -38,6 +40,8 @@ type Config struct {
 	JWT_SECURE    bool
 
 	REGISTRATION_ENABLED bool
+
+	ALLOWED_ORIGINS []string
 }
 
 func NewConfig() *Config {
@@ -132,6 +136,7 @@ A brief and supportive piece of advice, mainly based on last_mood, in the same l
 		SYSTEM_PROMPT: systemPrompt,
 		AI_API_KEY:    os.Getenv("AI_API_KEY"),
 		AI_ENABLED:    os.Getenv("PUBLIC_AI_ENABLED") == "true",
+		AI_MODEL:      os.Getenv("AI_MODEL"),
 
 		PASSWORD_LENGTH_MIN:    passwordLenMin,
 		MOOD_DESC_LENGTH_MAX:   moodDescLenMax,
@@ -141,6 +146,8 @@ A brief and supportive piece of advice, mainly based on last_mood, in the same l
 		JWT_SECURE:    false,
 
 		REGISTRATION_ENABLED: os.Getenv("PUBLIC_REGISTRATION_ENABLED") == "true",
+
+		ALLOWED_ORIGINS: strings.Split(os.Getenv("ALLOWED_ORIGINS"), ","),
 	}
 }
 

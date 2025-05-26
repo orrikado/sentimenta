@@ -4,7 +4,11 @@ POSTGRES_USER=sentimenta
 POSTGRES_DB=sentimenta
 POSTGRES_PASSWORD=sentimenta
 
-JWT_SECRET=secret # generate https://jwtsecret.com/generate or use `openssl rand -hex 256`
+# for CORS (comma-separated, include http:// or https://)
+ALLOWED_ORIGINS=
+
+# generate https://jwtsecret.com/generate or use `openssl rand -hex 256`
+JWT_SECRET=secret
 
 PUBLIC_GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
@@ -17,7 +21,10 @@ GITHUB_CLIENT_CALLBACK=http://api_host/auth/github/callback
 GRAFANA_USER=admin
 GRAFANA_PASSWORD=admin
 
-AI_API_KEY= # openrouter api key
+# From openrouter
+AI_API_KEY=
+AI_MODEL=
+
 PUBLIC_AI_ENABLED=true
 
 PUBLIC_PASSWORD_LENGTH_MIN=8

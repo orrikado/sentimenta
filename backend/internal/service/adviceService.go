@@ -100,7 +100,7 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advic
 	}
 
 	reqBody := utils.OpenRouterRequest{
-		Model: "google/gemma-3-27b-it:free",
+		Model: s.config.AI_MODEL,
 		Messages: []utils.OpenRouterMessage{
 			{
 				Role:    "system",
