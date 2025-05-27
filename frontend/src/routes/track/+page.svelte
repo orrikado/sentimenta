@@ -6,48 +6,57 @@
 	import { m } from '$lib/paraglide/messages';
 	import { user, userId } from '$lib/stores/user';
 	import Modal from '$lib/components/Modal.svelte';
+	import RegistrationModal from '$lib/components/RegistrationModal.svelte';
 	import * as d3 from 'd3';
 	import { browser } from '$app/environment';
 	import { moods } from '$lib/stores/moods';
 	import { updateMoods, type MoodEntry } from '$lib/moods';
 	import { advice } from '$lib/stores/advice';
 	import { updateAdvice } from '$lib/advice';
-	import RegistrationModal from '$lib/components/RegistrationModal.svelte';
 	import { refreshUser } from '$lib/user';
 	import { server_status } from '$lib/stores/server_status';
 	import { refreshServerStatus } from '$lib/status';
 	import { env } from '$env/dynamic/public';
 
-	// State variables
+	// State management
 	let today = new Date();
 	let currentMonth = $state(today.getMonth());
 	let currentYear = $state(today.getFullYear());
 	let animate_width = $state(false);
-
-	// State for first day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
 	let firstDayOfWeek = $state(1);
-	if (browser) {
-		firstDayOfWeek = parseInt(localStorage.getItem('firstDayOfWeek') || '1');
-	}
-
 	let dayHeaders = $state<string[]>([]);
-
-	// Rebuild headers whenever firstDayOfWeek or locale messages change
-	$effect(() => {
-		const allDays = [m.sun(), m.mon(), m.tue(), m.wed(), m.thu(), m.fri(), m.sat()];
-		dayHeaders = [...allDays.slice(firstDayOfWeek), ...allDays.slice(0, firstDayOfWeek)];
-	});
-
 	let days: Date[] = $derived(getMonthDays(currentYear, currentMonth, firstDayOfWeek));
 	let showModal = $state(false);
 	let selectedDate: Date = $state(new Date());
 	let submitInProcess = $state(false);
 	let loading = $state(true);
-
 	let is_put = $state(false);
-
 	let mood = $state<number>(0);
 	let emotions = $state('');
+	let diary = $state('');
+	let formError = $state<string | null>(null);
+	let formSuccess = $state<boolean>(false);
+	let notificationMessage = $state('');
+	let showRegistationModal = $state(false);
+	let socket: WebSocket;
+
+	// Derived values
+	const getDateKey = (dateInput: string | number | Date) => {
+		const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+		return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+	};
+
+	const canSubmit = $derived(() => {
+		const future = new Date(selectedDate) > today;
+		if (emotions.length > parseInt(env.PUBLIC_MOOD_EMOTES_LENGTH_MAX || '120')) {
+			return false;
+		}
+		if (diary.length > parseInt(env.PUBLIC_MOOD_DESC_LENGTH_MAX || '320')) {
+			return false;
+		}
+		return !!(mood !== 0 && emotions.trim() && !future);
+	});
+
 	const fullEmotionPool = [
 		m.emotion_joy(),
 		m.emotion_sadness(),
@@ -89,104 +98,8 @@
 		m.emotion_motivation()
 	]);
 
-	function refreshEmotions() {
-		// Get emotions NOT already selected
-		const selected = getEmotionsArray();
-		const available = fullEmotionPool.filter(
-			(e) => !selected.some((sel) => sel.toLowerCase() === e.toLowerCase())
-		);
-
-		// Shuffle and pick 8 random ones
-		const shuffled = [...available].sort(() => 0.5 - Math.random());
-		emotionSubset = shuffled.slice(0, 7);
-	}
-
-	// Get current emotions as an array (trimmed, original case)
-	function getEmotionsArray(): string[] {
-		return emotions
-			.split(',')
-			.map((e) => e.trim())
-			.filter((e) => e !== '');
-	}
-
-	// Check if an emotion exists (case-insensitive)
-	function isSelected(emotion: string): boolean {
-		const lowerEmotions = getEmotionsArray().map((e) => e.toLowerCase());
-		return lowerEmotions.includes(emotion.toLowerCase());
-	}
-
-	// Add emotion to the input field if not already present
-	function addEmotion(emotion: string): void {
-		const current = getEmotionsArray();
-		const lowerCurrent = current.map((e) => e.toLowerCase());
-		if (!lowerCurrent.includes(emotion.toLowerCase())) {
-			emotions = [...current, emotion].join(',');
-		}
-	}
-
-	let diary = $state('');
-	let formError = $state<string | null>(null);
-	let formSuccess = $state<boolean>(false);
-	let notificationMessage = $state('');
-
-	// Derived values
-	const getDateKey = (dateInput: string | number | Date) => {
-		const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
-		return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-	};
-
-	function isToday(date: {
-		getDate: () => number;
-		getMonth: () => number;
-		getFullYear: () => number;
-	}) {
-		const now = new Date();
-		return (
-			date.getDate() === now.getDate() &&
-			date.getMonth() === now.getMonth() &&
-			date.getFullYear() === now.getFullYear()
-		);
-	}
-
-	function isYesterday(date: {
-		getDate: () => number;
-		getMonth: () => number;
-		getFullYear: () => number;
-	}) {
-		if (!(date instanceof Date)) {
-			throw new Error('Invalid argument: you must provide a "date" instance');
-		}
-		const yesterday = new Date();
-		yesterday.setDate(yesterday.getDate() - 1);
-		return (
-			date.getDate() === yesterday.getDate() &&
-			date.getMonth() === yesterday.getMonth() &&
-			date.getFullYear() === yesterday.getFullYear()
-		);
-	}
-
 	let moodMap = $derived(new Map($moods.map((m) => [getDateKey(m.date), m])));
 	let adviceMap = $derived(new Map($advice.map((a) => [getDateKey(a.date), a])));
-	const canSubmit = $derived(() => {
-		const future = new Date(selectedDate) > today;
-		// Ensure the selected date is today or in the past
-		if (emotions.length > parseInt(env.PUBLIC_MOOD_EMOTES_LENGTH_MAX || '120')) {
-			return false;
-		}
-		if (diary.length > parseInt(env.PUBLIC_MOOD_DESC_LENGTH_MAX || '320')) {
-			return false;
-		}
-		return !!(mood !== 0 && emotions.trim() && !future);
-	});
-	$effect(() => {
-		if (emotions.length > parseInt(env.PUBLIC_MOOD_EMOTES_LENGTH_MAX || '120')) {
-			formError = m.emotions_too_long();
-		} else if (diary.length > parseInt(env.PUBLIC_MOOD_DESC_LENGTH_MAX || '320')) {
-			formError = m.diary_too_long();
-		} else {
-			formError = null;
-		}
-	});
 
 	let filteredMoods = $derived(
 		$moods
@@ -198,10 +111,30 @@
 
 	// Effects
 	$effect(() => {
+		if (browser) {
+			firstDayOfWeek = parseInt(localStorage.getItem('firstDayOfWeek') || '1');
+		}
+	});
+
+	$effect(() => {
+		const allDays = [m.sun(), m.mon(), m.tue(), m.wed(), m.thu(), m.fri(), m.sat()];
+		dayHeaders = [...allDays.slice(firstDayOfWeek), ...allDays.slice(0, firstDayOfWeek)];
+	});
+
+	$effect(() => {
+		if (emotions.length > parseInt(env.PUBLIC_MOOD_EMOTES_LENGTH_MAX || '120')) {
+			formError = m.emotions_too_long();
+		} else if (diary.length > parseInt(env.PUBLIC_MOOD_DESC_LENGTH_MAX || '320')) {
+			formError = m.diary_too_long();
+		} else {
+			formError = null;
+		}
+	});
+
+	$effect(() => {
 		if (showModal && !submitInProcess) {
 			formSuccess = false;
 			formError = null;
-
 			if (moodMap.has(getDateKey(selectedDate))) {
 				const entry = moodMap.get(getDateKey(selectedDate));
 				mood = entry?.score || 0;
@@ -227,16 +160,31 @@
 		}
 	});
 
+	// Dimensions and responsive handling
 	let dimensions = $state({
 		width: 600,
 		height: 200,
 		margin: { top: 20, right: 30, bottom: 40, left: 50 }
 	});
 
+	function updateDimensions() {
+		const svgContainer = document.getElementById('mood-chart')?.parentElement;
+		if (svgContainer) {
+			const containerWidth = svgContainer.clientWidth;
+			if (containerWidth < 640) {
+				dimensions.margin = { top: 20 / 3, right: 30 / 3, bottom: 40 / 3, left: 50 / 3 };
+			} else {
+				dimensions.margin = { top: 20, right: 30, bottom: 40, left: 50 };
+			}
+			dimensions.width = Math.min(containerWidth * 0.9, 800);
+			dimensions.height = Math.min(containerWidth * 0.4, 250);
+		}
+	}
+
+	// Tooltip functions
 	function showTooltip(event: { pageX: number; pageY: number }, d: MoodEntry) {
 		const dateStr = d3.timeFormat('%B %d, %Y')(d.date);
 		const tooltip = d3.select('#tooltip');
-
 		tooltip.select('.date').text(dateStr);
 		tooltip.select('.score').text(d.score);
 
@@ -258,107 +206,124 @@
 			)
 			.text((e) => e);
 
-		// Show/hide diary section and separator based on description content
 		if (d.description && d.description.trim() !== '') {
 			tooltip.select('.description').text(d.description).style('display', 'block');
-			tooltip.select('.my-2').style('display', 'block'); // Separator
-			tooltip.select('.description-box').style('display', 'block'); // Diary section
+			tooltip.select('.my-2').style('display', 'block');
+			tooltip.select('.description-box').style('display', 'block');
 		} else {
 			tooltip.select('.description').style('display', 'none');
 			tooltip.select('.my-2').style('display', 'none');
 			tooltip.select('.description-box').style('display', 'none');
 		}
 
-		// Set position instantly
 		tooltip
 			.classed('hidden', false)
 			.style('left', `${event.pageX + 10}px`)
 			.style('top', `${event.pageY - 28}px`)
-			.style('opacity', 0); // Start invisible
+			.style('opacity', 0);
 
-		// Fade in (only opacity transition)
 		setTimeout(() => {
 			tooltip.style('opacity', 1);
-		}, 10); // Small delay to ensure DOM updates
+		}, 10);
 	}
 
 	function hideTooltip() {
 		const tooltip = d3.select('#tooltip');
-
 		tooltip.select('.emotions').html('');
-
-		// Fade out
 		tooltip.style('opacity', 0);
-
-		// Hide after fade
 		setTimeout(() => {
 			tooltip.classed('hidden', true);
-		}, 200); // Match duration-200
+		}, 200);
 	}
 
-	function updateDimensions() {
-		const svgContainer = document.getElementById('mood-chart')?.parentElement;
-		if (svgContainer) {
-			const containerWidth = svgContainer.clientWidth;
-			if (containerWidth < 640) {
-				dimensions.margin = { top: 20 / 3, right: 30 / 3, bottom: 40 / 3, left: 50 / 3 };
+	// Emotion handling
+	function refreshEmotions() {
+		const selected = getEmotionsArray();
+		const available = fullEmotionPool.filter(
+			(e) => !selected.some((sel) => sel.toLowerCase() === e.toLowerCase())
+		);
+		const shuffled = [...available].sort(() => 0.5 - Math.random());
+		emotionSubset = shuffled.slice(0, 7);
+	}
+
+	function getEmotionsArray(): string[] {
+		return emotions
+			.split(',')
+			.map((e) => e.trim())
+			.filter((e) => e !== '');
+	}
+
+	function isSelected(emotion: string): boolean {
+		const lowerEmotions = getEmotionsArray().map((e) => e.toLowerCase());
+		return lowerEmotions.includes(emotion.toLowerCase());
+	}
+
+	function addEmotion(emotion: string): void {
+		const current = getEmotionsArray();
+		const lowerCurrent = current.map((e) => e.toLowerCase());
+		if (!lowerCurrent.includes(emotion.toLowerCase())) {
+			emotions = [...current, emotion].join(',');
+		}
+	}
+
+	// Date helper functions
+	function getDayClass(date: Date | null, moods: Map<string, MoodEntry>) {
+		let classes = '';
+		if (date instanceof Date && !isNaN(date.getDate())) {
+			const dateKey = getDateKey(date);
+			const todayKey = getDateKey(new Date());
+
+			// Add base classes
+			classes +=
+				dateKey === todayKey
+					? 'dark:border-white border-black '
+					: 'border-black/10 dark:border-white/10 ';
+
+			// Add mood-specific background
+			if (moodMap.has(dateKey)) {
+				const score = moodMap.get(dateKey)?.score || 3; // Default to neutral
+				classes += `bg-mood-${score} `;
 			} else {
-				dimensions.margin = { top: 20, right: 30, bottom: 40, left: 50 };
+				classes += 'bg-stone-100 dark:bg-stone-800 ';
 			}
-			dimensions.width = Math.min(containerWidth * 0.9, 800); // Max width 800
-			dimensions.height = Math.min(containerWidth * 0.4, 250); // 1/3 of width
 		}
+		return classes.trim();
 	}
 
-	let showRegistationModal = $state(false);
-
-	let socket: WebSocket;
-
-	// Lifecycle
-	onMount(async () => {
-		if (!browser) return;
-		if (typeof window === 'undefined') return;
-		await refreshServerStatus();
-		if (!$userId && $server_status) {
-			goto('/login');
-			return;
-		}
-		if (localStorage.getItem('justRegistered') === 'true') {
-			localStorage.removeItem('justRegistered');
-			showRegistationModal = true;
-		}
-		refreshUser();
-
-		updateDimensions();
-		window.addEventListener('resize', updateDimensions);
-
-		if ($moods.length === 0) {
-			await updateMoods();
-		}
-		if ($advice.length === 0) {
-			await updateAdvice();
-		}
-		loading = false; // Stop loading after data is fetched
-	});
-
-	onDestroy(() => {
-		if (!browser) return;
-		window.removeEventListener('resize', updateDimensions);
-	});
-
-	function getDotColor(score: number) {
-		return getComputedStyle(document.documentElement)
-			.getPropertyValue(`--color-mood-${score}`)
-			.trim();
+	function isToday(date: Date) {
+		const now = new Date();
+		return (
+			date.getDate() === now.getDate() &&
+			date.getMonth() === now.getMonth() &&
+			date.getFullYear() === now.getFullYear()
+		);
 	}
-	// draw the chart
+
+	function isYesterday(date: Date) {
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+		return (
+			date.getDate() === yesterday.getDate() &&
+			date.getMonth() === yesterday.getMonth() &&
+			date.getFullYear() === yesterday.getFullYear()
+		);
+	}
+
+	// Form handling
+	function parseEmotions(input: string): string {
+		return input
+			.toLowerCase()
+			.split(',')
+			.map((phrase) => phrase.trim())
+			.filter((phrase) => phrase.length > 0)
+			.join(',');
+	}
+
+	// Chart rendering
 	$effect(() => {
-		console.log(moodMap);
 		const svg = d3.select('svg');
-
-		// Clear previous chart content
-		svg.selectAll('g').remove(); // Remove all <g> elements
-		svg.selectAll('.axis').remove(); // Remove old axes
+		svg.selectAll('g').remove();
+		svg.selectAll('.axis').remove();
 
 		const g = svg
 			.append('g')
@@ -377,7 +342,7 @@
 			return;
 		}
 
-		// mood gradient
+		// Create gradient
 		svg
 			.append('defs')
 			.append('linearGradient')
@@ -437,16 +402,13 @@
 		const xAxis = d3
 			.axisBottom(xScale)
 			.tickValues(filteredMoods.map((d) => d.date))
-			.tickFormat((dateObj) => {
-				const date = dateObj as Date;
-				return d3.timeFormat('%e')(date);
-			})
+			.tickFormat((dateObj) => d3.timeFormat('%e')(dateObj as Date))
 			.tickSizeInner(-innerHeight)
 			.tickSizeOuter(0);
 
 		const yAxis = d3.axisLeft(yScale).ticks(5);
 
-		// Draw x-axis with transition
+		// Draw axes
 		g.append('g')
 			.attr('transform', `translate(0,${innerHeight})`)
 			.attr('class', 'axis')
@@ -457,7 +419,6 @@
 			.style('opacity', 1)
 			.attr('pointer-events', 'none');
 
-		// Draw y-axis with transition
 		g.append('g')
 			.attr('class', 'axis')
 			.call(yAxis)
@@ -467,7 +428,7 @@
 			.style('opacity', 1)
 			.attr('pointer-events', 'none');
 
-		// Add area under the line
+		// Area under line
 		const area = d3
 			.area<MoodEntry>()
 			.x((d) => xScale(d.date))
@@ -481,7 +442,7 @@
 			.attr('d', area)
 			.attr('pointer-events', 'none');
 
-		// Draw circles with transitions
+		// Circles
 		const circles = g
 			.selectAll<SVGCircleElement, MoodEntry>('circle')
 			.data<MoodEntry>(filteredMoods, (d) => d.date.toISOString());
@@ -494,7 +455,7 @@
 			.attr('cx', (d) => xScale(d.date))
 			.attr('cy', (d) => yScale(d.score))
 			.attr('r', 0)
-			.attr('fill', (d) => getDotColor(d.score)) // Dynamic color
+			.attr('fill', (d) => getDotColor(d.score))
 			.style('cursor', 'pointer')
 			.on('mouseover', (event, d) => {
 				showTooltip(event, d);
@@ -512,7 +473,6 @@
 			.duration(200)
 			.attr('r', 5);
 
-		// Update existing circles
 		circles
 			.transition()
 			.duration(200)
@@ -520,71 +480,62 @@
 			.attr('cy', (d) => yScale(d.score));
 	});
 
-	// Functions
-	function parseEmotions(input: string): string {
-		return input
-			.toLowerCase()
-			.split(',')
-			.map((phrase) => phrase.trim())
-			.filter((phrase) => phrase.length > 0)
-			.join(',');
+	function getDotColor(score: number) {
+		return getComputedStyle(document.documentElement)
+			.getPropertyValue(`--color-mood-${score}`)
+			.trim();
 	}
 
-	function getDayClass(date: Date | null, moods: Map<string, MoodEntry>) {
-		let classes = '';
-		if (date instanceof Date && !isNaN(date.getDate())) {
-			const dateKey = getDateKey(date);
-			const todayKey = getDateKey(new Date());
-
-			if (dateKey === todayKey) {
-				classes += 'dark:border-white border-black ';
-			} else {
-				classes += 'border-black/10  dark:border-white/10 ';
-			}
-
-			if (moods.has(getDateKey(date))) {
-				switch (moods.get(getDateKey(date))?.score) {
-					case 1:
-						classes += 'bg-mood-1 ';
-						break;
-					case 2:
-						classes += 'bg-mood-2 ';
-						break;
-					case 3:
-						classes += 'bg-mood-3 ';
-						break;
-					case 4:
-						classes += 'bg-mood-4 ';
-						break;
-					case 5:
-						classes += 'bg-mood-5 ';
-						break;
-				}
-			} else {
-				classes += 'bg-stone-100 dark:bg-stone-800 ';
-			}
-		}
-		return classes;
-	}
-
-	// Event handlers for "previous" and "next" buttons
+	// Calendar navigation
 	function goToPreviousMonth() {
 		if (currentMonth === 0) {
-			currentMonth = 11; // Wrap to December
-			currentYear -= 1; // Move to the previous year
+			currentMonth = 11;
+			currentYear -= 1;
 		} else {
-			currentMonth -= 1; // Decrement the month
+			currentMonth -= 1;
 		}
 	}
 
 	function goToNextMonth() {
 		if (currentMonth === 11) {
-			currentMonth = 0; // Wrap to January
-			currentYear += 1; // Move to the next year
+			currentMonth = 0;
+			currentYear += 1;
 		} else {
-			currentMonth += 1; // Increment the month
+			currentMonth += 1;
 		}
 	}
+
+	// Lifecycle
+	onMount(async () => {
+		if (!browser) return;
+		if (typeof window === 'undefined') return;
+
+		await refreshServerStatus();
+
+		if (!$userId && $server_status) {
+			goto('/login');
+			return;
+		}
+
+		if (localStorage.getItem('justRegistered') === 'true') {
+			localStorage.removeItem('justRegistered');
+			showRegistationModal = true;
+		}
+
+		refreshUser();
+		updateDimensions();
+		window.addEventListener('resize', updateDimensions);
+
+		if ($moods.length === 0) await updateMoods();
+		if ($advice.length === 0) await updateAdvice();
+
+		loading = false;
+	});
+
+	onDestroy(() => {
+		if (!browser) return;
+		window.removeEventListener('resize', updateDimensions);
+	});
 </script>
 
 <svelte:head>
