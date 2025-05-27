@@ -226,7 +226,7 @@
 
 	<!-- 🔒 Overlay when registration is disabled -->
 	{#if registrationDisabled}
-		<div class="bg-opacity-60 fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+		<div class="bg-opacity-60 fixed inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
 			<p class="text-center text-xl text-white">{m.registration_disabled()}</p>
 		</div>
 	{/if}
