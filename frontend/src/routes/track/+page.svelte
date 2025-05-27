@@ -267,7 +267,7 @@
 	}
 
 	// Date helper functions
-	function getDayClass(date: Date | null, moods: Map<string, MoodEntry>) {
+	function getDayClass(date: Date | null) {
 		let classes = '';
 		if (date instanceof Date && !isNaN(date.getDate())) {
 			const dateKey = getDateKey(date);
@@ -617,7 +617,7 @@
 		{#each days as date (date)}
 			{#if date instanceof Date && !isNaN(date.getDate())}
 				<button
-					class={`${getDayClass(date, moodMap)} flex aspect-square items-center justify-center p-2 text-center text-xl transition-all duration-200 `}
+					class={`${getDayClass(date)} flex aspect-square items-center justify-center p-2 text-center text-xl transition-all duration-200 `}
 					class:border={date instanceof Date && !isNaN(date.getDate())}
 					class:hover:brightness-85={!(date > today)}
 					tabindex="0"
