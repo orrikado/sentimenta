@@ -65,22 +65,47 @@ func (s *adviceService) GenerateAdvice(userID int, date time.Time) (models.Advic
 	}
 
 	// Строим DTO
+	// Подготовим moods
 	var moods []models.MoodAdd
 	for _, m := range lastMoods {
 		moods = append(moods, models.MoodAdd{
 			Score:       m.Score,
 			Emotions:    m.Emotions,
 			Description: m.Description,
-			Date:        m.Date, // нужный формат
+			Date:        m.Date,
 		})
 	}
 
+	today := time.Now().Truncate(24 * time.Hour)
+	yesterday := today.AddDate(0, 0, -1)
+
 	var lastMood models.MoodAdd
-	if len(moods) > 0 {
-		lastMood = moods[0]
-		for _, m := range moods[1:] {
-			if m.Date.After(lastMood.Date) {
+
+	if date.Equal(yesterday) {
+		// Удалим "сегодняшний" mood из moods
+		filtered := make([]models.MoodAdd, 0, len(moods))
+		for _, m := range moods {
+			if !m.Date.Equal(today) {
+				filtered = append(filtered, m)
+			}
+		}
+		moods = filtered
+
+		// Теперь ищем lastMood среди moods, но только с датой == yesterday
+		for _, m := range moods {
+			if m.Date.Equal(yesterday) {
 				lastMood = m
+				break
+			}
+		}
+	} else {
+		// Обычное поведение: просто берём самый последний по дате
+		if len(moods) > 0 {
+			lastMood = moods[0]
+			for _, m := range moods[1:] {
+				if m.Date.After(lastMood.Date) {
+					lastMood = m
+				}
 			}
 		}
 	}
