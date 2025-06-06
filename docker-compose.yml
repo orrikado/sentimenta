@@ -1,5 +1,4 @@
 services:
-
   backend:
     build:
       dockerfile: Dockerfile
@@ -43,6 +42,9 @@ services:
       - ./data/prometheus:/prometheus
     ports:
       - "9090:9090"
+    profiles:
+      - prod
+      - metrics
     networks:
       - internal
 
@@ -60,17 +62,22 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
       - prometheus
+    profiles:
+      - prod
+      - metrics
     networks:
       - internal
 
   frontend:
-    build: 
+    build:
       dockerfile: Dockerfile
       context: ./frontend
     ports:
       - 3001:3000
     networks:
       - internal
+    profiles:
+      - prod
     env_file:
       - .env
 
@@ -80,12 +87,14 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "80:80"
+    profiles:
+      - prod
     depends_on:
       - backend
-      - frontend  # если фронт dev сервер
+      - frontend # если фронт dev сервер
     networks:
       - internal
-      
+
 networks:
   internal:
     external: false
