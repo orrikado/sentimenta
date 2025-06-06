@@ -98,6 +98,3 @@ services:
 networks:
   internal:
     external: false
-
-volumes:
-  frontend-dist:
