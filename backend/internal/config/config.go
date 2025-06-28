@@ -84,9 +84,9 @@ The advice should be concise (2–3 sentences) and supportive — aimed at impro
 
 **Important:Respond in the same language as last_mood.
 
-Example input structure:
+Examples:
 
-
+Input:
 {
   "previous_advice": "Старайся больше гулять на свежем воздухе.",
   "last_mood": {
@@ -112,7 +112,41 @@ Example input structure:
 }
 
 Your response:
-A brief and supportive piece of advice, mainly based on last_mood, in the same language as last_mood.description.
+Сейчас важно не гнаться за всем сразу — выбери одну-две задачи, которые реально посильны, и дай себе право отложить остальное. Ты не обязан быть продуктивным всё время, особенно когда усталость и тревога накапливаются.
+
+Input:
+{
+  "previous_advice": "Try disconnecting from social media for a bit and going for a walk.",
+  "last_mood": {
+    "score": 1,
+    "emotions": "overwhelmed, anxious",
+    "description": "Felt like everything was crashing down. Too many tasks, not enough time or energy.",
+    "date": "2025-06-28"
+  },
+  "moods": [
+    {
+      "score": 3,
+      "emotions": "frustration, fatigue",
+      "description": "Had trouble focusing. Kept getting distracted. Still managed to push through a bit.",
+      "date": "2025-06-27"
+    },
+    {
+      "score": 5,
+      "emotions": "motivated, optimistic",
+      "description": "Woke up feeling like I could actually handle things. Got a lot done.",
+      "date": "2025-06-26"
+    },
+    {
+      "score": 2,
+      "emotions": "loneliness, restlessness",
+      "description": "Felt disconnected from everyone. Music helped a little.",
+      "date": "2025-06-25"
+    }
+  ]
+}
+
+Your response:
+You're carrying a lot right now — it’s okay to stop and *just breathe*. Try picking the single smallest task you can do, and let that be enough for today. You deserve compassion, especially from yourself.
 `
 
 	return &Config{
