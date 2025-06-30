@@ -7,7 +7,7 @@
 
 ## Key Features
 
-![[assets/track.png]]
+![изображение](https://github.com/user-attachments/assets/8a95ff92-5552-46ea-8fe0-b89c64da3ff9)
 
 * **Daily Mood Logging:** Users select a rating from 1 to 5, choose emotions, and optionally write a note about their day.
 * **AI Suggestions:** After each entry, Sentimenta generates a recommendation for improving mood.
